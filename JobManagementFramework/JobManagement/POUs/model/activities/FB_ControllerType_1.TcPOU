@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ControllerType_1" Id="{1076d71a-3a65-40e8-9c4e-a3e9e6fe7b78}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ControllerType_1 IMPLEMENTS InterfaceFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_own_parameter: TIME;
+	process_timer: TON;
+	blink_timer: TON;
+	_result :HRESULT;
+END_VAR
+VAR_IN_OUT
+	own_output: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="execute" Id="{a437ddec-c1d7-448f-a879-d2b8cfc9472f}">
+      <Declaration><![CDATA[METHOD execute : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[blink_timer(IN := NOT blink_timer.Q, PT := T#0.5S);
+IF own_output AND blink_timer.Q THEN
+	own_output := FALSE;
+ELSIF blink_timer.Q THEN
+	own_output := TRUE;
+END_IF
+process_timer(IN := TRUE,PT := _own_parameter);
+execute := process_timer.Q;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{67f09d3d-5c6c-4b82-bc02-bd0d47e41f54}">
+      <Declaration><![CDATA[METHOD init : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[own_output := FALSE;
+process_timer(IN := FALSE);
+blink_timer(IN := FALSE);
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="own_parameter" Id="{da3dcd0a-6ea7-4769-9b14-2d35ed1ea4ae}">
+      <Declaration><![CDATA[PROPERTY own_parameter : TIME]]></Declaration>
+      <Get Name="Get" Id="{91ea83f3-ac89-44fe-88f4-aaf098638ab9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[own_parameter := _own_parameter;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6598af7b-282d-427f-83dd-91a46e26192a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_own_parameter := own_parameter;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="quit" Id="{906e42c6-5cb2-4ee4-be39-84be0bedded2}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD quit : BOOL
+VAR_INST
+	q_delay: TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.init();
+quit := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="result" Id="{2901b217-6082-4576-ab47-4317bd575f14}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY result : HRESULT
+]]></Declaration>
+      <Get Name="Get" Id="{0996b045-cce8-4088-a654-777020e9418f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[result := _result;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FB_ControllerType_1">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_1.execute">
+      <LineId Id="57" Count="1" />
+      <LineId Id="60" Count="1" />
+      <LineId Id="63" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_1.init">
+      <LineId Id="14" Count="2" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_1.own_parameter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_1.own_parameter.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_1.quit">
+      <LineId Id="19" Count="0" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_1.result.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

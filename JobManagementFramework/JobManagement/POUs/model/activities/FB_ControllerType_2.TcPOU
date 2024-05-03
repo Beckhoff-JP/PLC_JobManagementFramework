@@ -1,0 +1,140 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ControllerType_2" Id="{fcedd839-491a-4b82-962e-a6b212add423}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ControllerType_2 IMPLEMENTS InterfaceFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_own_parameter: UINT;
+	process_timer: TON;
+	blink_timer: TON;
+	_result :HRESULT;
+	_counter :UINT;
+END_VAR
+VAR_IN_OUT
+	own_input: BOOL;
+	own_output: BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="counter" Id="{d21e7cd7-0ef0-4123-a4e3-71fe9855b00a}">
+      <Declaration><![CDATA[PROPERTY counter : UINT]]></Declaration>
+      <Get Name="Get" Id="{a2a1935b-4339-4663-9b2a-10527d776baa}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[counter := _counter;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="execute" Id="{06ca504b-2230-462e-b402-b0513637b891}">
+      <Declaration><![CDATA[METHOD execute : BOOL
+VAR_INPUT
+END_VAR
+VAR_INST
+	input_memory :BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[own_output := TRUE;
+IF own_input AND NOT input_memory THEN
+	_counter := counter + 1;
+END_IF
+input_memory := own_input;
+IF _counter > _own_parameter THEN
+	execute := TRUE;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{0506fa37-b033-4ecf-a1b9-39ffd68590c2}">
+      <Declaration><![CDATA[METHOD init : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[own_output := FALSE;
+process_timer(IN := FALSE);
+blink_timer(IN := FALSE);
+_counter := 0;
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="own_parameter" Id="{44c22855-b665-42b9-9698-003553798c6b}">
+      <Declaration><![CDATA[PROPERTY own_parameter : UINT]]></Declaration>
+      <Get Name="Get" Id="{a4ce69b5-d711-41f1-b7ea-5a7f1940c7a1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[own_parameter := _own_parameter;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{20314786-f00f-435f-bd37-c1bd1124cdd5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_own_parameter := own_parameter;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="quit" Id="{77d78392-ba97-4c0d-a7ef-71aa64534b7c}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD quit : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[THIS^.init();
+quit := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="result" Id="{16e63a23-0f02-402f-9998-37a3e09307d6}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY result : HRESULT
+]]></Declaration>
+      <Get Name="Get" Id="{10902b3b-ec3f-43fc-b121-362377561d1c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[result := _result;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FB_ControllerType_2">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_2.counter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_2.execute">
+      <LineId Id="14" Count="0" />
+      <LineId Id="20" Count="2" />
+      <LineId Id="24" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_2.init">
+      <LineId Id="7" Count="1" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_2.own_parameter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_2.own_parameter.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_2.quit">
+      <LineId Id="4" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_2.result.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

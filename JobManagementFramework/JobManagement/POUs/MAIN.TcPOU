@@ -1,0 +1,86 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="MAIN" Id="{0711fc19-ddf5-4c28-b96d-7cde88b1723f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM MAIN
+VAR
+	_state :UINT;
+	fbTask1 : FB_ControllerType_1;
+	fbTask2 : FB_ControllerType_1;
+	fbTask3 : FB_ControllerType_2;
+	fbTask4 : FB_ControllerType_2;
+	component1_in : BOOL;
+	component1_out : BOOL;
+	component2_in : BOOL;
+	component2_out : BOOL;
+	component3_in : BOOL;
+	component3_out : BOOL;
+	component4_in : BOOL;
+	component4_out : BOOL;
+	serial_job1 : FB_SerialJobContainer;
+	serial_job2 : FB_SerialJobContainer;
+	serial_job3 : FB_SerialJobContainer;
+	pararel_job1 : FB_ParallelJobContainer;
+	pararel_job2 : FB_ParallelJobContainer;
+	executor : FB_Executor;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// FB_Executor.execute()メソッドは常時実行
+executor.execute();
+
+CASE _state OF
+	0:
+		// 固有パラメータ設定
+		fbTask1.own_parameter := T#3S;
+		fbTask2.own_parameter := T#10S;
+		fbTask3.own_parameter := 2;
+		fbTask4.own_parameter := 2;
+		
+		// 入出力変数の受け渡し
+		//fbTask1(own_input := component1_in, own_output := component1_out);
+		//fbTask2(own_input := component2_in, own_output := component2_out);
+		fbTask3(own_input := component3_in, own_output := component3_out);
+		fbTask4(own_input := component4_in, own_output := component4_out);
+		
+				
+		fbTask1(own_output := component1_out);
+		fbTask2(own_output := component2_out);
+		//fbTask3(own_output := component3_out);
+		//fbTask4(own_output := component4_out);
+		
+
+		
+		// futureオブジェクトの配置により実行順序を定義
+		pararel_job1.add_future(serial_job1);
+		pararel_job1.add_future(serial_job2);
+		serial_job1.add_future(fbTask1);
+		serial_job1.add_future(fbTask2);
+		serial_job2.add_future(fbTask3);
+		serial_job2.add_future(fbTask4);
+		pararel_job2.add_future(fbTask1);
+		pararel_job2.add_future(fbTask2);
+		serial_job3.add_future(pararel_job1);
+		serial_job3.add_future(pararel_job2);
+		executor.future := serial_job3;
+		_state := 1;
+	1:
+		// シーケンス開始
+		IF executor.ready THEN
+			executor.start();
+		END_IF
+		IF executor.done THEN
+			_state := 2;
+		END_IF
+	2:
+		executor.init();
+		_state := 1;
+END_CASE
+
+]]></ST>
+    </Implementation>
+    <LineIds Name="MAIN">
+      <LineId Id="1307" Count="50" />
+      <LineId Id="224" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

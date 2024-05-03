@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_Executor" Id="{09518444-1d1d-452e-9e8f-647b2f8c5e33}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Executor
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_done : BOOL;
+	_ready : BOOL;
+	_start : BOOL;
+	_state : E_FutureExecutionState;
+	_activity : InterfaceFuture;
+	_result : HRESULT;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="current_state" Id="{9bdc45ea-e038-402f-9e8e-3b1c363b70b4}">
+      <Declaration><![CDATA[PROPERTY current_state : E_FutureExecutionState]]></Declaration>
+      <Get Name="Get" Id="{6d7ef6bc-7830-4957-91e4-53fd4bd8f4ba}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[current_state := _state;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="done" Id="{4120264c-9741-4f55-a3ec-37db4b2fdd1d}">
+      <Declaration><![CDATA[PROPERTY done : BOOL]]></Declaration>
+      <Get Name="Get" Id="{adfb9284-a38c-48f0-99cc-b8f7d36d7c03}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[done := _done;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="execute" Id="{12a00ca6-fc73-4fe5-8b5c-2a7a9dcde6d1}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD execute : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _activity = 0 THEN
+	execute := TRUE;
+	RETURN;
+END_IF
+
+
+CASE _state OF
+	E_FutureExecutionState.idle: 
+		init();
+		_state := E_FutureExecutionState.init;
+	E_FutureExecutionState.init:
+		IF _activity.init() THEN
+			_ready := TRUE;
+			_state := E_FutureExecutionState.wait_for_process;
+		END_IF
+	E_FutureExecutionState.wait_for_process: 
+		IF _start THEN
+			_state := E_FutureExecutionState.process;
+		END_IF
+	E_FutureExecutionState.process: 
+		IF _activity.execute() THEN
+			IF SUCCEEDED(_activity.result) THEN
+				_state := E_FutureExecutionState.quit;
+				_done := TRUE;
+			ELSE
+				_state := E_FutureExecutionState.abort;
+			END_IF
+		END_IF
+	E_FutureExecutionState.abort:
+		// ToDo implementation
+		_result := _activity.result;
+		_state := E_FutureExecutionState.quit;
+	E_FutureExecutionState.quit:
+		IF _activity.quit() THEN
+			_state := E_FutureExecutionState.finish;
+		END_IF
+	E_FutureExecutionState.finish:
+		execute := TRUE;
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="future" Id="{a5f34e34-fd86-442a-a2b3-dcfdacffba84}">
+      <Declaration><![CDATA[PROPERTY future : InterfaceFuture]]></Declaration>
+      <Set Name="Set" Id="{1c600ba1-a530-4be6-883c-03a190a9123a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_activity := future;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="init" Id="{204f5707-ec01-4438-ae9f-8cbe74e0162c}">
+      <Declaration><![CDATA[METHOD init : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_done := FALSE;
+_ready := FALSE;
+_start := FALSE;
+_state := E_FutureExecutionState.idle;
+_result := 0;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="ready" Id="{a76eb28b-8e38-458e-b69a-c73f1b377610}">
+      <Declaration><![CDATA[PROPERTY ready : BOOL]]></Declaration>
+      <Get Name="Get" Id="{b15bc61f-5bad-464a-9e63-5e877e3aa3c7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[ready := _ready;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="result" Id="{b8e1cf4d-b2aa-4996-8037-fe94c831ada6}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY result : HRESULT
+]]></Declaration>
+      <Get Name="Get" Id="{279bd7d5-87e3-414a-919d-b55c6d45fe5f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[result := _result;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="start" Id="{fb7671b6-91ac-4f18-8e41-b81f64039055}">
+      <Declaration><![CDATA[METHOD start : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_start := _ready;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_Executor">
+      <LineId Id="32" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.current_state.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.done.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.execute">
+      <LineId Id="8" Count="3" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="13" Count="23" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="37" Count="7" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.future.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.init">
+      <LineId Id="6" Count="3" />
+      <LineId Id="13" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.ready.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.result.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.start">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

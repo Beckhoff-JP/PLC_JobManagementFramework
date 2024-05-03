@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ST_MotionData" Id="{957f2ee4-797d-497d-adf5-2f9c4f103a47}">
+    <Declaration><![CDATA[TYPE ST_MotionData :
+STRUCT
+	name: STRING;
+	position: LREAL;
+	speed: LREAL;
+	accel: LREAL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

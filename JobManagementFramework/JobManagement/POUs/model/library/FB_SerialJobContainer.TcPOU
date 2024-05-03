@@ -1,0 +1,203 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_SerialJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SerialJobContainer IMPLEMENTS InterfaceFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF FB_Executor;
+	_total_futures: UINT;
+	current_executing_future_id : UINT;
+	_executor :FB_Executor;
+	//_start : BOOL;
+	_result :HRESULT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="add_future" Id="{b9eaa379-22e0-4ad4-ac6d-bfe355dff4b3}">
+      <Declaration><![CDATA[METHOD add_future : UINT
+VAR_INPUT
+	future : InterfaceFuture;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF future <> 0 THEN
+	_total_futures := _total_futures + 1;
+	_executors[_total_futures].future := future;	
+	add_future := _total_futures;
+ELSE
+	add_future := 0;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="execute" Id="{3a50f198-985b-4ce4-97c9-3b4f8b04dcb5}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD execute : BOOL
+VAR_INST
+	i :UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO _total_futures DO
+
+	// Execute all methods
+	IF NOT FAILED(_executors[i].result) THEN
+		_executors[i].execute();
+	ELSE
+		_result := _executors[i].result;
+	END_IF
+	
+	// Execute each task step by step	
+	IF current_executing_future_id = 0 THEN		
+		IF i = 1 AND _executors[i].current_state = E_FutureExecutionState.wait_for_process AND _executors[i].ready THEN
+			current_executing_future_id := current_executing_future_id + 1;
+			_executors[i].start();
+		END_IF
+	ELSIF current_executing_future_id < _total_futures THEN
+		IF i = current_executing_future_id AND _executors[i].current_state >= E_FutureExecutionState.process AND _executors[i].done THEN
+			current_executing_future_id := current_executing_future_id + 1;
+			_executors[current_executing_future_id].start();
+		END_IF
+	ELSE
+		IF i = current_executing_future_id AND _executors[i].current_state = E_FutureExecutionState.finish AND _executors[i].done THEN
+			execute := TRUE;
+		END_IF
+	END_IF
+END_FOR
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="get_future_status" Id="{af151456-1868-47e4-8bc5-d75d1f723c8c}">
+      <Declaration><![CDATA[METHOD get_future_status : E_FutureExecutionState
+VAR_INPUT
+	task_id : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF task_id <= _total_futures THEN
+	get_future_status := _executors[task_id].current_state;
+ELSE
+	get_future_status := 0;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{5ef2a4ac-f57b-470f-97a3-ba7305857e0b}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD init : BOOL
+VAR_INST
+	i :UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO _total_futures DO
+	_executors[i].execute();
+	_executors[i].init();
+END_FOR
+current_executing_future_id := 0;
+_result := 0;
+//_start := FALSE;
+init := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="num_of_future" Id="{1758bac7-51f8-4c2f-a278-1cc2babd12b2}">
+      <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
+      <Get Name="Get" Id="{01d4fc2b-bb13-45f8-b3c8-a69f2ae79ba2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[num_of_future := _total_futures;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="quit" Id="{7bdf3f44-47c5-4d23-b936-9fe467aec209}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD quit : BOOL
+VAR_INST
+	i: UINT;
+	complete_all_task :BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[complete_all_task := TRUE;
+FOR i := 1 TO _total_futures DO
+	_executors[i].execute();
+	IF NOT (_executors[i].current_state = E_FutureExecutionState.finish) THEN
+		complete_all_task := FALSE;	
+	END_IF
+END_FOR
+quit := complete_all_task;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="result" Id="{8185f34b-cb6a-4346-850b-314d75813c56}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY result : HRESULT
+]]></Declaration>
+      <Get Name="Get" Id="{e85bd894-82e5-4c29-af51-d80a7255a3de}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[result := _result;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FB_SerialJobContainer">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SerialJobContainer.add_future">
+      <LineId Id="6" Count="2" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SerialJobContainer.execute">
+      <LineId Id="5" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="27" Count="2" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="7" Count="2" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="11" Count="7" />
+      <LineId Id="33" Count="1" />
+      <LineId Id="19" Count="1" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SerialJobContainer.get_future_status">
+      <LineId Id="16" Count="4" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SerialJobContainer.init">
+      <LineId Id="5" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="6" Count="2" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SerialJobContainer.num_of_future.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SerialJobContainer.quit">
+      <LineId Id="5" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="8" Count="2" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="15" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SerialJobContainer.result.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
