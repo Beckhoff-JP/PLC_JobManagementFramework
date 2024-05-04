@@ -16,6 +16,11 @@
               <l n="LanguageTexts" t="ArrayList" />
             </o>
             <o>
+              <v n="TextID">"815"</v>
+              <v n="TextDefault">"%1d"</v>
+              <l n="LanguageTexts" t="ArrayList" />
+            </o>
+            <o>
               <v n="TextID">"255"</v>
               <v n="TextDefault">"Label"</v>
               <l n="LanguageTexts" t="ArrayList" />

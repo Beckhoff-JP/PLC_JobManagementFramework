@@ -10,14 +10,26 @@ VAR
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF FB_Executor;
 	_total_futures: UINT;
 	current_executing_future_id : UINT;
-	_executor :FB_Executor;
-	//_start : BOOL;
+	_initialize :BOOL;
 	_result :HRESULT;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Property Name="active_futures" Id="{9999098a-1608-487f-b6dd-7a92485b152d}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY active_futures : UINT
+]]></Declaration>
+      <Get Name="Get" Id="{ba305187-045a-4583-86a7-f27b845708e1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[active_futures := current_executing_future_id;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="add_future" Id="{7731e7d8-603c-4ad1-977c-94c19c582af9}">
       <Declaration><![CDATA[METHOD add_future : UINT
 VAR_INPUT
@@ -40,38 +52,26 @@ END_IF
 METHOD execute : BOOL
 VAR_INST
 	i :UINT;
-	complete_initialize_all_task :BOOL;
 	complete_all_task :BOOL;
 	wait_for_initilize :BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[complete_all_task := TRUE;
-wait_for_initilize := FALSE;
 FOR i := 1 TO _total_futures DO
 	// Execute all methods
 	IF NOT FAILED(_executors[i].result) THEN
 		_executors[i].execute();
+		_executors[i].start();
 	ELSE
 		_result := _executors[i].result;
 	END_IF
 	
-	// initialization check
-	IF NOT (_executors[i].current_state = E_FutureExecutionState.wait_for_process) THEN
-		complete_initialize_all_task := TRUE;
-	END_IF
-	
-	IF complete_initialize_all_task THEN
-		_executors[i].start();
-	END_IF
-
-	IF _executors[i].current_state < E_FutureExecutionState.quit THEN
+	IF NOT _executors[i].done THEN
 		complete_all_task := FALSE;	
 	END_IF
-		
 END_FOR
-
-complete_initialize_all_task := NOT wait_for_initilize;
+current_executing_future_id := _total_futures;
 execute := complete_all_task;]]></ST>
       </Implementation>
     </Method>
@@ -95,18 +95,49 @@ END_IF
 METHOD init : BOOL
 VAR_INST
 	i :UINT;
+	complete_initialize_all_task :BOOL;
+	_state :UINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR i := 1 TO _total_futures DO
-	IF NOT FAILED(_executors[i].result) THEN
-		_executors[i].init();
-	ELSE
-		_result := _executors[i].result;
-	END_IF
-END_FOR
-current_executing_future_id := 0;
-_result := 0;
-init := TRUE;
+        <ST><![CDATA[complete_initialize_all_task := FALSE;
+
+CASE _state OF
+	0:
+		_initialize := TRUE;
+		FOR i := 1 TO _total_futures DO
+			IF _executors[i].current_state = E_FutureExecutionState.finish OR _executors[i].current_state = E_FutureExecutionState.idle THEN
+				_executors[i].init();
+			ELSE
+				_initialize := FALSE;
+			END_IF
+		END_FOR
+		IF _initialize THEN
+			_result := 0;
+			current_executing_future_id := 0;
+			init := FALSE;
+			_state := 1;
+		END_IF
+	1:
+		complete_initialize_all_task := TRUE;
+		FOR i := 1 TO _total_futures DO
+			IF NOT FAILED(_executors[i].result) THEN
+				_executors[i].execute();
+			ELSE
+				_result := _executors[i].result;
+			END_IF
+			// initialization check
+			IF NOT (_executors[i].current_state = E_FutureExecutionState.wait_for_process) THEN
+				complete_initialize_all_task := FALSE;
+			END_IF	
+		END_FOR
+END_CASE
+
+IF complete_initialize_all_task THEN
+	_state := 0;
+	init := TRUE;
+ELSE
+	init := FALSE;
+END_IF
 ]]></ST>
       </Implementation>
     </Method>
@@ -140,7 +171,13 @@ FOR i := 1 TO _total_futures DO
 		complete_all_task := FALSE;	
 	END_IF
 END_FOR
-quit := complete_all_task;]]></ST>
+
+IF complete_all_task THEN
+	_initialize := FALSE;
+	current_executing_future_id := 0;
+	quit := TRUE;	
+END_IF
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="result" Id="{e11c378f-8958-4239-9ae1-c4dfcb9daf49}">
@@ -159,6 +196,9 @@ END_VAR
     <LineIds Name="FB_ParallelJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
+    <LineIds Name="FB_ParallelJobContainer.active_futures.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_ParallelJobContainer.add_future">
       <LineId Id="6" Count="2" />
       <LineId Id="10" Count="0" />
@@ -168,26 +208,18 @@ END_VAR
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.execute">
       <LineId Id="47" Count="0" />
-      <LineId Id="63" Count="0" />
       <LineId Id="5" Count="0" />
       <LineId Id="23" Count="0" />
       <LineId Id="42" Count="0" />
       <LineId Id="27" Count="0" />
+      <LineId Id="85" Count="0" />
       <LineId Id="48" Count="0" />
       <LineId Id="29" Count="0" />
       <LineId Id="25" Count="0" />
       <LineId Id="46" Count="0" />
-      <LineId Id="72" Count="0" />
-      <LineId Id="60" Count="1" />
-      <LineId Id="58" Count="0" />
-      <LineId Id="71" Count="0" />
-      <LineId Id="73" Count="0" />
-      <LineId Id="75" Count="1" />
-      <LineId Id="74" Count="0" />
       <LineId Id="53" Count="2" />
-      <LineId Id="51" Count="0" />
       <LineId Id="20" Count="0" />
-      <LineId Id="68" Count="1" />
+      <LineId Id="68" Count="0" />
       <LineId Id="4" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.get_future_status">
@@ -195,14 +227,30 @@ END_VAR
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.init">
-      <LineId Id="54" Count="0" />
-      <LineId Id="69" Count="0" />
-      <LineId Id="77" Count="0" />
-      <LineId Id="71" Count="1" />
-      <LineId Id="68" Count="0" />
-      <LineId Id="58" Count="2" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="104" Count="2" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="116" Count="0" />
+      <LineId Id="146" Count="0" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="150" Count="1" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="155" Count="3" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="122" Count="2" />
+      <LineId Id="132" Count="7" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="97" Count="0" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="162" Count="1" />
+      <LineId Id="161" Count="0" />
       <LineId Id="62" Count="0" />
-      <LineId Id="11" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.num_of_future.Get">
       <LineId Id="2" Count="0" />
@@ -213,6 +261,9 @@ END_VAR
       <LineId Id="19" Count="0" />
       <LineId Id="16" Count="2" />
       <LineId Id="4" Count="0" />
+      <LineId Id="32" Count="1" />
+      <LineId Id="36" Count="1" />
+      <LineId Id="34" Count="1" />
       <LineId Id="24" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.result.Get">

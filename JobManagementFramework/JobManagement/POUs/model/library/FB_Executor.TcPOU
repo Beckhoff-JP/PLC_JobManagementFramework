@@ -10,13 +10,24 @@ VAR
 	_done : BOOL;
 	_ready : BOOL;
 	_start : BOOL;
-	_state : E_FutureExecutionState;
+	_state : E_FutureExecutionState := E_FutureExecutionState.idle;
 	_activity : InterfaceFuture;
 	_result : HRESULT;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Property Name="active_task_id" Id="{1d5492fe-a6ad-493b-953e-a8c2953cdc63}">
+      <Declaration><![CDATA[PROPERTY active_task_id : UINT]]></Declaration>
+      <Get Name="Get" Id="{6befbd93-e18a-48a2-99b9-2935f5e0112b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[active_task_id := _activity.active_futures;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="current_state" Id="{9bdc45ea-e038-402f-9e8e-3b1c363b70b4}">
       <Declaration><![CDATA[PROPERTY current_state : E_FutureExecutionState]]></Declaration>
       <Get Name="Get" Id="{6d7ef6bc-7830-4957-91e4-53fd4bd8f4ba}">
@@ -47,6 +58,8 @@ METHOD execute : BOOL
         <ST><![CDATA[IF _activity = 0 THEN
 	execute := TRUE;
 	RETURN;
+ELSE
+	execute := FALSE;
 END_IF
 
 
@@ -107,7 +120,8 @@ END_VAR
 _ready := FALSE;
 _start := FALSE;
 _state := E_FutureExecutionState.idle;
-_result := 0;]]></ST>
+_result := 0;
+INIT := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="ready" Id="{a76eb28b-8e38-458e-b69a-c73f1b377610}">
@@ -146,6 +160,9 @@ END_VAR
     <LineIds Name="FB_Executor">
       <LineId Id="32" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor.active_task_id.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.current_state.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
@@ -153,7 +170,9 @@ END_VAR
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.execute">
-      <LineId Id="8" Count="3" />
+      <LineId Id="8" Count="2" />
+      <LineId Id="50" Count="1" />
+      <LineId Id="11" Count="0" />
       <LineId Id="47" Count="0" />
       <LineId Id="13" Count="23" />
       <LineId Id="45" Count="1" />
@@ -166,6 +185,7 @@ END_VAR
     <LineIds Name="FB_Executor.init">
       <LineId Id="6" Count="3" />
       <LineId Id="13" Count="0" />
+      <LineId Id="17" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.ready.Get">
       <LineId Id="2" Count="0" />

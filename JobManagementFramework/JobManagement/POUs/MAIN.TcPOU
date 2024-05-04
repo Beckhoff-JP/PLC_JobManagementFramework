@@ -8,6 +8,10 @@ VAR
 	fbTask2 : FB_ControllerType_1;
 	fbTask3 : FB_ControllerType_2;
 	fbTask4 : FB_ControllerType_2;
+	fbTask5 : FB_ControllerType_1;
+	fbTask6 : FB_ControllerType_1;
+
+	
 	component1_in : BOOL;
 	component1_out : BOOL;
 	component2_in : BOOL;
@@ -21,34 +25,24 @@ VAR
 	serial_job3 : FB_SerialJobContainer;
 	pararel_job1 : FB_ParallelJobContainer;
 	pararel_job2 : FB_ParallelJobContainer;
-	executor : FB_Executor;
+	executor: FB_Executor;
+	execution_step: UINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[// FB_Executor.execute()メソッドは常時実行
-executor.execute();
-
-CASE _state OF
+      <ST><![CDATA[CASE _state OF
 	0:
-		// 固有パラメータ設定
+		// 固有パラメータ設
 		fbTask1.own_parameter := T#3S;
 		fbTask2.own_parameter := T#10S;
 		fbTask3.own_parameter := 2;
 		fbTask4.own_parameter := 2;
 		
 		// 入出力変数の受け渡し
-		//fbTask1(own_input := component1_in, own_output := component1_out);
-		//fbTask2(own_input := component2_in, own_output := component2_out);
-		fbTask3(own_input := component3_in, own_output := component3_out);
-		fbTask4(own_input := component4_in, own_output := component4_out);
-		
-				
 		fbTask1(own_output := component1_out);
 		fbTask2(own_output := component2_out);
-		//fbTask3(own_output := component3_out);
-		//fbTask4(own_output := component4_out);
-		
-
+		fbTask3(own_input := component3_in, own_output := component3_out);
+		fbTask4(own_input := component4_in, own_output := component4_out);
 		
 		// futureオブジェクトの配置により実行順序を定義
 		pararel_job1.add_future(serial_job1);
@@ -57,18 +51,18 @@ CASE _state OF
 		serial_job1.add_future(fbTask2);
 		serial_job2.add_future(fbTask3);
 		serial_job2.add_future(fbTask4);
-		pararel_job2.add_future(fbTask1);
-		pararel_job2.add_future(fbTask2);
+		pararel_job2.add_future(fbTask3);
+		pararel_job2.add_future(fbTask4);
 		serial_job3.add_future(pararel_job1);
 		serial_job3.add_future(pararel_job2);
 		executor.future := serial_job3;
 		_state := 1;
 	1:
-		// シーケンス開始
+		// シーケンス制御
 		IF executor.ready THEN
 			executor.start();
 		END_IF
-		IF executor.done THEN
+		IF executor.execute() THEN
 			_state := 2;
 		END_IF
 	2:
@@ -76,11 +70,26 @@ CASE _state OF
 		_state := 1;
 END_CASE
 
+execution_step := executor.active_task_id;
 ]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
-      <LineId Id="1307" Count="50" />
+      <LineId Id="1310" Count="8" />
+      <LineId Id="1459" Count="1" />
+      <LineId Id="1321" Count="1" />
+      <LineId Id="1329" Count="0" />
+      <LineId Id="1332" Count="6" />
+      <LineId Id="1418" Count="1" />
+      <LineId Id="1341" Count="1" />
+      <LineId Id="1386" Count="0" />
+      <LineId Id="1344" Count="2" />
+      <LineId Id="1348" Count="0" />
+      <LineId Id="1430" Count="1" />
+      <LineId Id="1409" Count="0" />
+      <LineId Id="1411" Count="4" />
+      <LineId Id="1356" Count="1" />
       <LineId Id="224" Count="0" />
+      <LineId Id="1421" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>
