@@ -3,6 +3,12 @@
   <Itf Name="InterfaceFuture" Id="{882bc581-e126-40c6-885e-c12ccc2f0bb9}">
     <Declaration><![CDATA[INTERFACE InterfaceFuture
 ]]></Declaration>
+    <Method Name="abort" Id="{527ff0b5-6fbb-4ad6-b3f1-4a79b5e73d86}">
+      <Declaration><![CDATA[METHOD abort : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
     <Property Name="active_futures" Id="{2d416ece-2dc1-4b01-a1fe-d0b196d80eaa}">
       <Declaration><![CDATA[PROPERTY active_futures : UINT]]></Declaration>
       <Get Name="Get" Id="{9f74c5c8-3fa8-4c0a-9b16-6bb5d20b0f71}">

@@ -21,6 +21,16 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="abort" Id="{0318e039-5936-41e7-9acc-72e5c11c7579}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD abort : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[own_output := FALSE;
+abort := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="active_futures" Id="{faf0be87-65d0-4052-a2bd-7d503c7aeb21}">
       <Declaration><![CDATA[{warning 'add property implementation'}
 PROPERTY active_futures : UINT
@@ -120,6 +130,11 @@ END_VAR
     </Property>
     <LineIds Name="FB_ControllerType_2">
       <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_2.abort">
+      <LineId Id="4" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_2.active_futures.Get">
       <LineId Id="2" Count="0" />

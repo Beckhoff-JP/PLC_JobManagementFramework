@@ -16,6 +16,25 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="abort" Id="{df529d65-dccb-41d9-a15b-0d233c35e0bc}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD abort : BOOL
+VAR_INST
+
+	complete_abort :BOOL;
+	i: UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[complete_abort := TRUE;
+FOR i := 1 TO _total_futures DO
+	_executors[i].execute();
+	IF NOT _executors[i].abort() THEN
+		complete_abort := FALSE;
+	END_IF
+END_FOR
+abort := complete_abort;]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="active_futures" Id="{4557927f-033d-40ed-9142-10cba7a26897}">
       <Declaration><![CDATA[{warning 'add property implementation'}
 PROPERTY active_futures : UINT
@@ -56,14 +75,8 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[FOR i := 1 TO _total_futures DO
-
-	// Execute all methods
-	IF NOT FAILED(_executors[i].result) THEN
-		_executors[i].execute();
-	ELSE
-		_result := _executors[i].result;
-	END_IF
-	
+	_executors[i].execute();
+	_result := _executors[i].result;
 END_FOR
 
 IF current_executing_future_id > 1 THEN
@@ -76,6 +89,11 @@ IF _executors[current_executing_future_id].current_state = E_FutureExecutionStat
 	_executors[current_executing_future_id].ready AND complete_last_proess THEN
 		_executors[current_executing_future_id].start();
 END_IF
+
+IF _executors[current_executing_future_id].current_state = E_FutureExecutionState.abort THEN
+		_executors[current_executing_future_id].start();
+END_IF
+
 
 IF _executors[current_executing_future_id].done THEN
 	IF current_executing_future_id = _total_futures THEN
@@ -176,6 +194,12 @@ END_VAR
     <LineIds Name="FB_SerialJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
+    <LineIds Name="FB_SerialJobContainer.abort">
+      <LineId Id="5" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="7" Count="3" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
     <LineIds Name="FB_SerialJobContainer.active_futures.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
@@ -188,12 +212,8 @@ END_VAR
     </LineIds>
     <LineIds Name="FB_SerialJobContainer.execute">
       <LineId Id="5" Count="0" />
-      <LineId Id="43" Count="0" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="23" Count="0" />
-      <LineId Id="27" Count="2" />
-      <LineId Id="25" Count="0" />
-      <LineId Id="44" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="28" Count="0" />
       <LineId Id="20" Count="0" />
       <LineId Id="80" Count="0" />
       <LineId Id="58" Count="0" />
@@ -204,6 +224,10 @@ END_VAR
       <LineId Id="83" Count="0" />
       <LineId Id="93" Count="0" />
       <LineId Id="87" Count="1" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="124" Count="1" />
+      <LineId Id="121" Count="0" />
       <LineId Id="101" Count="0" />
       <LineId Id="100" Count="0" />
       <LineId Id="105" Count="1" />

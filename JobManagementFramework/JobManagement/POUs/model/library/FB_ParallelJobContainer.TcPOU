@@ -17,6 +17,24 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="abort" Id="{6723fd47-ba3e-4a36-9944-cfce9135076b}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD abort : BOOL
+VAR_INST
+	complete_abort :BOOL;
+	i: UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[complete_abort := TRUE;
+FOR i := 1 TO _total_futures DO
+	_executors[i].execute();
+	IF NOT _executors[i].abort() THEN
+		complete_abort := FALSE;
+	END_IF
+END_FOR
+abort := complete_abort;]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="active_futures" Id="{9999098a-1608-487f-b6dd-7a92485b152d}">
       <Declaration><![CDATA[{warning 'add property implementation'}
 PROPERTY active_futures : UINT
@@ -60,10 +78,13 @@ END_VAR
         <ST><![CDATA[complete_all_task := TRUE;
 FOR i := 1 TO _total_futures DO
 	// Execute all methods
-	IF NOT FAILED(_executors[i].result) THEN
-		_executors[i].execute();
-		_executors[i].start();
-	ELSE
+	_executors[i].execute();
+	IF _executors[i].current_state = E_FutureExecutionState.wait_for_process OR 
+		_executors[i].current_state = E_FutureExecutionState.abort THEN
+		_executors[i].start();		
+	END_IF
+		
+	IF FAILED(_executors[i].result) THEN
 		_result := _executors[i].result;
 	END_IF
 	
@@ -196,6 +217,14 @@ END_VAR
     <LineIds Name="FB_ParallelJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
+    <LineIds Name="FB_ParallelJobContainer.abort">
+      <LineId Id="7" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
     <LineIds Name="FB_ParallelJobContainer.active_futures.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
@@ -210,10 +239,13 @@ END_VAR
       <LineId Id="47" Count="0" />
       <LineId Id="5" Count="0" />
       <LineId Id="23" Count="0" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="27" Count="0" />
-      <LineId Id="85" Count="0" />
-      <LineId Id="48" Count="0" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="111" Count="0" />
+      <LineId Id="110" Count="0" />
+      <LineId Id="109" Count="0" />
+      <LineId Id="102" Count="0" />
+      <LineId Id="100" Count="0" />
       <LineId Id="29" Count="0" />
       <LineId Id="25" Count="0" />
       <LineId Id="46" Count="0" />

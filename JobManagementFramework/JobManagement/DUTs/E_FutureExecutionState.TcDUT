@@ -10,6 +10,7 @@ TYPE E_FutureExecutionState :
 	wait_for_process,
 	process,
 	abort,
+	pause,
 	quit,
 	finish
 );

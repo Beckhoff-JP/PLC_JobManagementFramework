@@ -27,14 +27,20 @@ VAR
 	pararel_job2 : FB_ParallelJobContainer;
 	executor: FB_Executor;
 	execution_step: UINT;
+	resume: BOOL;
+	abort: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[CASE _state OF
+      <ST><![CDATA[IF abort THEN
+	executor.abort();
+END_IF
+
+CASE _state OF
 	0:
 		// 固有パラメータ設
-		fbTask1.own_parameter := T#3S;
-		fbTask2.own_parameter := T#10S;
+		fbTask1.own_parameter := T#13S;
+		fbTask2.own_parameter := T#20S;
 		fbTask3.own_parameter := 2;
 		fbTask4.own_parameter := 2;
 		
@@ -51,7 +57,7 @@ END_VAR
 		serial_job1.add_future(fbTask2);
 		serial_job2.add_future(fbTask3);
 		serial_job2.add_future(fbTask4);
-		pararel_job2.add_future(fbTask3);
+		pararel_job2.add_future(fbTask3); // 同時実行でなければ同じFutureオブジェクトを使いまわせる
 		pararel_job2.add_future(fbTask4);
 		serial_job3.add_future(pararel_job1);
 		serial_job3.add_future(pararel_job2);
@@ -59,10 +65,11 @@ END_VAR
 		_state := 1;
 	1:
 		// シーケンス制御
-		IF executor.ready THEN
+		IF (executor.current_state = E_FutureExecutionState.wait_for_process AND executor.ready) OR 
+			(executor.current_state = E_FutureExecutionState.abort AND resume) THEN
 			executor.start();
 		END_IF
-		IF executor.execute() THEN
+		IF executor.execute() AND SUCCEEDED(executor.result) THEN
 			_state := 2;
 		END_IF
 	2:
@@ -71,9 +78,14 @@ END_VAR
 END_CASE
 
 execution_step := executor.active_task_id;
-]]></ST>
+
+resume := FALSE;]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
+      <LineId Id="1526" Count="0" />
+      <LineId Id="1529" Count="0" />
+      <LineId Id="1501" Count="0" />
+      <LineId Id="1499" Count="0" />
       <LineId Id="1310" Count="8" />
       <LineId Id="1459" Count="1" />
       <LineId Id="1321" Count="1" />
@@ -83,13 +95,15 @@ execution_step := executor.active_task_id;
       <LineId Id="1341" Count="1" />
       <LineId Id="1386" Count="0" />
       <LineId Id="1344" Count="2" />
-      <LineId Id="1348" Count="0" />
+      <LineId Id="1515" Count="0" />
+      <LineId Id="1524" Count="0" />
       <LineId Id="1430" Count="1" />
       <LineId Id="1409" Count="0" />
       <LineId Id="1411" Count="4" />
       <LineId Id="1356" Count="1" />
       <LineId Id="224" Count="0" />
-      <LineId Id="1421" Count="0" />
+      <LineId Id="1510" Count="0" />
+      <LineId Id="1507" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

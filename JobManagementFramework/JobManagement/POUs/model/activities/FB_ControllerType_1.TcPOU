@@ -8,6 +8,7 @@ VAR_OUTPUT
 END_VAR
 VAR
 	_own_parameter: TIME;
+	_set_time: TIME;
 	process_timer: TON;
 	blink_timer: TON;
 	_result :HRESULT;
@@ -19,6 +20,20 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="abort" Id="{d02a02ce-eb9e-43cb-a107-d4fa0fc34c85}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD abort : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF process_timer.IN THEN
+	_set_time := process_timer.PT - process_timer.ET;
+END_IF
+process_timer(IN := FALSE);
+own_output := FALSE;
+abort := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="active_futures" Id="{d6d3ef54-ad5f-4b17-b684-2b3fb558e77a}">
       <Declaration><![CDATA[{warning 'add property implementation'}
 PROPERTY active_futures : UINT
@@ -44,7 +59,7 @@ IF own_output AND blink_timer.Q THEN
 ELSIF blink_timer.Q THEN
 	own_output := TRUE;
 END_IF
-process_timer(IN := TRUE,PT := _own_parameter);
+process_timer(IN := TRUE,PT := _set_time);
 execute := process_timer.Q;]]></ST>
       </Implementation>
     </Method>
@@ -55,6 +70,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[own_output := FALSE;
+_set_time := _own_parameter;
 process_timer(IN := FALSE);
 blink_timer(IN := FALSE);
 init := TRUE;]]></ST>
@@ -90,21 +106,30 @@ END_VAR]]></Declaration>
 quit := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="result" Id="{2901b217-6082-4576-ab47-4317bd575f14}">
+    <Property Name="result" Id="{d940a05b-457a-4571-af02-9c908c0ddd5a}">
       <Declaration><![CDATA[{warning 'add property implementation'}
 PROPERTY result : HRESULT
 ]]></Declaration>
-      <Get Name="Get" Id="{0996b045-cce8-4088-a654-777020e9418f}">
+      <Get Name="Get" Id="{f38a3ee9-4b95-4da3-b87d-09c08cdf31f1}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[result := _result;]]></ST>
+          <ST><![CDATA[]]></ST>
         </Implementation>
       </Get>
     </Property>
     <LineIds Name="FB_ControllerType_1">
       <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_1.abort">
+      <LineId Id="10" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="4" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_1.active_futures.Get">
       <LineId Id="2" Count="0" />
@@ -116,7 +141,9 @@ END_VAR
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_1.init">
-      <LineId Id="14" Count="2" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="15" Count="1" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_1.own_parameter.Get">
