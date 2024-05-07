@@ -29,17 +29,17 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="nErrorID" Id="{091e3808-1f21-4039-8bcc-e07988c843df}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{3dfc56f5-414c-4e9f-8318-d6a9044e8070}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
     <Method Name="quit" Id="{12e3433d-9567-4756-bdca-54fc6f4c2614}">
       <Declaration><![CDATA[METHOD quit : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
-    <Property Name="result" Id="{091e3808-1f21-4039-8bcc-e07988c843df}">
-      <Declaration><![CDATA[PROPERTY result : HRESULT]]></Declaration>
-      <Get Name="Get" Id="{3dfc56f5-414c-4e9f-8318-d6a9044e8070}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
   </Itf>
 </TcPlcObject>

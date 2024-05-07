@@ -10,7 +10,7 @@ VAR
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF FB_Executor;
 	_total_futures: UINT;
 	current_executing_future_id : UINT;
-	_result :HRESULT;
+	_error_id :UDINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -76,7 +76,7 @@ END_VAR
       <Implementation>
         <ST><![CDATA[FOR i := 1 TO _total_futures DO
 	_executors[i].execute();
-	_result := _executors[i].result;
+	_error_id := _executors[i].nErrorID;
 END_FOR
 
 IF current_executing_future_id > 1 THEN
@@ -139,10 +139,23 @@ FOR i := 1 TO _total_futures DO
 	_executors[i].init();
 END_FOR
 current_executing_future_id := 1;
-_result := 0;
+_error_id := 0;
 init := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="nErrorID" Id="{8185f34b-cb6a-4346-850b-314d75813c56}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY nErrorID : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{e85bd894-82e5-4c29-af51-d80a7255a3de}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="num_of_future" Id="{1758bac7-51f8-4c2f-a278-1cc2babd12b2}">
       <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
       <Get Name="Get" Id="{01d4fc2b-bb13-45f8-b3c8-a69f2ae79ba2}">
@@ -178,19 +191,6 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="result" Id="{8185f34b-cb6a-4346-850b-314d75813c56}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY result : HRESULT
-]]></Declaration>
-      <Get Name="Get" Id="{e85bd894-82e5-4c29-af51-d80a7255a3de}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[result := _result;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <LineIds Name="FB_SerialJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
@@ -255,6 +255,9 @@ END_VAR
       <LineId Id="4" Count="0" />
       <LineId Id="12" Count="0" />
     </LineIds>
+    <LineIds Name="FB_SerialJobContainer.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_SerialJobContainer.num_of_future.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
@@ -267,9 +270,6 @@ END_VAR
       <LineId Id="24" Count="2" />
       <LineId Id="23" Count="0" />
       <LineId Id="15" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_SerialJobContainer.result.Get">
-      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

@@ -69,7 +69,7 @@ CASE _state OF
 			(executor.current_state = E_FutureExecutionState.abort AND resume) THEN
 			executor.start();
 		END_IF
-		IF executor.execute() AND SUCCEEDED(executor.result) THEN
+		IF executor.execute() AND executor.nErrorID = 0 THEN
 			_state := 2;
 		END_IF
 	2:

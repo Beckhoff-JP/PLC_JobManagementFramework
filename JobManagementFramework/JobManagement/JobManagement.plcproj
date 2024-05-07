@@ -16,6 +16,63 @@
     <Implicit_KindOfTask>{66c3ffb1-0faa-4ba3-89a0-5c7b620ead66}</Implicit_KindOfTask>
     <Implicit_Jitter_Distribution>{9f9dd1b0-f27b-4934-9262-5d7f1074af44}</Implicit_Jitter_Distribution>
     <LibraryReferences>{372a7c92-a50d-4214-8f2a-b977fc2cb5cf}</LibraryReferences>
+    <Company>Bekchoff Automation K.K.</Company>
+    <Released>false</Released>
+    <Title>JobManagementFramework</Title>
+    <ProjectVersion>1.0.0.1</ProjectVersion>
+    <DefaultNamespace>bajp_jobmgmt</DefaultNamespace>
+    <Author>Takashi Ichihashi</Author>
+    <DocFormat>reStructuredText</DocFormat>
+    <LibraryCategories>
+      <LibraryCategory xmlns="">
+        <Id>{f484dac6-21b6-4d52-a832-fa3cc2ceea83}</Id>
+        <Version>1.0.0.0</Version>
+        <DefaultName>Beckhoff-JP</DefaultName>
+      </LibraryCategory>
+      <LibraryCategory xmlns="">
+        <Id>{e42e9899-3114-40a3-911f-5f44e2769932}</Id>
+        <Version>1.0.0.0</Version>
+        <ParentCategory>
+          <Id>{f484dac6-21b6-4d52-a832-fa3cc2ceea83}</Id>
+        </ParentCategory>
+        <DefaultName>SystemDiagnostics</DefaultName>
+      </LibraryCategory>
+      <LibraryCategory xmlns="">
+        <Id>{1547e2ea-7ffb-4c94-becc-56f97d1a03bd}</Id>
+        <Version>1.0.0.0</Version>
+        <ParentCategory>
+          <Id>{e42e9899-3114-40a3-911f-5f44e2769932}</Id>
+        </ParentCategory>
+        <DefaultName>IPCPerformance</DefaultName>
+      </LibraryCategory>
+      <LibraryCategory xmlns="">
+        <Id>{ebb42e0a-ab3e-4c49-880e-9e854060901d}</Id>
+        <Version>1.0.0.0</Version>
+        <ParentCategory>
+          <Id>{f484dac6-21b6-4d52-a832-fa3cc2ceea83}</Id>
+        </ParentCategory>
+        <DefaultName>Utility</DefaultName>
+      </LibraryCategory>
+      <LibraryCategory xmlns="">
+        <Id>{ab7100c0-0ae5-4ef5-9877-820273efdc4e}</Id>
+        <Version>1.0.0.0</Version>
+        <ParentCategory>
+          <Id>{ebb42e0a-ab3e-4c49-880e-9e854060901d}</Id>
+        </ParentCategory>
+        <DefaultName>DataBase</DefaultName>
+      </LibraryCategory>
+      <LibraryCategory xmlns="">
+        <Id>{36e0796a-fe77-4402-a334-f23377a474d0}</Id>
+        <Version>1.0.0.0</Version>
+        <ParentCategory>
+          <Id>{ab7100c0-0ae5-4ef5-9877-820273efdc4e}</Id>
+        </ParentCategory>
+        <DefaultName>InfluxDB</DefaultName>
+      </LibraryCategory>
+    </LibraryCategories>
+    <SelectedLibraryCategories>
+      <Id xmlns="">{ebb42e0a-ab3e-4c49-880e-9e854060901d}</Id>
+    </SelectedLibraryCategories>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DUTs\E_FutureExecutionState.TcDUT">

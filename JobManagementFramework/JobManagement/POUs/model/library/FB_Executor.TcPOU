@@ -14,7 +14,7 @@ VAR
 	_state : E_FutureExecutionState := E_FutureExecutionState.idle;
 	_last_state  :E_FutureExecutionState;
 	_activity : InterfaceFuture;
-	_result : HRESULT;
+	_error_id : UDINT;
 	_aborting :BOOL;
 END_VAR]]></Declaration>
     <Implementation>
@@ -83,11 +83,11 @@ CASE _state OF
 		_state := E_FutureExecutionState.init;
 	E_FutureExecutionState.init:
 		IF _activity.init() THEN
-			IF SUCCEEDED(_activity.result) THEN
+			IF _activity.nErrorID = 0 THEN
 				_ready := TRUE;
 				_state := E_FutureExecutionState.wait_for_process;
 			ELSE
-				_result := _activity.result;
+				_error_id := _activity.nErrorID;
 				_state := E_FutureExecutionState.abort;
 				_aborting := TRUE;
 			END_IF
@@ -99,11 +99,11 @@ CASE _state OF
 		END_IF
 	E_FutureExecutionState.process: 
 		IF _activity.execute() THEN
-			IF SUCCEEDED(_activity.result) THEN
+			IF _activity.nErrorID = 0 THEN
 				_state := E_FutureExecutionState.quit;
 				_done := TRUE;
 			ELSE
-				_result := _activity.result;
+				_error_id := _activity.nErrorID;
 				_state := E_FutureExecutionState.abort;
 				_aborting := TRUE;
 			END_IF
@@ -113,22 +113,22 @@ CASE _state OF
 			_aborting := FALSE;
 		END_IF
 		IF _start AND NOT _aborting THEN
-			_result := 0;
+			_error_id := 0;
 			_state := _last_state;
 			_start := FALSE;
 		END_IF
 	E_FutureExecutionState.quit:
 		IF _activity.quit() THEN
-			IF SUCCEEDED(_activity.result) THEN
+			IF _activity.nErrorID = 0 THEN
 				_state := E_FutureExecutionState.finish;
 			ELSE
-				_result := _activity.result;
+				_error_id := _activity.nErrorID;
 				_state := E_FutureExecutionState.abort;
 				_aborting := TRUE;
 			END_IF
 		END_IF
 	E_FutureExecutionState.finish:
-		_result := 0;
+		_error_id := 0;
 		execute := TRUE;
 END_CASE
 
@@ -139,7 +139,7 @@ IF _abort AND (
 		)THEN
 	_state := E_FutureExecutionState.abort;
 	_aborting := TRUE;
-	_result := -1;
+	_error_id := 16#FFFFFFFF;
 END_IF
 
 _abort := FALSE;
@@ -172,7 +172,7 @@ END_VAR
 _ready := FALSE;
 _start := FALSE;
 _state := E_FutureExecutionState.idle;
-_result := 0;
+_error_id := 0;
 INIT := TRUE;]]></ST>
       </Implementation>
     </Method>
@@ -187,6 +187,19 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Property Name="nErrorID" Id="{b8e1cf4d-b2aa-4996-8037-fe94c831ada6}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY nErrorID : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{279bd7d5-87e3-414a-919d-b55c6d45fe5f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="ready" Id="{a76eb28b-8e38-458e-b69a-c73f1b377610}">
       <Declaration><![CDATA[PROPERTY ready : BOOL]]></Declaration>
       <Get Name="Get" Id="{b15bc61f-5bad-464a-9e63-5e877e3aa3c7}">
@@ -198,26 +211,13 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Property Name="result" Id="{b8e1cf4d-b2aa-4996-8037-fe94c831ada6}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY result : HRESULT
-]]></Declaration>
-      <Get Name="Get" Id="{279bd7d5-87e3-414a-919d-b55c6d45fe5f}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[result := _result;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Method Name="start" Id="{fb7671b6-91ac-4f18-8e41-b81f64039055}">
       <Declaration><![CDATA[METHOD start : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_result := 0;
+        <ST><![CDATA[_error_id := 0;
 _start := _ready;]]></ST>
       </Implementation>
     </Method>
@@ -292,10 +292,10 @@ _start := _ready;]]></ST>
     <LineIds Name="FB_Executor.last_state.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Executor.ready.Get">
+    <LineIds Name="FB_Executor.nErrorID.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Executor.result.Get">
+    <LineIds Name="FB_Executor.ready.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.start">
