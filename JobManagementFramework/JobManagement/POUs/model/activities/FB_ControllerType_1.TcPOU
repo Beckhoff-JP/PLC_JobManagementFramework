@@ -12,10 +12,11 @@ VAR
 	process_timer: TON;
 	blink_timer: TON;
 	_result :UDINT;
+	_own_output: POINTER TO BOOL;
 END_VAR
-VAR_IN_OUT
-	own_output: BOOL;
-END_VAR
+//VAR_IN_OUT
+//	own_output: BOOL;
+//END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -29,7 +30,7 @@ METHOD abort : BOOL
 	_set_time := process_timer.PT - process_timer.ET;
 END_IF
 process_timer(IN := FALSE);
-own_output := FALSE;
+_own_output^ := FALSE;
 abort := TRUE;
 ]]></ST>
       </Implementation>
@@ -54,10 +55,10 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[blink_timer(IN := NOT blink_timer.Q, PT := T#0.5S);
-IF own_output AND blink_timer.Q THEN
-	own_output := FALSE;
+IF _own_output^ AND blink_timer.Q THEN
+	_own_output^ := FALSE;
 ELSIF blink_timer.Q THEN
-	own_output := TRUE;
+	_own_output^ := TRUE;
 END_IF
 process_timer(IN := TRUE,PT := _set_time);
 execute := process_timer.Q;]]></ST>
@@ -69,7 +70,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[own_output := FALSE;
+        <ST><![CDATA[_own_output^ := FALSE;
 _set_time := _own_parameter;
 process_timer(IN := FALSE);
 blink_timer(IN := FALSE);
@@ -88,6 +89,17 @@ END_VAR
           <ST><![CDATA[]]></ST>
         </Implementation>
       </Get>
+    </Property>
+    <Property Name="own_output" Id="{2295a85b-9376-4fc8-b085-e01f4425b124}">
+      <Declaration><![CDATA[PROPERTY own_output : REFERENCE TO BOOL]]></Declaration>
+      <Set Name="Set" Id="{e86570c8-396d-4fc0-9e05-2ad72049042f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_own_output := ADR(own_output);]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Property Name="own_parameter" Id="{da3dcd0a-6ea7-4769-9b14-2d35ed1ea4ae}">
       <Declaration><![CDATA[PROPERTY own_parameter : TIME]]></Declaration>
@@ -147,6 +159,9 @@ quit := TRUE;]]></ST>
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_1.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ControllerType_1.own_output.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_1.own_parameter.Get">

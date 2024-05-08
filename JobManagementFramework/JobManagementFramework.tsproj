@@ -11,7 +11,7 @@
 		</System>
 		<Plc>
 			<Project GUID="{14A16199-AC25-482B-A6DB-DF484965E4FB}" Name="JobManagement" PrjFilePath="JobManagement\JobManagement.plcproj" TmcFilePath="JobManagement\JobManagement.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="JobManagement\JobManagement.tmc" TmcHash="{4A8635DD-800B-CD0D-6695-D741D6C58692}">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcPath="JobManagement\JobManagement.tmc" TmcHash="{E48FE0F4-6526-62B4-D1BD-F9CB4E06BC0F}">
 					<Name>JobManagement Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Contexts>

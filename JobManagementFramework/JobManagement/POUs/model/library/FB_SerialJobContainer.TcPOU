@@ -55,7 +55,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF future <> 0 THEN
+        <ST><![CDATA[IF future <> 0 AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
 	_total_futures := _total_futures + 1;
 	_executors[_total_futures].future := future;	
 	add_future := _total_futures;
@@ -126,18 +126,25 @@ END_IF
 METHOD init : BOOL
 VAR_INST
 	i :UINT;
+	possible_to_start :BOOL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[
+        <ST><![CDATA[possible_to_start := TRUE;
 FOR i := 1 TO _total_futures DO
 	IF _executors[i].current_state <> E_FutureExecutionState.finish AND _executors[i].current_state <> E_FutureExecutionState.idle THEN
-		init := FALSE;
-		current_executing_future_id := 0;
-		RETURN;
+		possible_to_start := FALSE;
 	END_IF
-	_executors[i].execute();
+END_FOR
+
+IF NOT possible_to_start THEN
+	init := FALSE;
+	RETURN;
+END_IF
+
+FOR i := 1 TO _total_futures DO
 	_executors[i].init();
 END_FOR
+
 current_executing_future_id := 1;
 _error_id := 0;
 init := TRUE;]]></ST>
@@ -243,15 +250,19 @@ END_IF
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_SerialJobContainer.init">
-      <LineId Id="19" Count="0" />
+      <LineId Id="36" Count="0" />
       <LineId Id="5" Count="0" />
-      <LineId Id="23" Count="1" />
-      <LineId Id="27" Count="0" />
-      <LineId Id="26" Count="0" />
-      <LineId Id="25" Count="0" />
-      <LineId Id="14" Count="0" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="7" Count="1" />
+      <LineId Id="23" Count="2" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="42" Count="1" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="44" Count="1" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="32" Count="0" />
       <LineId Id="4" Count="0" />
       <LineId Id="12" Count="0" />
     </LineIds>

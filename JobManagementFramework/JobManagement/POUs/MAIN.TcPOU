@@ -45,8 +45,10 @@ CASE _state OF
 		fbTask4.own_parameter := 2;
 		
 		// 入出力変数の受け渡し
-		fbTask1(own_output := component1_out);
-		fbTask2(own_output := component2_out);
+		//fbTask1(own_output := component1_out);
+		//fbTask2(own_output := component2_out);
+		fbTask1.own_output REF= component1_out;
+		fbTask2.own_output REF= component2_out;
 		fbTask3(own_input := component3_in, own_output := component3_out);
 		fbTask4(own_input := component4_in, own_output := component4_out);
 		
@@ -88,6 +90,7 @@ resume := FALSE;]]></ST>
       <LineId Id="1499" Count="0" />
       <LineId Id="1310" Count="8" />
       <LineId Id="1459" Count="1" />
+      <LineId Id="1559" Count="1" />
       <LineId Id="1321" Count="1" />
       <LineId Id="1329" Count="0" />
       <LineId Id="1332" Count="6" />

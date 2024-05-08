@@ -55,7 +55,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF future <> 0 THEN
+        <ST><![CDATA[IF future <> 0 AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
 	_total_futures := _total_futures + 1;
 	_executors[_total_futures].future := future;	
 	add_future := _total_futures;
