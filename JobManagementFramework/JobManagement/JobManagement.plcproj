@@ -109,6 +109,9 @@
     <Compile Include="POUs\model\library\FB_ParallelJobContainer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\InterfaceContainer.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\InterfaceFuture.TcIO">
       <SubType>Code</SubType>
     </Compile>

@@ -80,7 +80,6 @@ CASE _state OF
 END_CASE
 
 execution_step := executor.active_task_id;
-
 resume := FALSE;]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
@@ -105,7 +104,6 @@ resume := FALSE;]]></ST>
       <LineId Id="1411" Count="4" />
       <LineId Id="1356" Count="1" />
       <LineId Id="224" Count="0" />
-      <LineId Id="1510" Count="0" />
       <LineId Id="1507" Count="0" />
     </LineIds>
   </POU>

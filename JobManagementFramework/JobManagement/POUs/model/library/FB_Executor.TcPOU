@@ -16,6 +16,7 @@ VAR
 	_activity : InterfaceFuture;
 	_error_id : UDINT;
 	_aborting :BOOL;
+	_interface_container : InterfaceContainer := 0;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -37,7 +38,10 @@ abort := NOT _aborting;]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[active_task_id := _activity.active_futures;]]></ST>
+          <ST><![CDATA[IF __QUERYINTERFACE(_activity, _interface_container) THEN
+	active_task_id := _interface_container.active_futures;	
+END_IF
+]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -228,6 +232,7 @@ _start := _ready;]]></ST>
       <LineId Id="5" Count="1" />
     </LineIds>
     <LineIds Name="FB_Executor.active_task_id.Get">
+      <LineId Id="5" Count="2" />
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.current_state.Get">
@@ -249,7 +254,9 @@ _start := _ready;]]></ST>
       <LineId Id="78" Count="0" />
       <LineId Id="22" Count="3" />
       <LineId Id="92" Count="0" />
-      <LineId Id="26" Count="6" />
+      <LineId Id="26" Count="1" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="29" Count="3" />
       <LineId Id="55" Count="0" />
       <LineId Id="100" Count="0" />
       <LineId Id="118" Count="0" />

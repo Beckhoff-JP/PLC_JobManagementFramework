@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="InterfaceContainer" Id="{24bfec70-0f3a-4ec1-a89e-5407d9c94d6d}">
+    <Declaration><![CDATA[INTERFACE InterfaceContainer EXTENDS __SYSTEM.IQueryInterface 
+]]></Declaration>
+    <Property Name="active_futures" Id="{2d416ece-2dc1-4b01-a1fe-d0b196d80eaa}">
+      <Declaration><![CDATA[PROPERTY active_futures : UINT]]></Declaration>
+      <Get Name="Get" Id="{9f74c5c8-3fa8-4c0a-9b16-6bb5d20b0f71}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="num_of_future" Id="{f8eb50f2-28cd-44d4-9501-560037cfcc71}">
+      <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
+      <Get Name="Get" Id="{9e329e0b-c0dd-4e74-8ae7-beef2f01ea63}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="reset_sub_futures" Id="{2b4aedc3-0b4d-4f4c-b2aa-df9f403a1db1}">
+      <Declaration><![CDATA[METHOD reset_sub_futures : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

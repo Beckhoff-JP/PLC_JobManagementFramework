@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="FB_SerialJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_SerialJobContainer IMPLEMENTS InterfaceFuture
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_SerialJobContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -198,6 +198,14 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="reset_sub_futures" Id="{77dfde03-e918-47ca-a26c-b18262548c3b}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD reset_sub_futures : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_total_futures := 0;]]></ST>
+      </Implementation>
+    </Method>
     <LineIds Name="FB_SerialJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
@@ -281,6 +289,9 @@ END_IF
       <LineId Id="24" Count="2" />
       <LineId Id="23" Count="0" />
       <LineId Id="15" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_SerialJobContainer.reset_sub_futures">
+      <LineId Id="4" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

@@ -35,19 +35,6 @@ abort := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="active_futures" Id="{d6d3ef54-ad5f-4b17-b684-2b3fb558e77a}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY active_futures : UINT
-]]></Declaration>
-      <Get Name="Get" Id="{6ebbccc3-96a2-4fb8-a3da-9a709fb13153}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Method Name="execute" Id="{a437ddec-c1d7-448f-a879-d2b8cfc9472f}">
       <Declaration><![CDATA[METHOD execute : BOOL
 VAR_INPUT
@@ -142,9 +129,6 @@ quit := TRUE;]]></ST>
       <LineId Id="4" Count="0" />
       <LineId Id="6" Count="0" />
       <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ControllerType_1.active_futures.Get">
-      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_1.execute">
       <LineId Id="57" Count="1" />
