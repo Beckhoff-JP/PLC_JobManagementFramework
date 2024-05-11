@@ -22,6 +22,8 @@ VAR
 	component4_out : BOOL;
 	serial_job1 : FB_SerialJobContainer;
 	serial_job2 : FB_SerialJobContainer;
+	serial_job2_1 : FB_SerialJobContainer;
+	serial_job2_2 : FB_SerialJobContainer;
 	serial_job3 : FB_SerialJobContainer;
 	pararel_job1 : FB_ParallelJobContainer;
 	pararel_job2 : FB_ParallelJobContainer;
@@ -57,8 +59,12 @@ CASE _state OF
 		pararel_job1.add_future(serial_job2);
 		serial_job1.add_future(fbTask1);
 		serial_job1.add_future(fbTask2);
-		serial_job2.add_future(fbTask3);
-		serial_job2.add_future(fbTask4);
+		serial_job2.add_future(serial_job2_1);
+		serial_job2.add_future(serial_job2_2);
+		serial_job2_1.add_future(fbTask3);
+		serial_job2_1.add_future(fbTask4);
+		serial_job2_2.add_future(fbTask3);
+		serial_job2_2.add_future(fbTask4);
 		pararel_job2.add_future(fbTask3); // 同時実行でなければ同じFutureオブジェクトを使いまわせる
 		pararel_job2.add_future(fbTask4);
 		serial_job3.add_future(pararel_job1);
@@ -93,6 +99,7 @@ resume := FALSE;]]></ST>
       <LineId Id="1321" Count="1" />
       <LineId Id="1329" Count="0" />
       <LineId Id="1332" Count="6" />
+      <LineId Id="1594" Count="3" />
       <LineId Id="1418" Count="1" />
       <LineId Id="1341" Count="1" />
       <LineId Id="1386" Count="0" />

@@ -14,9 +14,6 @@ VAR
 	_result :UDINT;
 	_own_output: POINTER TO BOOL;
 END_VAR
-//VAR_IN_OUT
-//	own_output: BOOL;
-//END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>

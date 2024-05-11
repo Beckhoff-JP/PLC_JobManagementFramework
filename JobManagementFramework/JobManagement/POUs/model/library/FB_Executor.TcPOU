@@ -13,7 +13,7 @@ VAR
 	_abort : BOOL;
 	_state : E_FutureExecutionState := E_FutureExecutionState.idle;
 	_last_state  :E_FutureExecutionState;
-	_activity : InterfaceFuture;
+	_future : InterfaceFuture;
 	_error_id : UDINT;
 	_aborting :BOOL;
 	_interface_container : InterfaceContainer := 0;
@@ -27,8 +27,19 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_abort := TRUE;
-abort := NOT _aborting;]]></ST>
+        <ST><![CDATA[IF _state = E_FutureExecutionState.init OR
+   _state = E_FutureExecutionState.process OR
+   _state = E_FutureExecutionState.quit THEN
+	_abort := TRUE;	
+END_IF
+
+IF 	_abort THEN
+	abort := NOT _aborting;
+ELSE
+	abort := TRUE;
+END_IF
+
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="active_task_id" Id="{1d5492fe-a6ad-493b-953e-a8c2953cdc63}">
@@ -38,7 +49,7 @@ abort := NOT _aborting;]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IF __QUERYINTERFACE(_activity, _interface_container) THEN
+          <ST><![CDATA[IF __QUERYINTERFACE(_future, _interface_container) THEN
 	active_task_id := _interface_container.active_futures;	
 END_IF
 ]]></ST>
@@ -74,26 +85,34 @@ VAR_INST
 	_state_mem :E_FutureExecutionState;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF _activity = 0 THEN
+        <ST><![CDATA[IF _future = 0 THEN
 	execute := TRUE;
 	RETURN;
 ELSE
 	execute := FALSE;
 END_IF
 
+
+IF _abort THEN
+	_state := E_FutureExecutionState.abort;
+	_error_id := 16#FFFFFFFF;
+END_IF
+
+_abort := FALSE;
+
+
 CASE _state OF
 	E_FutureExecutionState.idle: 
 		init();
 		_state := E_FutureExecutionState.init;
 	E_FutureExecutionState.init:
-		IF _activity.init() THEN
-			IF _activity.nErrorID = 0 THEN
+		IF _future.init() THEN
+			IF _future.nErrorID = 0 THEN
 				_ready := TRUE;
 				_state := E_FutureExecutionState.wait_for_process;
 			ELSE
-				_error_id := _activity.nErrorID;
+				_error_id := _future.nErrorID;
 				_state := E_FutureExecutionState.abort;
-				_aborting := TRUE;
 			END_IF
 		END_IF
 	E_FutureExecutionState.wait_for_process: 
@@ -102,57 +121,55 @@ CASE _state OF
 			_start := FALSE;
 		END_IF
 	E_FutureExecutionState.process: 
-		IF _activity.execute() THEN
-			IF _activity.nErrorID = 0 THEN
+		IF _future.execute() THEN
+			IF _future.nErrorID = 0 THEN
 				_state := E_FutureExecutionState.quit;
 				_done := TRUE;
 			ELSE
-				_error_id := _activity.nErrorID;
+				_error_id := _future.nErrorID;
 				_state := E_FutureExecutionState.abort;
-				_aborting := TRUE;
 			END_IF
 		END_IF
 	E_FutureExecutionState.abort:
-		IF _aborting AND _activity.abort() THEN
+		IF _aborting AND _future.abort() THEN
 			_aborting := FALSE;
 		END_IF
 		IF _start AND NOT _aborting THEN
-			_error_id := 0;
 			_state := _last_state;
+			_start := FALSE;
+		ELSE
 			_start := FALSE;
 		END_IF
 	E_FutureExecutionState.quit:
-		IF _activity.quit() THEN
-			IF _activity.nErrorID = 0 THEN
+		IF _future.quit() THEN
+			IF _future.nErrorID = 0 THEN
 				_state := E_FutureExecutionState.finish;
 			ELSE
-				_error_id := _activity.nErrorID;
+				_error_id := _future.nErrorID;
 				_state := E_FutureExecutionState.abort;
-				_aborting := TRUE;
 			END_IF
 		END_IF
 	E_FutureExecutionState.finish:
-		_error_id := 0;
 		execute := TRUE;
 END_CASE
 
-IF _abort AND (
-				_state = E_FutureExecutionState.init OR
-				_state = E_FutureExecutionState.process OR
-				_state = E_FutureExecutionState.quit
-		)THEN
-	_state := E_FutureExecutionState.abort;
-	_aborting := TRUE;
-	_error_id := 16#FFFFFFFF;
-END_IF
-
-_abort := FALSE;
-
 IF _state <> _state_mem THEN
 	_last_state := _state_mem;
+
+	IF _state = E_FutureExecutionState.init OR 
+		_state = E_FutureExecutionState.process OR 
+		_state = E_FutureExecutionState.quit THEN
+		_error_id := 0;
+	END_IF
+	IF _state = E_FutureExecutionState.abort THEN
+		_aborting := TRUE;		
+	END_IF
+
 END_IF
 
-_state_mem := _state;]]></ST>
+_state_mem := _state;
+
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="future" Id="{a5f34e34-fd86-442a-a2b3-dcfdacffba84}">
@@ -162,7 +179,7 @@ _state_mem := _state;]]></ST>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_activity := future;]]></ST>
+          <ST><![CDATA[_future := future;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -173,6 +190,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[_done := FALSE;
+_abort := FALSE;
 _ready := FALSE;
 _start := FALSE;
 _state := E_FutureExecutionState.idle;
@@ -221,15 +239,24 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_error_id := 0;
-_start := _ready;]]></ST>
+        <ST><![CDATA[_start := TRUE;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FB_Executor">
       <LineId Id="32" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.abort">
-      <LineId Id="5" Count="1" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="22" Count="1" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="6" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.active_task_id.Get">
       <LineId Id="5" Count="2" />
@@ -245,12 +272,18 @@ _start := _ready;]]></ST>
       <LineId Id="8" Count="2" />
       <LineId Id="50" Count="1" />
       <LineId Id="11" Count="0" />
-      <LineId Id="13" Count="6" />
+      <LineId Id="155" Count="0" />
+      <LineId Id="157" Count="0" />
+      <LineId Id="162" Count="1" />
+      <LineId Id="165" Count="3" />
+      <LineId Id="156" Count="0" />
+      <LineId Id="13" Count="3" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="18" Count="1" />
       <LineId Id="75" Count="0" />
       <LineId Id="20" Count="1" />
       <LineId Id="76" Count="0" />
       <LineId Id="122" Count="1" />
-      <LineId Id="94" Count="0" />
       <LineId Id="78" Count="0" />
       <LineId Id="22" Count="3" />
       <LineId Id="92" Count="0" />
@@ -259,40 +292,43 @@ _start := _ready;]]></ST>
       <LineId Id="29" Count="3" />
       <LineId Id="55" Count="0" />
       <LineId Id="100" Count="0" />
-      <LineId Id="118" Count="0" />
       <LineId Id="34" Count="2" />
       <LineId Id="117" Count="0" />
       <LineId Id="120" Count="1" />
-      <LineId Id="113" Count="3" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="115" Count="1" />
+      <LineId Id="169" Count="1" />
       <LineId Id="112" Count="0" />
       <LineId Id="38" Count="1" />
       <LineId Id="81" Count="0" />
       <LineId Id="40" Count="0" />
       <LineId Id="82" Count="0" />
       <LineId Id="124" Count="1" />
-      <LineId Id="106" Count="0" />
       <LineId Id="85" Count="0" />
-      <LineId Id="41" Count="1" />
-      <LineId Id="95" Count="0" />
-      <LineId Id="43" Count="1" />
-      <LineId Id="72" Count="1" />
-      <LineId Id="130" Count="2" />
-      <LineId Id="129" Count="0" />
-      <LineId Id="127" Count="0" />
-      <LineId Id="109" Count="0" />
-      <LineId Id="93" Count="0" />
-      <LineId Id="87" Count="0" />
-      <LineId Id="134" Count="0" />
-      <LineId Id="133" Count="0" />
-      <LineId Id="66" Count="3" />
+      <LineId Id="41" Count="3" />
+      <LineId Id="66" Count="2" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="179" Count="1" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="182" Count="0" />
+      <LineId Id="177" Count="0" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="189" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="69" Count="0" />
       <LineId Id="65" Count="0" />
       <LineId Id="60" Count="0" />
+      <LineId Id="172" Count="0" />
+      <LineId Id="175" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.future.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.init">
-      <LineId Id="6" Count="3" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="7" Count="2" />
       <LineId Id="13" Count="0" />
       <LineId Id="17" Count="0" />
     </LineIds>
@@ -306,7 +342,6 @@ _start := _ready;]]></ST>
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.start">
-      <LineId Id="9" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
   </POU>

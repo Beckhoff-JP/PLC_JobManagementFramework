@@ -78,12 +78,15 @@ END_VAR
         <ST><![CDATA[complete_all_task := TRUE;
 FOR i := 1 TO _total_futures DO
 	// Execute all methods
-	_executors[i].execute();
-	IF _executors[i].current_state = E_FutureExecutionState.wait_for_process OR 
+	IF _executors[i].current_state < E_FutureExecutionState.finish THEN
+		_executors[i].execute();
+	END_IF
+	IF (_executors[i].current_state = E_FutureExecutionState.wait_for_process AND _executors[i].ready) OR 
 		_executors[i].current_state = E_FutureExecutionState.abort THEN
 		_executors[i].start();		
 	END_IF
-		
+
+	_error_id := 0;	
 	IF FAILED(_executors[i].nErrorID) THEN
 		_error_id := _executors[i].nErrorID;
 	END_IF
@@ -126,9 +129,7 @@ CASE _state OF
 	0:
 		_initialize := TRUE;
 		FOR i := 1 TO _total_futures DO
-			IF _executors[i].current_state = E_FutureExecutionState.finish OR _executors[i].current_state = E_FutureExecutionState.idle THEN
-				_executors[i].init();
-			ELSE
+			IF NOT _executors[i].init() THEN
 				_initialize := FALSE;
 			END_IF
 		END_FOR
@@ -247,15 +248,16 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="47" Count="0" />
       <LineId Id="5" Count="0" />
       <LineId Id="23" Count="0" />
-      <LineId Id="94" Count="0" />
+      <LineId Id="119" Count="0" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="121" Count="0" />
       <LineId Id="107" Count="0" />
       <LineId Id="111" Count="0" />
       <LineId Id="110" Count="0" />
       <LineId Id="109" Count="0" />
-      <LineId Id="102" Count="0" />
-      <LineId Id="100" Count="0" />
-      <LineId Id="29" Count="0" />
-      <LineId Id="25" Count="0" />
+      <LineId Id="136" Count="1" />
+      <LineId Id="132" Count="1" />
+      <LineId Id="135" Count="0" />
       <LineId Id="46" Count="0" />
       <LineId Id="53" Count="2" />
       <LineId Id="20" Count="0" />
@@ -271,9 +273,8 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="104" Count="2" />
       <LineId Id="149" Count="0" />
       <LineId Id="116" Count="0" />
-      <LineId Id="146" Count="0" />
       <LineId Id="113" Count="0" />
-      <LineId Id="150" Count="1" />
+      <LineId Id="151" Count="0" />
       <LineId Id="109" Count="0" />
       <LineId Id="147" Count="0" />
       <LineId Id="152" Count="0" />

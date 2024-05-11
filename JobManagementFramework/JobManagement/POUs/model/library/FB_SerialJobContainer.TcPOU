@@ -27,10 +27,10 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[complete_abort := TRUE;
 FOR i := 1 TO _total_futures DO
-	_executors[i].execute();
 	IF NOT _executors[i].abort() THEN
 		complete_abort := FALSE;
 	END_IF
+	_executors[i].execute();
 END_FOR
 abort := complete_abort;]]></ST>
       </Implementation>
@@ -126,22 +126,10 @@ END_IF
 METHOD init : BOOL
 VAR_INST
 	i :UINT;
-	possible_to_start :BOOL;
+	//possible_to_start :BOOL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[possible_to_start := TRUE;
-FOR i := 1 TO _total_futures DO
-	IF _executors[i].current_state <> E_FutureExecutionState.finish AND _executors[i].current_state <> E_FutureExecutionState.idle THEN
-		possible_to_start := FALSE;
-	END_IF
-END_FOR
-
-IF NOT possible_to_start THEN
-	init := FALSE;
-	RETURN;
-END_IF
-
-FOR i := 1 TO _total_futures DO
+        <ST><![CDATA[FOR i := 1 TO _total_futures DO
 	_executors[i].init();
 END_FOR
 
@@ -210,9 +198,9 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="FB_SerialJobContainer.abort">
-      <LineId Id="5" Count="1" />
-      <LineId Id="14" Count="0" />
-      <LineId Id="7" Count="3" />
+      <LineId Id="5" Count="4" />
+      <LineId Id="21" Count="0" />
+      <LineId Id="10" Count="0" />
       <LineId Id="4" Count="0" />
     </LineIds>
     <LineIds Name="FB_SerialJobContainer.active_futures.Get">
@@ -258,14 +246,6 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_SerialJobContainer.init">
-      <LineId Id="36" Count="0" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="23" Count="2" />
-      <LineId Id="7" Count="0" />
-      <LineId Id="42" Count="1" />
-      <LineId Id="47" Count="0" />
-      <LineId Id="44" Count="1" />
-      <LineId Id="48" Count="0" />
       <LineId Id="50" Count="0" />
       <LineId Id="53" Count="0" />
       <LineId Id="49" Count="0" />
