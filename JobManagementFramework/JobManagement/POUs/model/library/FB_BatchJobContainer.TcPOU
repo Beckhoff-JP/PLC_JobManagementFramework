@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <POU Name="FB_SerialJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_SerialJobContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
+  <POU Name="FB_BatchJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_BatchJobContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -106,21 +106,6 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="get_future_status" Id="{af151456-1868-47e4-8bc5-d75d1f723c8c}">
-      <Declaration><![CDATA[METHOD get_future_status : E_FutureExecutionState
-VAR_INPUT
-	task_id : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF task_id <= _total_futures THEN
-	get_future_status := _executors[task_id].current_state;
-ELSE
-	get_future_status := 0;
-END_IF
-]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="init" Id="{5ef2a4ac-f57b-470f-97a3-ba7305857e0b}">
       <Declaration><![CDATA[{warning 'add method implementation '}
 METHOD init : BOOL
@@ -194,26 +179,26 @@ METHOD reset_sub_futures : BOOL
         <ST><![CDATA[_total_futures := 0;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FB_SerialJobContainer">
+    <LineIds Name="FB_BatchJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SerialJobContainer.abort">
+    <LineIds Name="FB_BatchJobContainer.abort">
       <LineId Id="5" Count="4" />
       <LineId Id="21" Count="0" />
       <LineId Id="10" Count="0" />
       <LineId Id="4" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SerialJobContainer.active_futures.Get">
+    <LineIds Name="FB_BatchJobContainer.active_futures.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SerialJobContainer.add_future">
+    <LineIds Name="FB_BatchJobContainer.add_future">
       <LineId Id="6" Count="2" />
       <LineId Id="10" Count="0" />
       <LineId Id="12" Count="1" />
       <LineId Id="5" Count="0" />
       <LineId Id="11" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SerialJobContainer.execute">
+    <LineIds Name="FB_BatchJobContainer.execute">
       <LineId Id="5" Count="0" />
       <LineId Id="119" Count="0" />
       <LineId Id="28" Count="0" />
@@ -241,11 +226,7 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="103" Count="0" />
       <LineId Id="75" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SerialJobContainer.get_future_status">
-      <LineId Id="16" Count="4" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_SerialJobContainer.init">
+    <LineIds Name="FB_BatchJobContainer.init">
       <LineId Id="50" Count="0" />
       <LineId Id="53" Count="0" />
       <LineId Id="49" Count="0" />
@@ -254,13 +235,13 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="4" Count="0" />
       <LineId Id="12" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SerialJobContainer.nErrorID.Get">
+    <LineIds Name="FB_BatchJobContainer.nErrorID.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SerialJobContainer.num_of_future.Get">
+    <LineIds Name="FB_BatchJobContainer.num_of_future.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SerialJobContainer.quit">
+    <LineIds Name="FB_BatchJobContainer.quit">
       <LineId Id="5" Count="1" />
       <LineId Id="14" Count="0" />
       <LineId Id="8" Count="2" />
@@ -270,7 +251,7 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="23" Count="0" />
       <LineId Id="15" Count="0" />
     </LineIds>
-    <LineIds Name="FB_SerialJobContainer.reset_sub_futures">
+    <LineIds Name="FB_BatchJobContainer.reset_sub_futures">
       <LineId Id="4" Count="0" />
     </LineIds>
   </POU>

@@ -20,13 +20,16 @@ VAR
 	component3_out : BOOL;
 	component4_in : BOOL;
 	component4_out : BOOL;
-	serial_job1 : FB_SerialJobContainer;
-	serial_job2 : FB_SerialJobContainer;
-	serial_job2_1 : FB_SerialJobContainer;
-	serial_job2_2 : FB_SerialJobContainer;
-	serial_job3 : FB_SerialJobContainer;
+	serial_job1 : FB_BatchJobContainer;
+	serial_job2 : FB_BatchJobContainer;
+	serial_job2_1 : FB_BatchJobContainer;
+	serial_job2_2 : FB_BatchJobContainer;
+	serial_job3 : FB_BatchJobContainer;
 	pararel_job1 : FB_ParallelJobContainer;
 	pararel_job2 : FB_ParallelJobContainer;
+	
+	queue_job : FB_queueJobContainer;
+	job_create_switch : ARRAY[1..4] OF BOOL;
 	executor: FB_Executor;
 	execution_step: UINT;
 	resume: BOOL;
@@ -41,8 +44,8 @@ END_IF
 CASE _state OF
 	0:
 		// 固有パラメータ設
-		fbTask1.own_parameter := T#13S;
-		fbTask2.own_parameter := T#20S;
+		fbTask1.own_parameter := T#8S;
+		fbTask2.own_parameter := T#5S;
 		fbTask3.own_parameter := 2;
 		fbTask4.own_parameter := 2;
 		
@@ -81,8 +84,37 @@ CASE _state OF
 			_state := 2;
 		END_IF
 	2:
+		executor.future := queue_job;
 		executor.init();
-		_state := 1;
+		_state := 3;
+	3:
+		// キュー
+		IF (executor.current_state = E_FutureExecutionState.wait_for_process AND executor.ready) OR 
+			(executor.current_state = E_FutureExecutionState.abort AND resume) THEN
+			executor.start();
+		END_IF
+		
+		IF job_create_switch[1] THEN
+			queue_job.add_future(fbTask1);
+			job_create_switch[1] := FALSE;
+		ELSIF job_create_switch[2] THEN
+			job_create_switch[2] := FALSE;
+			queue_job.add_future(fbTask2);
+		ELSIF  job_create_switch[3] THEN
+			job_create_switch[3] := FALSE;
+			queue_job.add_future(fbTask3);
+		ELSIF  job_create_switch[4] THEN
+			job_create_switch[4] := FALSE;
+			queue_job.add_future(fbTask4);
+		END_IF
+		
+		IF executor.execute() AND executor.nErrorID = 0 THEN
+			_state := 4;
+		END_IF
+	4:
+		executor.future := serial_job3;
+		executor.init();
+		_state := 2;
 END_CASE
 
 execution_step := executor.active_task_id;
@@ -108,7 +140,33 @@ resume := FALSE;]]></ST>
       <LineId Id="1524" Count="0" />
       <LineId Id="1430" Count="1" />
       <LineId Id="1409" Count="0" />
-      <LineId Id="1411" Count="4" />
+      <LineId Id="1411" Count="1" />
+      <LineId Id="1663" Count="0" />
+      <LineId Id="1666" Count="0" />
+      <LineId Id="1665" Count="0" />
+      <LineId Id="1667" Count="0" />
+      <LineId Id="1413" Count="0" />
+      <LineId Id="1631" Count="0" />
+      <LineId Id="1637" Count="3" />
+      <LineId Id="1645" Count="1" />
+      <LineId Id="1649" Count="0" />
+      <LineId Id="1659" Count="0" />
+      <LineId Id="1651" Count="0" />
+      <LineId Id="1660" Count="0" />
+      <LineId Id="1655" Count="0" />
+      <LineId Id="1653" Count="0" />
+      <LineId Id="1661" Count="0" />
+      <LineId Id="1656" Count="1" />
+      <LineId Id="1662" Count="0" />
+      <LineId Id="1658" Count="0" />
+      <LineId Id="1650" Count="0" />
+      <LineId Id="1647" Count="0" />
+      <LineId Id="1641" Count="0" />
+      <LineId Id="1644" Count="0" />
+      <LineId Id="1633" Count="0" />
+      <LineId Id="1632" Count="0" />
+      <LineId Id="1636" Count="0" />
+      <LineId Id="1414" Count="1" />
       <LineId Id="1356" Count="1" />
       <LineId Id="224" Count="0" />
       <LineId Id="1507" Count="0" />

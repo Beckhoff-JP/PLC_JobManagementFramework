@@ -156,13 +156,13 @@ END_CASE
 IF _state <> _state_mem THEN
 	_last_state := _state_mem;
 
-	IF _state = E_FutureExecutionState.init OR 
-		_state = E_FutureExecutionState.process OR 
+	IF _state = E_FutureExecutionState.init OR
+		_state = E_FutureExecutionState.process OR
 		_state = E_FutureExecutionState.quit THEN
 		_error_id := 0;
 	END_IF
 	IF _state = E_FutureExecutionState.abort THEN
-		_aborting := TRUE;		
+		_aborting := TRUE;
 	END_IF
 
 END_IF

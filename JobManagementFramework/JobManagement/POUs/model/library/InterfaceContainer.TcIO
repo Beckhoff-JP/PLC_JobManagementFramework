@@ -11,6 +11,13 @@ END_VAR
 ]]></Declaration>
       </Get>
     </Property>
+    <Method Name="add_future" Id="{d49e697a-f8c3-49c2-92d4-238e4a1c4453}">
+      <Declaration><![CDATA[METHOD add_future : UINT
+VAR_INPUT
+	future : InterfaceFuture;
+END_VAR
+]]></Declaration>
+    </Method>
     <Property Name="num_of_future" Id="{f8eb50f2-28cd-44d4-9501-560037cfcc71}">
       <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
       <Get Name="Get" Id="{9e329e0b-c0dd-4e74-8ae7-beef2f01ea63}">

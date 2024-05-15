@@ -99,21 +99,6 @@ current_executing_future_id := _total_futures;
 execute := complete_all_task;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="get_future_status" Id="{d92ea788-38c1-4b32-af06-23c2b12a0bc6}">
-      <Declaration><![CDATA[METHOD get_future_status : E_FutureExecutionState
-VAR_INPUT
-	task_id : UINT;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF task_id <= _total_futures THEN
-	get_future_status := _executors[task_id].current_state;
-ELSE
-	get_future_status := 0;
-END_IF
-]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="init" Id="{625c2131-03a0-45b4-9fa6-8b896834412c}">
       <Declaration><![CDATA[{warning 'add method implementation '}
 METHOD init : BOOL
@@ -263,10 +248,6 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="20" Count="0" />
       <LineId Id="68" Count="0" />
       <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.get_future_status">
-      <LineId Id="16" Count="4" />
-      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.init">
       <LineId Id="95" Count="0" />
