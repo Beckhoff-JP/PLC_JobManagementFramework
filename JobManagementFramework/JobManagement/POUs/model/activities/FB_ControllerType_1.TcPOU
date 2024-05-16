@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="FB_ControllerType_1" Id="{1076d71a-3a65-40e8-9c4e-a3e9e6fe7b78}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_ControllerType_1 IMPLEMENTS InterfaceFuture
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ControllerType_1 EXTENDS FB_AbstructFuture
 VAR_INPUT
 END_VAR
 VAR_OUTPUT

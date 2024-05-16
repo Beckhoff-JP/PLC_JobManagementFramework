@@ -1,0 +1,111 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_AbstructFuture" Id="{e0e3f6dd-6f71-426e-8a03-d727df6ff260}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructFuture IMPLEMENTS InterfaceFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_object_info : __SYSTEM.VAR_INFO;
+	_id		: STRING;
+	_job_id		: UDINT;
+	_future_id 	: UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="abort" Id="{862be836-a2ae-4f1d-92dd-4b23d30b26d7}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD abort : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[abort := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="execute" Id="{ba07fa30-bd40-4f42-b8d8-9c368f5519ee}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD execute : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="id" Id="{3a825549-087d-4f29-8b83-ca75a958c2de}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY id : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{a06139f3-9e3f-43b0-a376-8a8f1aeff3cf}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[id := _id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{985bd401-356e-4c3d-bed2-c987f8950ced}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_id := id;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="init" Id="{0f9a7fa1-ec74-4313-8d46-6183b844e43b}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD init : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nErrorID" Id="{5e96776e-2ecf-4a2b-b5d9-c234f6343ca2}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY nErrorID : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{60455303-60d8-490d-880a-ad439ea813d7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="quit" Id="{0f34e09c-f5ef-4bf1-a724-c006af3b609d}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD quit : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[init();
+quit := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_AbstructFuture">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.abort">
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.execute">
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.id.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.id.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.init">
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.quit">
+      <LineId Id="4" Count="1" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

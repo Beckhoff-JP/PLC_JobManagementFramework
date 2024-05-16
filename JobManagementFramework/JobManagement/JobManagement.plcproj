@@ -100,6 +100,9 @@
     <Compile Include="POUs\model\activities\FB_ControllerType_2.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\FB_AbstructFuture.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\FB_BatchJobContainer.TcPOU">
       <SubType>Code</SubType>
     </Compile>

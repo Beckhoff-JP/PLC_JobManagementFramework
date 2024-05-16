@@ -7,9 +7,13 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
+	_id		: STRING;
+	_job_id		: UDINT;
+	_future_id 	: UDINT;
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF FB_Executor;
 	_total_futures: UINT;
 	current_executing_future_id : UINT;
+	current_executing_future : InterfaceFuture;
 	_error_id :UDINT;
 END_VAR
 ]]></Declaration>
@@ -35,16 +39,21 @@ END_FOR
 abort := complete_abort;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="active_futures" Id="{4557927f-033d-40ed-9142-10cba7a26897}">
+    <Property Name="active_future_id" Id="{4557927f-033d-40ed-9142-10cba7a26897}">
       <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY active_futures : UINT
+PROPERTY active_future_id : STRING
 ]]></Declaration>
       <Get Name="Get" Id="{f9785cbd-d08d-4173-95d6-8e0945dfa5cd}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[active_futures := current_executing_future_id;]]></ST>
+          <ST><![CDATA[IF current_executing_future <> 0 THEN
+	active_future_id := current_executing_future.id;	
+ELSE
+	active_future_id := '';
+END_IF
+]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -57,7 +66,8 @@ END_VAR
       <Implementation>
         <ST><![CDATA[IF future <> 0 AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
 	_total_futures := _total_futures + 1;
-	_executors[_total_futures].future := future;	
+	_executors[_total_futures].future := future;
+	_executors[_total_futures].set_id(CONCAT(_id, CONCAT('/', UINT_TO_STRING(_total_futures))));
 	add_future := _total_futures;
 ELSE
 	add_future := 0;
@@ -103,9 +113,31 @@ IF _executors[current_executing_future_id].done THEN
 		current_executing_future_id := current_executing_future_id + 1;
 	END_IF
 END_IF
-]]></ST>
+
+current_executing_future := _executors[current_executing_future_id].future;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="id" Id="{68f2031c-0211-4785-8cec-e3e7d2e41f0f}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY id : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{1d787b6f-4dd8-4dcc-a9e0-b0ef5221fcf7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[id := _id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{dca0c935-c5af-4f3d-8a3e-858eefbd25f0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_id := id;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="init" Id="{5ef2a4ac-f57b-470f-97a3-ba7305857e0b}">
       <Declaration><![CDATA[{warning 'add method implementation '}
 METHOD init : BOOL
@@ -171,6 +203,19 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="reset" Id="{92b3e709-af95-4eb9-84ab-bb72db9fbb7f}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD reset : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[WHILE _total_futures > 0 DO
+	IF _executors[_total_futures].reset() THEN
+		_total_futures := _total_futures - 1;
+	END_IF
+END_WHILE
+reset := _total_futures = 0;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="reset_sub_futures" Id="{77dfde03-e918-47ca-a26c-b18262548c3b}">
       <Declaration><![CDATA[{warning 'add method implementation '}
 METHOD reset_sub_futures : BOOL
@@ -188,11 +233,14 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="10" Count="0" />
       <LineId Id="4" Count="0" />
     </LineIds>
-    <LineIds Name="FB_BatchJobContainer.active_futures.Get">
+    <LineIds Name="FB_BatchJobContainer.active_future_id.Get">
+      <LineId Id="10" Count="3" />
+      <LineId Id="7" Count="0" />
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.add_future">
       <LineId Id="6" Count="2" />
+      <LineId Id="18" Count="0" />
       <LineId Id="10" Count="0" />
       <LineId Id="12" Count="1" />
       <LineId Id="5" Count="0" />
@@ -224,7 +272,14 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="110" Count="0" />
       <LineId Id="107" Count="0" />
       <LineId Id="103" Count="0" />
+      <LineId Id="132" Count="0" />
       <LineId Id="75" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.id.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.id.Set">
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.init">
       <LineId Id="50" Count="0" />
@@ -250,6 +305,12 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="24" Count="2" />
       <LineId Id="23" Count="0" />
       <LineId Id="15" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.reset">
+      <LineId Id="6" Count="1" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.reset_sub_futures">
       <LineId Id="4" Count="0" />

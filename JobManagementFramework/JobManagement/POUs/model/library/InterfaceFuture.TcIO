@@ -15,6 +15,15 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="id" Id="{a98c17a6-6914-40d0-b3e9-562c1cd0b40b}">
+      <Declaration><![CDATA[PROPERTY id : STRING]]></Declaration>
+      <Get Name="Get" Id="{b72af3ff-f107-45db-a338-fc99cde95bff}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{17eff97d-d65c-4753-80ad-b23d6cc3b41b}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Method Name="init" Id="{d56cdce8-543b-417d-80a1-0c782146e5ce}">
       <Declaration><![CDATA[METHOD init : BOOL
 VAR_INPUT

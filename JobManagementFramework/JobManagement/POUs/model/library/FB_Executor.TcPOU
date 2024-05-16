@@ -42,15 +42,15 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="active_task_id" Id="{1d5492fe-a6ad-493b-953e-a8c2953cdc63}">
-      <Declaration><![CDATA[PROPERTY active_task_id : UINT]]></Declaration>
+    <Property Name="active_future_id" Id="{1d5492fe-a6ad-493b-953e-a8c2953cdc63}">
+      <Declaration><![CDATA[PROPERTY active_future_id : STRING]]></Declaration>
       <Get Name="Get" Id="{6befbd93-e18a-48a2-99b9-2935f5e0112b}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[IF __QUERYINTERFACE(_future, _interface_container) THEN
-	active_task_id := _interface_container.active_futures;	
+	active_future_id := _interface_container.active_future_id;	
 END_IF
 ]]></ST>
         </Implementation>
@@ -174,6 +174,15 @@ _state_mem := _state;
     </Method>
     <Property Name="future" Id="{a5f34e34-fd86-442a-a2b3-dcfdacffba84}">
       <Declaration><![CDATA[PROPERTY future : InterfaceFuture]]></Declaration>
+      <Get Name="Get" Id="{ea3475fd-42f3-40d5-80b9-94fefa3dce7f}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[future := _future;]]></ST>
+        </Implementation>
+      </Get>
       <Set Name="Set" Id="{1c600ba1-a530-4be6-883c-03a190a9123a}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -233,6 +242,30 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Method Name="reset" Id="{32d5d6a5-da71-471a-b4b9-590194585265}">
+      <Declaration><![CDATA[METHOD reset : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYINTERFACE(_future, _interface_container) THEN
+	reset := _interface_container.reset();
+ELSE
+	reset := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_id" Id="{42ec62cc-1883-4b08-912c-bafc1a929054}">
+      <Declaration><![CDATA[METHOD set_id : BOOL
+VAR_INPUT
+	id: STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_future.id := id;
+set_id := TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="start" Id="{fb7671b6-91ac-4f18-8e41-b81f64039055}">
       <Declaration><![CDATA[METHOD start : BOOL
 VAR_INPUT
@@ -258,8 +291,10 @@ END_VAR
       <LineId Id="11" Count="0" />
       <LineId Id="6" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Executor.active_task_id.Get">
-      <LineId Id="5" Count="2" />
+    <LineIds Name="FB_Executor.active_future_id.Get">
+      <LineId Id="10" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="11" Count="0" />
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.current_state.Get">
@@ -322,6 +357,9 @@ END_VAR
       <LineId Id="172" Count="0" />
       <LineId Id="175" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor.future.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.future.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
@@ -340,6 +378,14 @@ END_VAR
     </LineIds>
     <LineIds Name="FB_Executor.ready.Get">
       <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.reset">
+      <LineId Id="6" Count="3" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.set_id">
+      <LineId Id="5" Count="0" />
+      <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.start">
       <LineId Id="5" Count="0" />
