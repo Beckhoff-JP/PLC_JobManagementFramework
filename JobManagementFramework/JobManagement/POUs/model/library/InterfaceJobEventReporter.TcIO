@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="InterfaceJobEventReporter" Id="{90b4d035-ce37-43c5-a5a2-947514da7e7e}">
+    <Declaration><![CDATA[INTERFACE InterfaceJobEventReporter
+]]></Declaration>
+    <Method Name="report" Id="{09caa5d0-8b39-4577-9c48-876741e7c7cd}">
+      <Declaration><![CDATA[METHOD report : BOOL
+VAR_INPUT
+	old_state : E_FutureExecutionState;
+	new_state : E_FutureExecutionState;
+	record_time	: T_FILETIME64;
+	executor	: REFERENCE TO FB_Executor;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

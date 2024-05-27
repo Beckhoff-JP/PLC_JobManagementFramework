@@ -7,16 +7,19 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
+	_id : STRING;
 	_done : BOOL;
 	_ready : BOOL;
 	_start : BOOL;
 	_abort : BOOL;
+	 {attribute 'TcAnalytics'}
 	_state : E_FutureExecutionState := E_FutureExecutionState.idle;
 	_last_state  :E_FutureExecutionState;
 	_future : InterfaceFuture;
 	_error_id : UDINT;
 	_aborting :BOOL;
 	_interface_container : InterfaceContainer := 0;
+	_job_event_reporter: InterfaceJobEventReporter;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -57,7 +60,10 @@ END_IF
       </Get>
     </Property>
     <Property Name="current_state" Id="{9bdc45ea-e038-402f-9e8e-3b1c363b70b4}">
-      <Declaration><![CDATA[PROPERTY current_state : E_FutureExecutionState]]></Declaration>
+      <Declaration><![CDATA[{attribute 'OPC.UA.DA.Property' := '1'}
+{attribute 'monitoring' := 'call'}
+{attribute 'OPC.UA.DA.Description' := 'Current state of this executor object.'}
+PROPERTY current_state : E_FutureExecutionState]]></Declaration>
       <Get Name="Get" Id="{6d7ef6bc-7830-4957-91e4-53fd4bd8f4ba}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -83,6 +89,7 @@ END_VAR
 METHOD execute : BOOL
 VAR_INST
 	_state_mem :E_FutureExecutionState;
+	_logging :BOOL;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _future = 0 THEN
@@ -150,7 +157,9 @@ CASE _state OF
 			END_IF
 		END_IF
 	E_FutureExecutionState.finish:
-		execute := TRUE;
+		IF NOT _logging THEN
+			execute := TRUE;
+		END_IF
 END_CASE
 
 IF _state <> _state_mem THEN
@@ -164,11 +173,25 @@ IF _state <> _state_mem THEN
 	IF _state = E_FutureExecutionState.abort THEN
 		_aborting := TRUE;
 	END_IF
-
+	
+	IF _job_event_reporter <> 0 THEN
+		// reporter
+		_logging := TRUE;
+	END_IF
 END_IF
 
 _state_mem := _state;
 
+IF _logging THEN
+	IF _job_event_reporter.report(
+			old_state := _last_state,
+			new_state := _state,
+			record_time := F_GetSystemTime(),
+			executor := THIS^
+	) THEN
+		_logging := FALSE;
+	END_IF
+END_IF
 ]]></ST>
       </Implementation>
     </Method>
@@ -188,7 +211,31 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_future := future;]]></ST>
+          <ST><![CDATA[_future := future;
+IF __QUERYINTERFACE(_future, _interface_container) THEN
+	_interface_container.parent_executor REF= THIS^;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="id" Id="{cfcf1743-1715-4af2-a0a4-cd9f1ebd1808}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY id : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{5863c94c-93ce-4810-8c6f-f18910d5e32a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[id := _id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9e8cd938-613c-4a5e-bd20-a66e0b88a473}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_id := id;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -207,6 +254,20 @@ _error_id := 0;
 INIT := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="job_event_reporter" Id="{7070112e-2fb6-433d-85f5-f36a183c0a1e}">
+      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceJobEventReporter]]></Declaration>
+      <Set Name="Set" Id="{4cb4a4bf-e492-4795-8469-65c6601636a4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_job_event_reporter := job_event_reporter;
+IF __QUERYINTERFACE(_future, _interface_container) THEN
+	_interface_container.job_event_reporter := job_event_reporter;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="last_state" Id="{02f59fbb-3554-446d-b45f-63f705bf0087}">
       <Declaration><![CDATA[PROPERTY last_state : E_FutureExecutionState]]></Declaration>
       <Get Name="Get" Id="{68fa5637-46a2-41df-8fb4-fd6bb35fe1de}">
@@ -253,17 +314,6 @@ END_VAR
 ELSE
 	reset := TRUE;
 END_IF]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="set_id" Id="{42ec62cc-1883-4b08-912c-bafc1a929054}">
-      <Declaration><![CDATA[METHOD set_id : BOOL
-VAR_INPUT
-	id: STRING;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_future.id := id;
-set_id := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="start" Id="{fb7671b6-91ac-4f18-8e41-b81f64039055}">
@@ -340,7 +390,11 @@ END_VAR
       <LineId Id="82" Count="0" />
       <LineId Id="124" Count="1" />
       <LineId Id="85" Count="0" />
-      <LineId Id="41" Count="3" />
+      <LineId Id="41" Count="1" />
+      <LineId Id="228" Count="0" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="44" Count="0" />
       <LineId Id="66" Count="2" />
       <LineId Id="176" Count="0" />
       <LineId Id="179" Count="1" />
@@ -350,17 +404,31 @@ END_VAR
       <LineId Id="185" Count="0" />
       <LineId Id="189" Count="0" />
       <LineId Id="188" Count="0" />
-      <LineId Id="184" Count="0" />
+      <LineId Id="194" Count="0" />
+      <LineId Id="202" Count="0" />
+      <LineId Id="205" Count="0" />
+      <LineId Id="216" Count="0" />
+      <LineId Id="204" Count="0" />
       <LineId Id="69" Count="0" />
       <LineId Id="65" Count="0" />
       <LineId Id="60" Count="0" />
       <LineId Id="172" Count="0" />
+      <LineId Id="217" Count="0" />
+      <LineId Id="220" Count="7" />
+      <LineId Id="219" Count="0" />
       <LineId Id="175" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.future.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.future.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="2" />
+    </LineIds>
+    <LineIds Name="FB_Executor.id.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.id.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.init">
@@ -369,6 +437,11 @@ END_VAR
       <LineId Id="7" Count="2" />
       <LineId Id="13" Count="0" />
       <LineId Id="17" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.job_event_reporter.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="6" Count="1" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.last_state.Get">
       <LineId Id="2" Count="0" />
@@ -382,10 +455,6 @@ END_VAR
     <LineIds Name="FB_Executor.reset">
       <LineId Id="6" Count="3" />
       <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.set_id">
-      <LineId Id="5" Count="0" />
-      <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.start">
       <LineId Id="5" Count="0" />

@@ -11,6 +11,7 @@ VAR
 	_id		: STRING;
 	_job_id		: UDINT;
 	_future_id 	: UDINT;
+	_future_name :STRING := 'NO_NAME';
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -32,24 +33,24 @@ METHOD execute : BOOL
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
-    <Property Name="id" Id="{3a825549-087d-4f29-8b83-ca75a958c2de}">
+    <Property Name="future_name" Id="{2365611b-3978-40e5-af7c-084e8898106e}">
       <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY id : STRING
+PROPERTY future_name : STRING
 ]]></Declaration>
-      <Get Name="Get" Id="{a06139f3-9e3f-43b0-a376-8a8f1aeff3cf}">
+      <Get Name="Get" Id="{e0946a55-87b0-493c-91f5-c6fd2898618e}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[id := _id;]]></ST>
+          <ST><![CDATA[future_name := _future_name;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{985bd401-356e-4c3d-bed2-c987f8950ced}">
+      <Set Name="Set" Id="{16c10530-d9ba-4ec9-9835-68bda488cc9e}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_id := id;]]></ST>
+          <ST><![CDATA[_future_name := future_name;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -92,10 +93,10 @@ quit := TRUE;]]></ST>
     <LineIds Name="FB_AbstructFuture.execute">
       <LineId Id="4" Count="0" />
     </LineIds>
-    <LineIds Name="FB_AbstructFuture.id.Get">
+    <LineIds Name="FB_AbstructFuture.future_name.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_AbstructFuture.id.Set">
+    <LineIds Name="FB_AbstructFuture.future_name.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_AbstructFuture.init">

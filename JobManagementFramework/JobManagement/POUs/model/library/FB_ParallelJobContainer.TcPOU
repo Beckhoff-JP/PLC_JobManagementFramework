@@ -7,7 +7,8 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_id		: STRING;
+	_parent_executor : REFERENCE TO FB_Executor;
+	_name :STRING := 'Parallel Job Container';
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF FB_Executor;
 	_total_futures: UINT;
 	current_executing_future : InterfaceFuture;
@@ -45,8 +46,8 @@ PROPERTY active_future_id : STRING
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IF current_executing_future <> 0 THEN
-	active_future_id := current_executing_future.id;	
+          <ST><![CDATA[IF current_executing_future <> 0 AND _total_futures > 0 AND _total_futures <= ParamFuturesLib.MAX_TASK_NUM THEN
+	active_future_id := _executors[_total_futures].id;
 ELSE
 	active_future_id := '';
 END_IF]]></ST>
@@ -58,12 +59,17 @@ END_IF]]></ST>
 VAR_INPUT
 	future : InterfaceFuture;
 END_VAR
-]]></Declaration>
+VAR
+	_parent_future_id :STRING;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF future <> 0 AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
 	_total_futures := _total_futures + 1;
 	_executors[_total_futures].future := future;
-	_executors[_total_futures].set_id(CONCAT(_id, CONCAT('/', UINT_TO_STRING(_total_futures))));
+	IF  __ISVALIDREF(_parent_executor) THEN
+		_parent_future_id := _parent_executor.id;
+	END_IF
+	_executors[_total_futures].id := CONCAT(_parent_future_id, CONCAT('/', UINT_TO_STRING(_total_futures)));
 	add_future := _total_futures;
 ELSE
 	add_future := 0;
@@ -105,24 +111,24 @@ current_executing_future := _executors[_total_futures].future;
 execute := complete_all_task;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="id" Id="{297ba142-e7cc-4166-96f1-32960fc69523}">
+    <Property Name="future_name" Id="{d54c93e3-c6dc-4912-8189-f00de2cbf2b9}">
       <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY id : STRING
+PROPERTY future_name : STRING
 ]]></Declaration>
-      <Get Name="Get" Id="{fbba2f82-17ac-485c-8771-e7023fec1b37}">
+      <Get Name="Get" Id="{384e4123-78a7-4a7d-86b6-7f594ccbbe31}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[id := _id;]]></ST>
+          <ST><![CDATA[future_name := _name;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{47ac09e1-e356-4f1a-843a-ceb1ad08a826}">
+      <Set Name="Set" Id="{a647d294-ace7-418c-b584-b051d8a03aab}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_id := id;]]></ST>
+          <ST><![CDATA[_name := future_name;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -174,6 +180,22 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="job_event_reporter" Id="{25d413b1-97fa-4dac-9630-93e398208838}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY job_event_reporter : InterfaceJobEventReporter
+]]></Declaration>
+      <Set Name="Set" Id="{c92b205e-18d8-4915-8d21-69aa0820e7ed}">
+        <Declaration><![CDATA[VAR
+	i :UINT;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FOR i := 1 TO _total_futures DO
+	_executors[i].job_event_reporter := job_event_reporter;
+END_FOR]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="nErrorID" Id="{e11c378f-8958-4239-9ae1-c4dfcb9daf49}">
       <Declaration><![CDATA[{warning 'add property implementation'}
 PROPERTY nErrorID : UDINT
@@ -197,6 +219,28 @@ END_VAR
           <ST><![CDATA[num_of_future := _total_futures;]]></ST>
         </Implementation>
       </Get>
+    </Property>
+    <Property Name="parent_executor" Id="{c693f493-6d1b-41ca-8d4f-d7127793b5ff}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY parent_executor : REFERENCE TO FB_Executor
+]]></Declaration>
+      <Get Name="Get" Id="{dbf4f5c8-848a-4c86-bebb-551f1592d7d3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[parent_executor REF= _parent_executor;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9b81c7d9-e27a-43f4-8007-60735ae60769}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_parent_executor REF= parent_executor;
+]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Method Name="quit" Id="{45e620fb-665e-4cea-b7f5-8d6c239f0a4c}">
       <Declaration><![CDATA[{warning 'add method implementation '}
@@ -263,6 +307,8 @@ METHOD reset_sub_futures : BOOL
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.add_future">
       <LineId Id="6" Count="2" />
+      <LineId Id="24" Count="1" />
+      <LineId Id="23" Count="0" />
       <LineId Id="18" Count="0" />
       <LineId Id="10" Count="0" />
       <LineId Id="12" Count="1" />
@@ -289,10 +335,10 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="68" Count="0" />
       <LineId Id="4" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.id.Get">
+    <LineIds Name="FB_ParallelJobContainer.future_name.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.id.Set">
+    <LineIds Name="FB_ParallelJobContainer.future_name.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.init">
@@ -321,11 +367,22 @@ METHOD reset_sub_futures : BOOL
       <LineId Id="161" Count="0" />
       <LineId Id="62" Count="0" />
     </LineIds>
+    <LineIds Name="FB_ParallelJobContainer.job_event_reporter.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="6" Count="1" />
+    </LineIds>
     <LineIds Name="FB_ParallelJobContainer.nErrorID.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.num_of_future.Get">
       <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ParallelJobContainer.parent_executor.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ParallelJobContainer.parent_executor.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.quit">
       <LineId Id="13" Count="1" />

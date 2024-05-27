@@ -15,12 +15,12 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
-    <Property Name="id" Id="{a98c17a6-6914-40d0-b3e9-562c1cd0b40b}">
-      <Declaration><![CDATA[PROPERTY id : STRING]]></Declaration>
-      <Get Name="Get" Id="{b72af3ff-f107-45db-a338-fc99cde95bff}">
+    <Property Name="future_name" Id="{89ef3158-3550-438a-bee3-821a3cca9058}">
+      <Declaration><![CDATA[PROPERTY future_name : STRING]]></Declaration>
+      <Get Name="Get" Id="{d6d11718-73bb-4401-91ac-a3e6b656d939}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
-      <Set Name="Set" Id="{17eff97d-d65c-4753-80ad-b23d6cc3b41b}">
+      <Set Name="Set" Id="{1b08d5ef-7e1e-4062-a60e-52a0fb1809f4}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>

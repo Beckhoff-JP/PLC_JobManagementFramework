@@ -18,11 +18,26 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="job_event_reporter" Id="{2fe3906e-365c-4588-b62b-01dcef6f665c}">
+      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceJobEventReporter]]></Declaration>
+      <Set Name="Set" Id="{fee844e0-8ec3-4770-af6a-359a99f5213e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Property Name="num_of_future" Id="{f8eb50f2-28cd-44d4-9501-560037cfcc71}">
       <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
       <Get Name="Get" Id="{9e329e0b-c0dd-4e74-8ae7-beef2f01ea63}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
+    </Property>
+    <Property Name="parent_executor" Id="{3a8974e9-dbcb-4ac9-aa11-4d3a1b8b49c1}">
+      <Declaration><![CDATA[PROPERTY parent_executor : REFERENCE TO FB_Executor]]></Declaration>
+      <Get Name="Get" Id="{f2838a4e-ac9a-4cb4-b2f1-998d701b75c7}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{1f55717a-0f1f-430f-9f48-3a9f0b747ea1}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
     </Property>
     <Method Name="reset" Id="{cf0bbd9b-2cd6-46f3-b203-68cba1d854bb}">
       <Declaration><![CDATA[METHOD reset : BOOL

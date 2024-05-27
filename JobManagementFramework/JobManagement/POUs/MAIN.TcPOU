@@ -10,7 +10,6 @@ VAR
 	fbTask4 : FB_ControllerType_2;
 	fbTask5 : FB_ControllerType_1;
 	fbTask6 : FB_ControllerType_1;
-
 	
 	component1_in : BOOL;
 	component1_out : BOOL;
@@ -37,6 +36,7 @@ VAR
 	reset : BOOL;
 	task_info : __SYSTEM.VAR_INFO;
 	
+	fb_adslog_reporter : FB_ADSLOG_reporter;
 	
 END_VAR
 ]]></Declaration>
@@ -45,13 +45,20 @@ END_VAR
 	executor.abort();
 END_IF
 
+// Output job state change to ADS log
+executor.job_event_reporter := fb_adslog_reporter;
+
 CASE _state OF
 	0:
 		// 固有パラメータ設
 		fbTask1.own_parameter := T#8S;
+		fbTask1.future_name := 'Blinker-1';
 		fbTask2.own_parameter := T#5S;
+		fbTask2.future_name := 'Blinker-2';
 		fbTask3.own_parameter := 2;
+		fbTask3.future_name := 'Counter-1';
 		fbTask4.own_parameter := 2;
+		fbTask4.future_name := 'Counter-2';
 		
 		// 入出力変数の受け渡し
 		//fbTask1(own_output := component1_out);
@@ -77,7 +84,7 @@ CASE _state OF
 		serial_job3.add_future(pararel_job1);
 		serial_job3.add_future(pararel_job2);
 		executor.future := serial_job3;
-		executor.set_id('BULK');
+		executor.id := 'BULK';
 		_state := 1;
 	1:
 		// シーケンス制御
@@ -90,7 +97,7 @@ CASE _state OF
 		END_IF
 	2:
 		executor.future := queue_job;
-		executor.set_id('QUEUE');
+		executor.id := 'QUEUE';
 		executor.init();
 		_state := 3;
 	3:
@@ -132,61 +139,17 @@ resume := FALSE;
 ]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
-      <LineId Id="1526" Count="0" />
-      <LineId Id="1529" Count="0" />
-      <LineId Id="1501" Count="0" />
-      <LineId Id="1499" Count="0" />
-      <LineId Id="1310" Count="8" />
-      <LineId Id="1459" Count="1" />
-      <LineId Id="1559" Count="1" />
-      <LineId Id="1321" Count="1" />
-      <LineId Id="1329" Count="0" />
-      <LineId Id="1332" Count="6" />
-      <LineId Id="1594" Count="3" />
-      <LineId Id="1418" Count="1" />
-      <LineId Id="1341" Count="1" />
-      <LineId Id="1386" Count="0" />
-      <LineId Id="1750" Count="0" />
-      <LineId Id="1344" Count="2" />
-      <LineId Id="1515" Count="0" />
-      <LineId Id="1524" Count="0" />
-      <LineId Id="1430" Count="1" />
-      <LineId Id="1409" Count="0" />
-      <LineId Id="1411" Count="1" />
-      <LineId Id="1663" Count="0" />
-      <LineId Id="1666" Count="0" />
-      <LineId Id="1751" Count="0" />
-      <LineId Id="1665" Count="0" />
-      <LineId Id="1667" Count="0" />
-      <LineId Id="1413" Count="0" />
-      <LineId Id="1631" Count="0" />
-      <LineId Id="1637" Count="3" />
-      <LineId Id="1645" Count="1" />
-      <LineId Id="1649" Count="0" />
-      <LineId Id="1659" Count="0" />
-      <LineId Id="1651" Count="0" />
-      <LineId Id="1660" Count="0" />
-      <LineId Id="1655" Count="0" />
-      <LineId Id="1653" Count="0" />
-      <LineId Id="1661" Count="0" />
-      <LineId Id="1656" Count="1" />
-      <LineId Id="1662" Count="0" />
-      <LineId Id="1658" Count="0" />
-      <LineId Id="1650" Count="0" />
-      <LineId Id="1647" Count="0" />
-      <LineId Id="1641" Count="0" />
-      <LineId Id="1644" Count="0" />
-      <LineId Id="1633" Count="0" />
-      <LineId Id="1632" Count="0" />
-      <LineId Id="1636" Count="0" />
-      <LineId Id="1414" Count="1" />
-      <LineId Id="1356" Count="0" />
-      <LineId Id="1703" Count="0" />
-      <LineId Id="1357" Count="0" />
-      <LineId Id="1704" Count="1" />
-      <LineId Id="1707" Count="0" />
-      <LineId Id="224" Count="0" />
-      <LineId Id="1507" Count="0" />
+      <LineId Id="1869" Count="2" />
+      <LineId Id="1959" Count="0" />
+      <LineId Id="1872" Count="6" />
+      <LineId Id="1960" Count="0" />
+      <LineId Id="1879" Count="0" />
+      <LineId Id="1961" Count="0" />
+      <LineId Id="1880" Count="0" />
+      <LineId Id="1962" Count="0" />
+      <LineId Id="1881" Count="0" />
+      <LineId Id="1963" Count="0" />
+      <LineId Id="1882" Count="76" />
       <LineId Id="1744" Count="0" />
     </LineIds>
   </POU>
