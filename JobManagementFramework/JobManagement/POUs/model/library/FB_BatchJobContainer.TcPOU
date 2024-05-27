@@ -8,7 +8,8 @@ VAR_OUTPUT
 END_VAR
 VAR
 	_parent_executor : REFERENCE TO FB_Executor;
-	_name 	: STRING := 'Batch Job Container';
+	{attribute 'TcEncoding':='UTF-8'}
+	_name 	: STRING := 'BATCH JOB';
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF FB_Executor;
 	_total_futures: UINT;
 	current_executing_future_id : UINT;

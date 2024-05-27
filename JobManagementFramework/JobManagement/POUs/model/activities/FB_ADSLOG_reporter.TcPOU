@@ -5,6 +5,7 @@
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
+	{attribute 'TcEncoding':='UTF-8'}
 	text : T_MAXSTRING;
 END_VAR
 VAR
@@ -41,9 +42,9 @@ text := CONCAT(text, TO_STRING(current_state));
 text := CONCAT(text, ':');
 text := CONCAT(text, executor.future.future_name);
 text := CONCAT(text, ':');
-text := CONCAT(text, '%s');
+text := CONCAT(text, executor.id);
 
-ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG, msgFmtStr := text, strArg := executor.id);
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG, msgFmtStr := text, strArg := '');
 
 report := TRUE;]]></ST>
       </Implementation>

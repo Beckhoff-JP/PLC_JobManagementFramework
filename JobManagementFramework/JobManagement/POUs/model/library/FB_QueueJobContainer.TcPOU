@@ -8,7 +8,8 @@ VAR_OUTPUT
 END_VAR
 VAR
 	_parent_executor : REFERENCE TO FB_Executor;
-	_name 	: STRING := 'Queue Job Container';
+	{attribute 'TcEncoding':='UTF-8'}
+	_name 	: STRING := 'QUEUE JOB';
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF FB_Executor;
 	current_executing_future : InterfaceFuture;
 	_error_id :UDINT;

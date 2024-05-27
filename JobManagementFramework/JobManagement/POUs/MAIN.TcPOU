@@ -52,14 +52,14 @@ CASE _state OF
 	0:
 		// 固有パラメータ設
 		fbTask1.own_parameter := T#8S;
-		fbTask1.future_name := 'Blinker-1';
+		fbTask1.future_name := wsliteral_to_UTF8("点滅-1");
 		fbTask2.own_parameter := T#5S;
-		fbTask2.future_name := 'Blinker-2';
+		fbTask2.future_name := wsliteral_to_UTF8("点滅-2");
 		fbTask3.own_parameter := 2;
-		fbTask3.future_name := 'Counter-1';
+		fbTask3.future_name := wsliteral_to_UTF8("カウント-1");
 		fbTask4.own_parameter := 2;
-		fbTask4.future_name := 'Counter-2';
-		
+		fbTask4.future_name := wsliteral_to_UTF8("カウント-2");
+
 		// 入出力変数の受け渡し
 		//fbTask1(own_output := component1_out);
 		//fbTask2(own_output := component2_out);
@@ -84,7 +84,7 @@ CASE _state OF
 		serial_job3.add_future(pararel_job1);
 		serial_job3.add_future(pararel_job2);
 		executor.future := serial_job3;
-		executor.id := 'BULK';
+		executor.id := wsliteral_to_UTF8("固定ジョブ");
 		_state := 1;
 	1:
 		// シーケンス制御
@@ -97,7 +97,7 @@ CASE _state OF
 		END_IF
 	2:
 		executor.future := queue_job;
-		executor.id := 'QUEUE';
+		executor.id := wsliteral_to_UTF8("キュージョブ");
 		executor.init();
 		_state := 3;
 	3:

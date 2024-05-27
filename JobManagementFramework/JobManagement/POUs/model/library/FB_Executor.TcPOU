@@ -7,7 +7,8 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_id : STRING;
+	{attribute 'TcEncoding':='UTF-8'}
+	_id : T_MaxString;
 	_done : BOOL;
 	_ready : BOOL;
 	_start : BOOL;
@@ -220,7 +221,7 @@ END_IF]]></ST>
     </Property>
     <Property Name="id" Id="{cfcf1743-1715-4af2-a0a4-cd9f1ebd1808}">
       <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY id : STRING
+PROPERTY id : T_MaxString
 ]]></Declaration>
       <Get Name="Get" Id="{5863c94c-93ce-4810-8c6f-f18910d5e32a}">
         <Declaration><![CDATA[VAR

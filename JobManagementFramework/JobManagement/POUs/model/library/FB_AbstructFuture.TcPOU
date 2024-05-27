@@ -7,10 +7,7 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_object_info : __SYSTEM.VAR_INFO;
-	_id		: STRING;
-	_job_id		: UDINT;
-	_future_id 	: UDINT;
+	{attribute 'TcEncoding':='UTF-8'}
 	_future_name :STRING := 'NO_NAME';
 END_VAR
 ]]></Declaration>
