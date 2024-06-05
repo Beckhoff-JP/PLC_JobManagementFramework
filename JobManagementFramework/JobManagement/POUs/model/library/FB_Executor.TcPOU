@@ -37,7 +37,7 @@ END_VAR
 	_abort := TRUE;	
 END_IF
 
-IF 	_abort THEN
+IF 	_abort AND _state = E_FutureExecutionState.abort THEN
 	abort := NOT _aborting;
 ELSE
 	abort := TRUE;

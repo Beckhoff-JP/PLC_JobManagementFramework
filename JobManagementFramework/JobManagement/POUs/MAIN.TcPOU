@@ -58,7 +58,7 @@ CASE _state OF
 		fbTask3.own_parameter := 2;
 		fbTask3.future_name := wsliteral_to_UTF8("カウント-1");
 		fbTask4.own_parameter := 2;
-		fbTask4.future_name := wsliteral_to_UTF8("カウント-2");
+		fbTask4.future_name := wsliteral_to_UTF8("Count1");
 
 		// 入出力変数の受け渡し
 		//fbTask1(own_output := component1_out);
