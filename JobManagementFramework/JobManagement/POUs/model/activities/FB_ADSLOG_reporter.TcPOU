@@ -15,8 +15,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="report" Id="{e5fac08e-bd79-4abd-97a0-a76262921e4d}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD report : BOOL
+      <Declaration><![CDATA[METHOD report : BOOL
 VAR_INPUT
 	old_state	: E_FutureExecutionState;
 	new_state	: E_FutureExecutionState;

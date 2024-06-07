@@ -21,8 +21,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="abort" Id="{6723fd47-ba3e-4a36-9944-cfce9135076b}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD abort : BOOL
+      <Declaration><![CDATA[METHOD abort : BOOL
 VAR_INST
 	complete_abort :BOOL;
 	i: UINT;
@@ -39,8 +38,7 @@ abort := complete_abort;]]></ST>
       </Implementation>
     </Method>
     <Property Name="active_future_id" Id="{9999098a-1608-487f-b6dd-7a92485b152d}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY active_future_id : STRING
+      <Declaration><![CDATA[PROPERTY active_future_id : STRING
 ]]></Declaration>
       <Get Name="Get" Id="{ba305187-045a-4583-86a7-f27b845708e1}">
         <Declaration><![CDATA[VAR
@@ -79,8 +77,7 @@ END_IF
       </Implementation>
     </Method>
     <Method Name="execute" Id="{d67c5d9a-b061-4fe3-a66e-2e859577c8d2}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD execute : BOOL
+      <Declaration><![CDATA[METHOD execute : BOOL
 VAR_INST
 	i :UINT;
 	complete_all_task :BOOL;
@@ -113,8 +110,7 @@ execute := complete_all_task;]]></ST>
       </Implementation>
     </Method>
     <Property Name="future_name" Id="{d54c93e3-c6dc-4912-8189-f00de2cbf2b9}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY future_name : STRING
+      <Declaration><![CDATA[PROPERTY future_name : STRING
 ]]></Declaration>
       <Get Name="Get" Id="{384e4123-78a7-4a7d-86b6-7f594ccbbe31}">
         <Declaration><![CDATA[VAR
@@ -134,8 +130,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="init" Id="{625c2131-03a0-45b4-9fa6-8b896834412c}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD init : BOOL
+      <Declaration><![CDATA[METHOD init : BOOL
 VAR_INST
 	i :UINT;
 	complete_initialize_all_task :BOOL;
@@ -182,8 +177,7 @@ END_IF
       </Implementation>
     </Method>
     <Property Name="job_event_reporter" Id="{25d413b1-97fa-4dac-9630-93e398208838}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY job_event_reporter : InterfaceJobEventReporter
+      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceJobEventReporter
 ]]></Declaration>
       <Set Name="Set" Id="{c92b205e-18d8-4915-8d21-69aa0820e7ed}">
         <Declaration><![CDATA[VAR
@@ -198,8 +192,7 @@ END_FOR]]></ST>
       </Set>
     </Property>
     <Property Name="nErrorID" Id="{e11c378f-8958-4239-9ae1-c4dfcb9daf49}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY nErrorID : UDINT
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT
 ]]></Declaration>
       <Get Name="Get" Id="{dc6cadd6-e0ee-4656-bb80-87816f2b333a}">
         <Declaration><![CDATA[VAR
@@ -222,8 +215,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="parent_executor" Id="{c693f493-6d1b-41ca-8d4f-d7127793b5ff}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY parent_executor : REFERENCE TO FB_Executor
+      <Declaration><![CDATA[PROPERTY parent_executor : REFERENCE TO FB_Executor
 ]]></Declaration>
       <Get Name="Get" Id="{dbf4f5c8-848a-4c86-bebb-551f1592d7d3}">
         <Declaration><![CDATA[VAR
@@ -244,8 +236,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="quit" Id="{45e620fb-665e-4cea-b7f5-8d6c239f0a4c}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD quit : BOOL
+      <Declaration><![CDATA[METHOD quit : BOOL
 VAR_INST
 	i: UINT;
 	complete_all_task :BOOL;
@@ -271,8 +262,7 @@ END_IF
       </Implementation>
     </Method>
     <Method Name="reset" Id="{d1fd45e5-38da-4c6c-8b9f-76bcf3ab9a3a}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD reset : BOOL
+      <Declaration><![CDATA[METHOD reset : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[WHILE _total_futures > 0 DO
@@ -284,8 +274,7 @@ reset := _total_futures = 0;]]></ST>
       </Implementation>
     </Method>
     <Method Name="reset_sub_futures" Id="{4a8b4e71-6791-4ece-8c18-38eda8315f48}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD reset_sub_futures : BOOL
+      <Declaration><![CDATA[METHOD reset_sub_futures : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[_total_futures := 0;]]></ST>
