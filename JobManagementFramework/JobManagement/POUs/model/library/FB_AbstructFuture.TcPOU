@@ -15,24 +15,21 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="abort" Id="{862be836-a2ae-4f1d-92dd-4b23d30b26d7}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD abort : BOOL
+      <Declaration><![CDATA[METHOD abort : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[abort := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="execute" Id="{ba07fa30-bd40-4f42-b8d8-9c368f5519ee}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD execute : BOOL
+      <Declaration><![CDATA[METHOD execute : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
     <Property Name="future_name" Id="{2365611b-3978-40e5-af7c-084e8898106e}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY future_name : STRING
+      <Declaration><![CDATA[PROPERTY future_name : STRING
 ]]></Declaration>
       <Get Name="Get" Id="{e0946a55-87b0-493c-91f5-c6fd2898618e}">
         <Declaration><![CDATA[VAR
@@ -52,16 +49,14 @@ END_VAR
       </Set>
     </Property>
     <Method Name="init" Id="{0f9a7fa1-ec74-4313-8d46-6183b844e43b}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD init : BOOL
+      <Declaration><![CDATA[METHOD init : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[init := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{5e96776e-2ecf-4a2b-b5d9-c234f6343ca2}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY nErrorID : UDINT
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT
 ]]></Declaration>
       <Get Name="Get" Id="{60455303-60d8-490d-880a-ad439ea813d7}">
         <Declaration><![CDATA[VAR
@@ -73,8 +68,7 @@ END_VAR
       </Get>
     </Property>
     <Method Name="quit" Id="{0f34e09c-f5ef-4bf1-a724-c006af3b609d}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD quit : BOOL
+      <Declaration><![CDATA[METHOD quit : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[init();

@@ -19,8 +19,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="abort" Id="{d02a02ce-eb9e-43cb-a107-d4fa0fc34c85}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD abort : BOOL
+      <Declaration><![CDATA[METHOD abort : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF process_timer.IN THEN
@@ -62,8 +61,7 @@ init := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{d940a05b-457a-4571-af02-9c908c0ddd5a}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY nErrorID : UDINT
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT
 ]]></Declaration>
       <Get Name="Get" Id="{f38a3ee9-4b95-4da3-b87d-09c08cdf31f1}">
         <Declaration><![CDATA[VAR
@@ -105,8 +103,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="quit" Id="{906e42c6-5cb2-4ee4-be39-84be0bedded2}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD quit : BOOL
+      <Declaration><![CDATA[METHOD quit : BOOL
 VAR_INST
 	q_delay: TON;
 END_VAR]]></Declaration>
