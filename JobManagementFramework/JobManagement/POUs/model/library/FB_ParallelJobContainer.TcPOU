@@ -13,8 +13,10 @@ VAR
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF FB_Executor;
 	_total_futures: UINT;
 	current_executing_future : InterfaceFuture;
+	_continuous_mode : BOOL;
 	_initialize :BOOL;
 	_error_id :UDINT;
+	_state : E_FutureExecutionState;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -76,6 +78,22 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="continuous_mode" Id="{5a12c80f-1f24-45b8-9b63-e15c40bbce74}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY continuous_mode : BOOL
+]]></Declaration>
+      <Set Name="Set" Id="{9e468597-2d05-4242-a638-d599c3209d8e}">
+        <Declaration><![CDATA[VAR
+	i :UDINT;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FOR i := 1 TO _total_futures DO
+	_executors[i].continuous_mode := continuous_mode;
+END_FOR]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="execute" Id="{d67c5d9a-b061-4fe3-a66e-2e859577c8d2}">
       <Declaration><![CDATA[METHOD execute : BOOL
 VAR_INST
@@ -273,13 +291,28 @@ END_WHILE
 reset := _total_futures = 0;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="reset_sub_futures" Id="{4a8b4e71-6791-4ece-8c18-38eda8315f48}">
-      <Declaration><![CDATA[METHOD reset_sub_futures : BOOL
+    <Property Name="state" Id="{dd769214-d2b5-42a0-a955-2cc090d41b8a}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY state : E_FutureExecutionState
 ]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_total_futures := 0;]]></ST>
-      </Implementation>
-    </Method>
+      <Get Name="Get" Id="{3b2af759-d20a-44e0-951d-06ecaf30d6b2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[state := _state;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f6afed83-9092-41de-9405-bf23635132c7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_state := state;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <LineIds Name="FB_ParallelJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
@@ -296,33 +329,16 @@ reset := _total_futures = 0;]]></ST>
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.add_future">
-      <LineId Id="6" Count="2" />
-      <LineId Id="24" Count="1" />
-      <LineId Id="23" Count="0" />
-      <LineId Id="18" Count="0" />
+      <LineId Id="73" Count="10" />
       <LineId Id="10" Count="0" />
-      <LineId Id="12" Count="1" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ParallelJobContainer.continuous_mode.Set">
+      <LineId Id="9" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.execute">
-      <LineId Id="47" Count="0" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="23" Count="0" />
-      <LineId Id="119" Count="0" />
-      <LineId Id="122" Count="0" />
-      <LineId Id="121" Count="0" />
-      <LineId Id="107" Count="0" />
-      <LineId Id="111" Count="0" />
-      <LineId Id="110" Count="0" />
-      <LineId Id="109" Count="0" />
-      <LineId Id="136" Count="1" />
-      <LineId Id="132" Count="1" />
-      <LineId Id="135" Count="0" />
-      <LineId Id="46" Count="0" />
-      <LineId Id="53" Count="2" />
-      <LineId Id="20" Count="0" />
-      <LineId Id="68" Count="0" />
+      <LineId Id="153" Count="20" />
       <LineId Id="4" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.future_name.Get">
@@ -389,8 +405,12 @@ reset := _total_futures = 0;]]></ST>
       <LineId Id="11" Count="4" />
       <LineId Id="4" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.reset_sub_futures">
-      <LineId Id="4" Count="0" />
+    <LineIds Name="FB_ParallelJobContainer.state.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ParallelJobContainer.state.Set">
+      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

@@ -42,5 +42,14 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="state" Id="{b673a454-4761-427b-8ab4-14bd1622c60c}">
+      <Declaration><![CDATA[PROPERTY state : E_FutureExecutionState]]></Declaration>
+      <Get Name="Get" Id="{4b1cfb02-a56c-4f6f-980b-64cbecfe2458}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{6d81734e-97aa-4d5c-8baf-2d15120c0679}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
   </Itf>
 </TcPlcObject>

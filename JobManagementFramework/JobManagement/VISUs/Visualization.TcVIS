@@ -1960,7 +1960,7 @@
                   <l n="VisualElemMemberList" t="VisualElemMemberCollection" cet="VisualElemMember">
                     <o>
                       <v n="Id">1931512087L</v>
-                      <v n="Value">"TOGGLE"</v>
+                      <v n="Value">"TAP"</v>
                     </o>
                     <o>
                       <v n="Id">300685745L</v>

@@ -9,6 +9,8 @@ END_VAR
 VAR
 	{attribute 'TcEncoding':='UTF-8'}
 	_future_name :STRING := 'NO_NAME';
+	_busy : BOOL; 
+	_state : E_FutureExecutionState;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -52,7 +54,8 @@ END_VAR
       <Declaration><![CDATA[METHOD init : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[init := TRUE;]]></ST>
+        <ST><![CDATA[init := TRUE;
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{5e96776e-2ecf-4a2b-b5d9-c234f6343ca2}">
@@ -75,6 +78,27 @@ END_VAR
 quit := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="state" Id="{91bd7ebd-9da1-475e-8562-21de65a90ef0}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY state : E_FutureExecutionState
+]]></Declaration>
+      <Get Name="Get" Id="{5f907f7b-f09a-4df2-813b-0a4f8e85b687}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[state := _state;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{1e6ea7bf-ae29-4091-a681-57ef0260a8f7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_state := state;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <LineIds Name="FB_AbstructFuture">
       <LineId Id="9" Count="0" />
     </LineIds>
@@ -92,12 +116,19 @@ quit := TRUE;]]></ST>
     </LineIds>
     <LineIds Name="FB_AbstructFuture.init">
       <LineId Id="4" Count="0" />
+      <LineId Id="6" Count="0" />
     </LineIds>
     <LineIds Name="FB_AbstructFuture.nErrorID.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_AbstructFuture.quit">
       <LineId Id="4" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.state.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.state.Set">
+      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

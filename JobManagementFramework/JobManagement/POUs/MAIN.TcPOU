@@ -27,7 +27,7 @@ VAR
 	pararel_job1 : FB_ParallelJobContainer;
 	pararel_job2 : FB_ParallelJobContainer;
 	
-	queue_job : FB_queueJobContainer;
+	queue_job : FB_ParallelQueueJobContainer;
 	job_create_switch : ARRAY[1..4] OF BOOL;
 	executor: FB_Executor;
 	execution_step: STRING;
@@ -38,6 +38,7 @@ VAR
 	
 	fb_adslog_reporter : FB_ADSLOG_reporter;
 	
+	end_of_manual: BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -52,13 +53,13 @@ CASE _state OF
 	0:
 		// 固有パラメータ設
 		fbTask1.own_parameter := T#8S;
-		fbTask1.future_name := wsliteral_to_UTF8("点滅-1");
+		fbTask1.future_name := 'Blink-1';
 		fbTask2.own_parameter := T#5S;
-		fbTask2.future_name := wsliteral_to_UTF8("点滅-2");
+		fbTask2.future_name := 'Blink-2';
 		fbTask3.own_parameter := 2;
-		fbTask3.future_name := wsliteral_to_UTF8("カウント-1");
+		fbTask3.future_name := 'Button count-1';
 		fbTask4.own_parameter := 2;
-		fbTask4.future_name := wsliteral_to_UTF8("Count1");
+		fbTask4.future_name := 'Button count-2';
 
 		// 入出力変数の受け渡し
 		//fbTask1(own_output := component1_out);
@@ -69,22 +70,34 @@ CASE _state OF
 		fbTask4(own_input := component4_in, own_output := component4_out);
 		
 		// futureオブジェクトの配置により実行順序を定義
-		pararel_job1.add_future(serial_job1);
-		pararel_job1.add_future(serial_job2);
 		serial_job1.add_future(fbTask1);
 		serial_job1.add_future(fbTask2);
-		serial_job2.add_future(serial_job2_1);
-		serial_job2.add_future(serial_job2_2);
+		serial_job1.future_name := 'Batch process 1';
+
 		serial_job2_1.add_future(fbTask3);
 		serial_job2_1.add_future(fbTask4);
+		serial_job2_1.future_name := 'Batch process 2-1';
+		serial_job2.add_future(serial_job2_1);
+
 		serial_job2_2.add_future(fbTask3);
 		serial_job2_2.add_future(fbTask4);
+		serial_job2_2.future_name := 'Batch process 2-2';
+		serial_job2.add_future(serial_job2_2);
+		serial_job2.future_name := 'Batch process 2';
+
+		pararel_job1.add_future(serial_job2);
+		pararel_job1.add_future(serial_job1);
+		pararel_job1.future_name := 'Paralell 1';
+
 		pararel_job2.add_future(fbTask3); // 同時実行でなければ同じFutureオブジェクトを使いまわせる
 		pararel_job2.add_future(fbTask4);
+		pararel_job2.future_name := 'Paralell 2';
 		serial_job3.add_future(pararel_job1);
 		serial_job3.add_future(pararel_job2);
+		serial_job3.future_name := 'Main sequence';
 		executor.future := serial_job3;
-		executor.id := wsliteral_to_UTF8("固定ジョブ");
+		executor.id := 'Fixed job';
+		executor.continuous_mode := FALSE;
 		_state := 1;
 	1:
 		// シーケンス制御
@@ -97,7 +110,8 @@ CASE _state OF
 		END_IF
 	2:
 		executor.future := queue_job;
-		executor.id := wsliteral_to_UTF8("キュージョブ");
+		executor.id := 'Queued job';
+		executor.continuous_mode := TRUE;
 		executor.init();
 		_state := 3;
 	3:
@@ -120,14 +134,17 @@ CASE _state OF
 			job_create_switch[4] := FALSE;
 			queue_job.add_future(fbTask4);
 		END_IF
-		
+		IF reset THEN
+			executor.quit();
+		END_IF
 		IF executor.execute() AND executor.nErrorID = 0 THEN
 			_state := 4;
 		END_IF
 	4:
 		executor.future := serial_job3;
 		executor.init();
-		_state := 2;
+		_state := 1;
+		
 END_CASE
 
 IF reset THEN
@@ -149,7 +166,37 @@ resume := FALSE;
       <LineId Id="1962" Count="0" />
       <LineId Id="1881" Count="0" />
       <LineId Id="1963" Count="0" />
-      <LineId Id="1882" Count="76" />
+      <LineId Id="1882" Count="9" />
+      <LineId Id="2064" Count="1" />
+      <LineId Id="2074" Count="0" />
+      <LineId Id="2057" Count="0" />
+      <LineId Id="2055" Count="1" />
+      <LineId Id="2077" Count="0" />
+      <LineId Id="1896" Count="0" />
+      <LineId Id="2058" Count="0" />
+      <LineId Id="2060" Count="1" />
+      <LineId Id="2079" Count="0" />
+      <LineId Id="1897" Count="0" />
+      <LineId Id="2076" Count="0" />
+      <LineId Id="2062" Count="0" />
+      <LineId Id="2053" Count="0" />
+      <LineId Id="2069" Count="0" />
+      <LineId Id="2082" Count="0" />
+      <LineId Id="2072" Count="0" />
+      <LineId Id="1902" Count="1" />
+      <LineId Id="2083" Count="0" />
+      <LineId Id="1904" Count="1" />
+      <LineId Id="2084" Count="0" />
+      <LineId Id="1906" Count="1" />
+      <LineId Id="2004" Count="0" />
+      <LineId Id="1908" Count="12" />
+      <LineId Id="2002" Count="0" />
+      <LineId Id="1921" Count="21" />
+      <LineId Id="2123" Count="2" />
+      <LineId Id="2006" Count="5" />
+      <LineId Id="2005" Count="0" />
+      <LineId Id="1943" Count="0" />
+      <LineId Id="1951" Count="7" />
       <LineId Id="1744" Count="0" />
     </LineIds>
   </POU>

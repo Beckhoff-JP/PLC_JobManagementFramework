@@ -18,6 +18,12 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="continuous_mode" Id="{97d37245-0a02-4783-8ab5-0f90cb1fc2d0}">
+      <Declaration><![CDATA[PROPERTY continuous_mode : bool]]></Declaration>
+      <Set Name="Set" Id="{67c23647-8ef5-47ae-81ce-913de28a5e0e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Property Name="job_event_reporter" Id="{2fe3906e-365c-4588-b62b-01dcef6f665c}">
       <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceJobEventReporter]]></Declaration>
       <Set Name="Set" Id="{fee844e0-8ec3-4770-af6a-359a99f5213e}">
@@ -41,12 +47,6 @@ END_VAR
     </Property>
     <Method Name="reset" Id="{cf0bbd9b-2cd6-46f3-b203-68cba1d854bb}">
       <Declaration><![CDATA[METHOD reset : BOOL
-VAR_INPUT
-END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="reset_sub_futures" Id="{2b4aedc3-0b4d-4f4c-b2aa-df9f403a1db1}">
-      <Declaration><![CDATA[METHOD reset_sub_futures : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>

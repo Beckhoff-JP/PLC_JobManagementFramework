@@ -14,7 +14,9 @@ VAR
 	_total_futures: UINT;
 	current_executing_future_id : UINT;
 	current_executing_future : InterfaceFuture;
+	_continuous_mode : BOOL;
 	_error_id :UDINT;
+	_state :E_FutureExecutionState;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -79,6 +81,22 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="continuous_mode" Id="{343a3827-ff84-44f3-84ba-b113b2f26d90}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY continuous_mode : BOOL
+]]></Declaration>
+      <Set Name="Set" Id="{faac3094-0403-47bd-bea8-9caac446a076}">
+        <Declaration><![CDATA[VAR
+	i: UDINT;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[FOR i := 1 TO _total_futures DO
+	_executors[i].continuous_mode := continuous_mode;
+END_FOR]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="execute" Id="{3a50f198-985b-4ce4-97c9-3b4f8b04dcb5}">
       <Declaration><![CDATA[METHOD execute : BOOL
 VAR_INST
@@ -110,7 +128,7 @@ END_IF
 
 IF _executors[current_executing_future_id].done THEN
 	IF current_executing_future_id = _total_futures THEN
-		execute := TRUE;
+		execute := NOT _continuous_mode;
 	ELSE
 		execute := FALSE;
 		current_executing_future_id := current_executing_future_id + 1;
@@ -250,13 +268,28 @@ END_WHILE
 reset := _total_futures = 0;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="reset_sub_futures" Id="{77dfde03-e918-47ca-a26c-b18262548c3b}">
-      <Declaration><![CDATA[METHOD reset_sub_futures : BOOL
+    <Property Name="state" Id="{4d617c7f-61e3-48f4-a7e6-f4dbff20e9b3}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY state : E_FutureExecutionState
 ]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_total_futures := 0;]]></ST>
-      </Implementation>
-    </Method>
+      <Get Name="Get" Id="{71b69eb1-1246-4032-b6ef-12ef4db875ee}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[state := _state;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{a65c40ea-bdd5-4cac-abc6-c78449a7a15d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_state := state;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <LineIds Name="FB_BatchJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
@@ -280,6 +313,10 @@ reset := _total_futures = 0;]]></ST>
       <LineId Id="12" Count="1" />
       <LineId Id="5" Count="0" />
       <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.continuous_mode.Set">
+      <LineId Id="5" Count="1" />
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.execute">
       <LineId Id="5" Count="0" />
@@ -358,8 +395,12 @@ reset := _total_futures = 0;]]></ST>
       <LineId Id="8" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
-    <LineIds Name="FB_BatchJobContainer.reset_sub_futures">
-      <LineId Id="4" Count="0" />
+    <LineIds Name="FB_BatchJobContainer.state.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.state.Set">
+      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

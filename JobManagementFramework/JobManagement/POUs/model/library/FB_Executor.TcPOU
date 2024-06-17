@@ -13,12 +13,14 @@ VAR
 	_ready : BOOL;
 	_start : BOOL;
 	_abort : BOOL;
+	_quit : BOOL;
 	 {attribute 'TcAnalytics'}
-	_state : E_FutureExecutionState := E_FutureExecutionState.idle;
+	 _state :E_FutureExecutionState;
 	_last_state  :E_FutureExecutionState;
 	_future : InterfaceFuture;
 	_error_id : UDINT;
 	_aborting :BOOL;
+	_quitting :BOOL;
 	_interface_container : InterfaceContainer := 0;
 	_job_event_reporter: InterfaceJobEventReporter;
 END_VAR]]></Declaration>
@@ -60,6 +62,19 @@ END_IF
         </Implementation>
       </Get>
     </Property>
+    <Property Name="continuous_mode" Id="{f813b158-0532-443d-867f-f3f4c7f7b526}">
+      <Declaration><![CDATA[PROPERTY continuous_mode : bool]]></Declaration>
+      <Set Name="Set" Id="{d13ba071-7139-40fe-a4d6-bf1103d7257f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[IF __QUERYINTERFACE(_future, _interface_container) THEN
+	_interface_container.continuous_mode := continuous_mode;
+END_IF]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="current_state" Id="{9bdc45ea-e038-402f-9e8e-3b1c363b70b4}">
       <Declaration><![CDATA[{attribute 'OPC.UA.DA.Property' := '1'}
 {attribute 'monitoring' := 'call'}
@@ -70,7 +85,12 @@ PROPERTY current_state : E_FutureExecutionState]]></Declaration>
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[current_state := _state;]]></ST>
+          <ST><![CDATA[IF _future <> 0 THEN
+	current_state := _state;	
+ELSE
+	current_state := E_FutureExecutionState.idle;
+END_IF
+]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -99,19 +119,25 @@ ELSE
 	execute := FALSE;
 END_IF
 
-
 IF _abort THEN
 	_state := E_FutureExecutionState.abort;
 	_error_id := 16#FFFFFFFF;
 END_IF
-
 _abort := FALSE;
 
 
+IF _quit THEN
+	_state := E_FutureExecutionState.quit;
+END_IF
+_quit := FALSE;
+
+
 CASE _state OF
-	E_FutureExecutionState.idle: 
-		init();
-		_state := E_FutureExecutionState.init;
+	E_FutureExecutionState.idle:
+		IF _future.state = E_FutureExecutionState.idle OR _future.state = E_FutureExecutionState.finish THEN
+			init();
+			_state := E_FutureExecutionState.init;			
+		END_IF
 	E_FutureExecutionState.init:
 		IF _future.init() THEN
 			IF _future.nErrorID = 0 THEN
@@ -155,6 +181,7 @@ CASE _state OF
 				_error_id := _future.nErrorID;
 				_state := E_FutureExecutionState.abort;
 			END_IF
+			_quitting := FALSE;
 		END_IF
 	E_FutureExecutionState.finish:
 		IF NOT _logging THEN
@@ -170,10 +197,15 @@ IF _state <> _state_mem THEN
 		_state = E_FutureExecutionState.quit THEN
 		_error_id := 0;
 	END_IF
+
 	IF _state = E_FutureExecutionState.abort THEN
 		_aborting := TRUE;
 	END_IF
 	
+	IF _state = E_FutureExecutionState.quit THEN
+		_quitting := TRUE;
+	END_IF
+		
 	IF _job_event_reporter <> 0 THEN
 		// reporter
 		_logging := TRUE;
@@ -192,7 +224,8 @@ IF _logging THEN
 		_logging := FALSE;
 	END_IF
 END_IF
-]]></ST>
+
+_future.state := _state;]]></ST>
       </Implementation>
     </Method>
     <Property Name="future" Id="{a5f34e34-fd86-442a-a2b3-dcfdacffba84}">
@@ -212,6 +245,7 @@ END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[_future := future;
+_future.state := _state;
 IF __QUERYINTERFACE(_future, _interface_container) THEN
 	_interface_container.parent_executor REF= THIS^;
 END_IF]]></ST>
@@ -248,9 +282,10 @@ END_VAR
 _abort := FALSE;
 _ready := FALSE;
 _start := FALSE;
-_state := E_FutureExecutionState.idle;
+_state := E_FutureExecutionState.init;
 _error_id := 0;
-INIT := TRUE;]]></ST>
+INIT := TRUE;
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="job_event_reporter" Id="{7070112e-2fb6-433d-85f5-f36a183c0a1e}">
@@ -290,6 +325,26 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Method Name="quit" Id="{a3ed0ceb-2877-462b-84db-f716a8c9598e}">
+      <Declaration><![CDATA[METHOD quit : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _state = E_FutureExecutionState.init OR
+   _state = E_FutureExecutionState.process OR
+   _state = E_FutureExecutionState.quit THEN
+	_quit := TRUE;	
+END_IF
+
+IF 	_quit AND _state = E_FutureExecutionState.quit THEN
+	quit := NOT _quitting;
+ELSE
+	quit := TRUE;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="ready" Id="{a76eb28b-8e38-458e-b69a-c73f1b377610}">
       <Declaration><![CDATA[PROPERTY ready : BOOL]]></Declaration>
       <Get Name="Get" Id="{b15bc61f-5bad-464a-9e63-5e877e3aa3c7}">
@@ -297,7 +352,8 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ready := _ready;]]></ST>
+          <ST><![CDATA[ready := _ready;
+]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -345,7 +401,13 @@ END_VAR
       <LineId Id="11" Count="0" />
       <LineId Id="2" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor.continuous_mode.Set">
+      <LineId Id="5" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.current_state.Get">
+      <LineId Id="6" Count="1" />
+      <LineId Id="9" Count="2" />
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.done.Get">
@@ -355,13 +417,19 @@ END_VAR
       <LineId Id="8" Count="2" />
       <LineId Id="50" Count="1" />
       <LineId Id="11" Count="0" />
-      <LineId Id="155" Count="0" />
       <LineId Id="157" Count="0" />
       <LineId Id="162" Count="1" />
-      <LineId Id="165" Count="3" />
+      <LineId Id="165" Count="1" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="245" Count="0" />
       <LineId Id="156" Count="0" />
-      <LineId Id="13" Count="3" />
-      <LineId Id="147" Count="0" />
+      <LineId Id="237" Count="0" />
+      <LineId Id="239" Count="2" />
+      <LineId Id="246" Count="0" />
+      <LineId Id="13" Count="2" />
+      <LineId Id="258" Count="0" />
+      <LineId Id="261" Count="1" />
+      <LineId Id="260" Count="0" />
       <LineId Id="18" Count="1" />
       <LineId Id="75" Count="0" />
       <LineId Id="20" Count="1" />
@@ -388,6 +456,7 @@ END_VAR
       <LineId Id="82" Count="0" />
       <LineId Id="124" Count="1" />
       <LineId Id="85" Count="0" />
+      <LineId Id="236" Count="0" />
       <LineId Id="41" Count="1" />
       <LineId Id="228" Count="0" />
       <LineId Id="231" Count="0" />
@@ -399,10 +468,13 @@ END_VAR
       <LineId Id="183" Count="0" />
       <LineId Id="182" Count="0" />
       <LineId Id="177" Count="0" />
+      <LineId Id="247" Count="0" />
       <LineId Id="185" Count="0" />
       <LineId Id="189" Count="0" />
       <LineId Id="188" Count="0" />
-      <LineId Id="194" Count="0" />
+      <LineId Id="248" Count="0" />
+      <LineId Id="250" Count="2" />
+      <LineId Id="249" Count="0" />
       <LineId Id="202" Count="0" />
       <LineId Id="205" Count="0" />
       <LineId Id="216" Count="0" />
@@ -414,13 +486,15 @@ END_VAR
       <LineId Id="217" Count="0" />
       <LineId Id="220" Count="7" />
       <LineId Id="219" Count="0" />
-      <LineId Id="175" Count="0" />
+      <LineId Id="257" Count="0" />
+      <LineId Id="243" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.future.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.future.Set">
       <LineId Id="2" Count="0" />
+      <LineId Id="13" Count="0" />
       <LineId Id="5" Count="2" />
     </LineIds>
     <LineIds Name="FB_Executor.id.Get">
@@ -432,9 +506,11 @@ END_VAR
     <LineIds Name="FB_Executor.init">
       <LineId Id="6" Count="0" />
       <LineId Id="21" Count="0" />
-      <LineId Id="7" Count="2" />
+      <LineId Id="7" Count="1" />
+      <LineId Id="25" Count="0" />
       <LineId Id="13" Count="0" />
       <LineId Id="17" Count="0" />
+      <LineId Id="26" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.job_event_reporter.Set">
       <LineId Id="2" Count="0" />
@@ -447,8 +523,13 @@ END_VAR
     <LineIds Name="FB_Executor.nErrorID.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor.quit">
+      <LineId Id="6" Count="10" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.ready.Get">
       <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.reset">
       <LineId Id="6" Count="3" />
