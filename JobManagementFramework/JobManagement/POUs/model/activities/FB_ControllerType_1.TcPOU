@@ -12,7 +12,7 @@ VAR
 	process_timer: TON;
 	blink_timer: TON;
 	_result :UDINT;
-	_own_output: POINTER TO BOOL;
+	_own_output: REFERENCE TO BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -26,7 +26,7 @@ END_VAR
 	_set_time := process_timer.PT - process_timer.ET;
 END_IF
 process_timer(IN := FALSE);
-_own_output^ := FALSE;
+_own_output := FALSE;
 abort := TRUE;
 ]]></ST>
       </Implementation>
@@ -38,10 +38,10 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[blink_timer(IN := NOT blink_timer.Q, PT := T#0.5S);
-IF _own_output^ AND blink_timer.Q THEN
-	_own_output^ := FALSE;
+IF _own_output AND blink_timer.Q THEN
+	_own_output := FALSE;
 ELSIF blink_timer.Q THEN
-	_own_output^ := TRUE;
+	_own_output := TRUE;
 END_IF
 process_timer(IN := TRUE,PT := _set_time);
 execute := process_timer.Q;]]></ST>
@@ -53,7 +53,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_own_output^ := FALSE;
+        <ST><![CDATA[_own_output := FALSE;
 _set_time := _own_parameter;
 process_timer(IN := FALSE);
 blink_timer(IN := FALSE);
@@ -79,7 +79,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_own_output := ADR(own_output);]]></ST>
+          <ST><![CDATA[_own_output REF= own_output;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -104,9 +104,7 @@ END_VAR
     </Property>
     <Method Name="quit" Id="{906e42c6-5cb2-4ee4-be39-84be0bedded2}">
       <Declaration><![CDATA[METHOD quit : BOOL
-VAR_INST
-	q_delay: TON;
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
         <ST><![CDATA[THIS^.init();
 quit := TRUE;]]></ST>

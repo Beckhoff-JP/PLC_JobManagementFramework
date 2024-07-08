@@ -4,19 +4,19 @@
     <Declaration><![CDATA[INTERFACE InterfaceFuture EXTENDS __System.IQueryInterface 
 ]]></Declaration>
     <Method Name="abort" Id="{527ff0b5-6fbb-4ad6-b3f1-4a79b5e73d86}">
-      <Declaration><![CDATA[METHOD abort : BOOL
+      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="execute" Id="{4a0b4721-18ea-4776-928a-5b24c49dda75}">
-      <Declaration><![CDATA[METHOD execute : BOOL
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
     <Property Name="future_name" Id="{89ef3158-3550-438a-bee3-821a3cca9058}">
-      <Declaration><![CDATA[PROPERTY future_name : STRING]]></Declaration>
+      <Declaration><![CDATA[PROPERTY future_name : STRING // Name of future.]]></Declaration>
       <Get Name="Get" Id="{d6d11718-73bb-4401-91ac-a3e6b656d939}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -25,25 +25,25 @@ END_VAR
       </Set>
     </Property>
     <Method Name="init" Id="{d56cdce8-543b-417d-80a1-0c782146e5ce}">
-      <Declaration><![CDATA[METHOD init : BOOL
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
     <Property Name="nErrorID" Id="{091e3808-1f21-4039-8bcc-e07988c843df}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT // Set result code when finished any method. 0 should be set when normal case.]]></Declaration>
       <Get Name="Get" Id="{3dfc56f5-414c-4e9f-8318-d6a9044e8070}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
     <Method Name="quit" Id="{12e3433d-9567-4756-bdca-54fc6f4c2614}">
-      <Declaration><![CDATA[METHOD quit : BOOL
+      <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
     <Property Name="state" Id="{b673a454-4761-427b-8ab4-14bd1622c60c}">
-      <Declaration><![CDATA[PROPERTY state : E_FutureExecutionState]]></Declaration>
+      <Declaration><![CDATA[PROPERTY state : E_FutureExecutionState // Execution state of this future.]]></Declaration>
       <Get Name="Get" Id="{4b1cfb02-a56c-4f6f-980b-64cbecfe2458}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

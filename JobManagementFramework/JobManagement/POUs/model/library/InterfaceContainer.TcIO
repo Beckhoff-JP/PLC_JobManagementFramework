@@ -46,7 +46,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="reset" Id="{cf0bbd9b-2cd6-46f3-b203-68cba1d854bb}">
-      <Declaration><![CDATA[METHOD reset : BOOL
+      <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>

@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="InterfaceExecutor" Id="{dcbcc145-47ac-43ad-b6d8-207a346dd3d3}">
+    <Declaration><![CDATA[INTERFACE InterfaceExecutor
+]]></Declaration>
+    <Method Name="abort" Id="{a76a2f9e-7288-45a7-a027-e4fb53a589dd}">
+      <Declaration><![CDATA[METHOD abort : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="active_future_id" Id="{02bf6811-1826-46a1-8744-16a48d047ef1}">
+      <Declaration><![CDATA[PROPERTY active_future_id : STRING]]></Declaration>
+      <Get Name="Get" Id="{65e843a1-6176-43d3-ae9d-77c4eacb756e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="continuous_mode" Id="{10354b2e-36e5-4a11-a6bb-a890092393a8}">
+      <Declaration><![CDATA[PROPERTY continuous_mode : bool]]></Declaration>
+      <Set Name="Set" Id="{58a0bb33-e5c5-4ad5-9fb6-0a5e70c43225}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="current_state" Id="{2721a0b4-1be8-4abb-b600-e3681007ccf0}">
+      <Declaration><![CDATA[{attribute 'OPC.UA.DA.Property' := '1'}
+{attribute 'monitoring' := 'call'}
+{attribute 'OPC.UA.DA.Description' := 'Current state of this executor object.'}
+PROPERTY current_state : E_FutureExecutionState]]></Declaration>
+      <Get Name="Get" Id="{2fd04c38-cae8-4b59-a39b-271eb8e389de}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="done" Id="{db2c462f-01b1-4674-bdf5-616c48758867}">
+      <Declaration><![CDATA[PROPERTY done : BOOL]]></Declaration>
+      <Get Name="Get" Id="{38631f82-060f-4932-b91e-edba50176e01}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="execute" Id="{8ca87362-6d37-4187-84e7-dd5d704c068c}">
+      <Declaration><![CDATA[METHOD execute : BOOL
+VAR_INST
+	_state_mem :E_FutureExecutionState;
+	_logging :BOOL;
+END_VAR]]></Declaration>
+    </Method>
+    <Property Name="future" Id="{61ef58ba-af41-416f-855a-dbf304192dff}">
+      <Declaration><![CDATA[PROPERTY future : InterfaceFuture]]></Declaration>
+      <Get Name="Get" Id="{88f0845b-29e3-45ef-8fe1-e847a39f614d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{61d39d42-3caf-405d-bfce-4aff08ae341e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="id" Id="{a1577d91-42b8-4a9b-8b25-7ba6d399a877}">
+      <Declaration><![CDATA[PROPERTY id : T_MaxString
+]]></Declaration>
+      <Get Name="Get" Id="{f52e7a7d-5708-44e9-90af-fc92bdf7a722}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{91f366b1-df26-42e1-9926-cf1f349d79eb}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="init" Id="{f1d3a56a-baf6-4fbe-be85-a1cc32343fda}">
+      <Declaration><![CDATA[METHOD init : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="job_event_reporter" Id="{05e531f6-81c6-41cc-82ad-25531cac846e}">
+      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceJobEventReporter]]></Declaration>
+      <Set Name="Set" Id="{7c5b5ddd-155f-4de0-9e0e-275ceb93e745}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="last_state" Id="{600c35b0-52e8-462d-83db-48913a63e368}">
+      <Declaration><![CDATA[PROPERTY last_state : E_FutureExecutionState]]></Declaration>
+      <Get Name="Get" Id="{60e49231-e6ef-4e06-b98f-c42a010112e0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="nErrorID" Id="{5e11c68d-1998-4b94-9cff-67ab096ce60b}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT
+]]></Declaration>
+      <Get Name="Get" Id="{c1e7226e-b9b1-43ca-b393-c3f06d084162}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="quit" Id="{8e85106c-e0a9-4c1c-8dc4-1d8865861261}">
+      <Declaration><![CDATA[METHOD quit : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="ready" Id="{541eb71e-cfe9-4dc0-a145-3bc929d3e68d}">
+      <Declaration><![CDATA[PROPERTY ready : BOOL]]></Declaration>
+      <Get Name="Get" Id="{753f25bc-8646-4524-a6a1-29138ba395f0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="reset" Id="{948b3c90-9de6-4c2b-b7bc-8acd9c9117a9}">
+      <Declaration><![CDATA[METHOD reset : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="start" Id="{8948e327-0208-4724-a179-08926b183d9a}">
+      <Declaration><![CDATA[METHOD start : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

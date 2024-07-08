@@ -23,7 +23,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="abort" Id="{df529d65-dccb-41d9-a15b-0d233c35e0bc}">
-      <Declaration><![CDATA[METHOD abort : BOOL
+      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
 VAR_INST
 
 	complete_abort :BOOL;
@@ -98,7 +98,7 @@ END_FOR]]></ST>
       </Set>
     </Property>
     <Method Name="execute" Id="{3a50f198-985b-4ce4-97c9-3b4f8b04dcb5}">
-      <Declaration><![CDATA[METHOD execute : BOOL
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INST
 	i :UINT;
 	complete_last_proess :BOOL;
@@ -139,7 +139,7 @@ current_executing_future := _executors[current_executing_future_id].future;]]></
       </Implementation>
     </Method>
     <Property Name="future_name" Id="{7c47fc4f-5425-4d59-a4a5-60284aba42f9}">
-      <Declaration><![CDATA[PROPERTY future_name : STRING
+      <Declaration><![CDATA[PROPERTY future_name : STRING// Name of future.
 ]]></Declaration>
       <Get Name="Get" Id="{dc25cf42-6155-4699-bf97-0162fc9069a0}">
         <Declaration><![CDATA[VAR
@@ -159,7 +159,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="init" Id="{5ef2a4ac-f57b-470f-97a3-ba7305857e0b}">
-      <Declaration><![CDATA[METHOD init : BOOL
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR_INST
 	i :UINT;
 	//possible_to_start :BOOL;
@@ -234,7 +234,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="quit" Id="{7bdf3f44-47c5-4d23-b936-9fe467aec209}">
-      <Declaration><![CDATA[METHOD quit : BOOL
+      <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
 VAR_INST
 	i: UINT;
 	complete_all_task :BOOL;
@@ -257,7 +257,7 @@ END_IF
       </Implementation>
     </Method>
     <Method Name="reset" Id="{92b3e709-af95-4eb9-84ab-bb72db9fbb7f}">
-      <Declaration><![CDATA[METHOD reset : BOOL
+      <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[WHILE _total_futures > 0 DO

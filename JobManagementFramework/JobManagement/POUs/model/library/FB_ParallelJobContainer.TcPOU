@@ -23,7 +23,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="abort" Id="{6723fd47-ba3e-4a36-9944-cfce9135076b}">
-      <Declaration><![CDATA[METHOD abort : BOOL
+      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
 VAR_INST
 	complete_abort :BOOL;
 	i: UINT;
@@ -95,7 +95,7 @@ END_FOR]]></ST>
       </Set>
     </Property>
     <Method Name="execute" Id="{d67c5d9a-b061-4fe3-a66e-2e859577c8d2}">
-      <Declaration><![CDATA[METHOD execute : BOOL
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INST
 	i :UINT;
 	complete_all_task :BOOL;
@@ -128,7 +128,7 @@ execute := complete_all_task;]]></ST>
       </Implementation>
     </Method>
     <Property Name="future_name" Id="{d54c93e3-c6dc-4912-8189-f00de2cbf2b9}">
-      <Declaration><![CDATA[PROPERTY future_name : STRING
+      <Declaration><![CDATA[PROPERTY future_name : STRING// Name of future.
 ]]></Declaration>
       <Get Name="Get" Id="{384e4123-78a7-4a7d-86b6-7f594ccbbe31}">
         <Declaration><![CDATA[VAR
@@ -148,7 +148,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="init" Id="{625c2131-03a0-45b4-9fa6-8b896834412c}">
-      <Declaration><![CDATA[METHOD init : BOOL
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR_INST
 	i :UINT;
 	complete_initialize_all_task :BOOL;
@@ -254,7 +254,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="quit" Id="{45e620fb-665e-4cea-b7f5-8d6c239f0a4c}">
-      <Declaration><![CDATA[METHOD quit : BOOL
+      <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
 VAR_INST
 	i: UINT;
 	complete_all_task :BOOL;
@@ -280,7 +280,7 @@ END_IF
       </Implementation>
     </Method>
     <Method Name="reset" Id="{d1fd45e5-38da-4c6c-8b9f-76bcf3ab9a3a}">
-      <Declaration><![CDATA[METHOD reset : BOOL
+      <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[WHILE _total_futures > 0 DO

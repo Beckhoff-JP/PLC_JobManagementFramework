@@ -100,7 +100,7 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="abort" Id="{dff13b45-18d6-46c3-b266-e17169a248ba}">
-      <Declaration><![CDATA[METHOD abort : BOOL
+      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
 VAR
 	_itter :BOOL;
 	_head : BOOL;
@@ -253,7 +253,7 @@ END_IF
       </Implementation>
     </Method>
     <Method Name="execute" Id="{08489d90-f655-4964-9e80-20dd5ed12d14}">
-      <Declaration><![CDATA[METHOD execute : BOOL
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR
 	_end :BOOL;
 	_head : BOOL;
@@ -316,7 +316,7 @@ END_WHILE
       </Implementation>
     </Method>
     <Property Name="future_name" Id="{cd551c96-5f0e-4c19-92ba-d801881f2141}">
-      <Declaration><![CDATA[PROPERTY future_name : STRING
+      <Declaration><![CDATA[PROPERTY future_name : STRING // Name of future.
 ]]></Declaration>
       <Get Name="Get" Id="{7dfb6da3-9288-4cf8-9cc3-fc54e71db0e4}">
         <Declaration><![CDATA[VAR
@@ -336,7 +336,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="init" Id="{e2e928e1-a3fb-4663-8042-bd87f35fc43e}">
-      <Declaration><![CDATA[METHOD init : BOOL
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR
 	_executor : REFERENCE TO FB_Executor;
 	i :UINT;
@@ -422,7 +422,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="quit" Id="{3f8451e6-e72b-40b4-9f28-55afc0d9df13}">
-      <Declaration><![CDATA[METHOD quit : BOOL
+      <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[quit := TRUE;
@@ -432,7 +432,7 @@ END_VAR
     <Method Name="reset" Id="{d3e31e1e-41be-4852-9255-b76affe4c87f}">
       <Declaration><![CDATA[{attribute 'TcRpcEnable' := '1'}
 {attribute 'OPC.UA.DA.Description' := ''}
-METHOD reset : BOOL
+METHOD reset : BOOL // Return TRUE if finish.
 VAR
 	i :UINT;
 END_VAR

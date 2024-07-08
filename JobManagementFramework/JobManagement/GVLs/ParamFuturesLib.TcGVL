@@ -3,8 +3,8 @@
   <GVL Name="ParamFuturesLib" Id="{8c42569b-1214-437d-89e7-2037e9eec4b9}" ParameterList="True">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL CONSTANT
-	MAX_TASK_NUM : UINT := 10;
-	MAX_STRING_LENGTH : UDINT := 255;
+	MAX_TASK_NUM : UINT := 10; // Number of max jobs in job container object.
+	MAX_STRING_LENGTH : UDINT := 255; // Max string length of task name.
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

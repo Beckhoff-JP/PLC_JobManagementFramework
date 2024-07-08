@@ -15,7 +15,7 @@ VAR
 	_abort : BOOL;
 	_quit : BOOL;
 	 {attribute 'TcAnalytics'}
-	 _state :E_FutureExecutionState;
+	 _state :E_FutureExecutionState := E_FutureExecutionState.idle;
 	_last_state  :E_FutureExecutionState;
 	_future : InterfaceFuture;
 	_error_id : UDINT;
@@ -28,7 +28,7 @@ END_VAR]]></Declaration>
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="abort" Id="{4a5ac73d-0cc9-4d9e-84fc-915012ed9ab4}">
-      <Declaration><![CDATA[METHOD abort : BOOL
+      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>
@@ -106,7 +106,7 @@ END_VAR
       </Get>
     </Property>
     <Method Name="execute" Id="{12a00ca6-fc73-4fe5-8b5c-2a7a9dcde6d1}">
-      <Declaration><![CDATA[METHOD execute : BOOL
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INST
 	_state_mem :E_FutureExecutionState;
 	_logging :BOOL;
@@ -141,7 +141,6 @@ CASE _state OF
 	E_FutureExecutionState.init:
 		IF _future.init() THEN
 			IF _future.nErrorID = 0 THEN
-				_ready := TRUE;
 				_state := E_FutureExecutionState.wait_for_process;
 			ELSE
 				_error_id := _future.nErrorID;
@@ -189,6 +188,15 @@ CASE _state OF
 		END_IF
 END_CASE
 
+IF _state = E_FutureExecutionState.wait_for_process OR 
+	(_state = E_FutureExecutionState.abort AND NOT _aborting) THEN
+	_ready := TRUE;
+ELSE
+	_ready := FALSE;
+END_IF
+
+
+
 IF _state <> _state_mem THEN
 	_last_state := _state_mem;
 
@@ -225,7 +233,10 @@ IF _logging THEN
 	END_IF
 END_IF
 
-_future.state := _state;]]></ST>
+IF _state > E_FutureExecutionState.idle THEN
+	_future.state := _state;
+END_IF
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="future" Id="{a5f34e34-fd86-442a-a2b3-dcfdacffba84}">
@@ -273,7 +284,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="init" Id="{204f5707-ec01-4438-ae9f-8cbe74e0162c}">
-      <Declaration><![CDATA[METHOD init : BOOL
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>
@@ -326,7 +337,7 @@ END_VAR
       </Get>
     </Property>
     <Method Name="quit" Id="{a3ed0ceb-2877-462b-84db-f716a8c9598e}">
-      <Declaration><![CDATA[METHOD quit : BOOL
+      <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>
@@ -358,7 +369,7 @@ END_VAR
       </Get>
     </Property>
     <Method Name="reset" Id="{32d5d6a5-da71-471a-b4b9-590194585265}">
-      <Declaration><![CDATA[METHOD reset : BOOL
+      <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>
@@ -432,7 +443,7 @@ END_VAR
       <LineId Id="260" Count="0" />
       <LineId Id="18" Count="1" />
       <LineId Id="75" Count="0" />
-      <LineId Id="20" Count="1" />
+      <LineId Id="21" Count="0" />
       <LineId Id="76" Count="0" />
       <LineId Id="122" Count="1" />
       <LineId Id="78" Count="0" />
@@ -462,6 +473,13 @@ END_VAR
       <LineId Id="231" Count="0" />
       <LineId Id="230" Count="0" />
       <LineId Id="44" Count="0" />
+      <LineId Id="268" Count="1" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="273" Count="0" />
+      <LineId Id="275" Count="1" />
+      <LineId Id="272" Count="0" />
+      <LineId Id="270" Count="0" />
+      <LineId Id="267" Count="0" />
       <LineId Id="66" Count="2" />
       <LineId Id="176" Count="0" />
       <LineId Id="179" Count="1" />
@@ -486,7 +504,9 @@ END_VAR
       <LineId Id="217" Count="0" />
       <LineId Id="220" Count="7" />
       <LineId Id="219" Count="0" />
+      <LineId Id="277" Count="0" />
       <LineId Id="257" Count="0" />
+      <LineId Id="278" Count="1" />
       <LineId Id="243" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.future.Get">
@@ -507,8 +527,7 @@ END_VAR
       <LineId Id="6" Count="0" />
       <LineId Id="21" Count="0" />
       <LineId Id="7" Count="1" />
-      <LineId Id="25" Count="0" />
-      <LineId Id="13" Count="0" />
+      <LineId Id="33" Count="1" />
       <LineId Id="17" Count="0" />
       <LineId Id="26" Count="0" />
     </LineIds>
