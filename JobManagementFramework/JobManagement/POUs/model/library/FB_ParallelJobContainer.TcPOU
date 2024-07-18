@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
   <POU Name="FB_ParallelJobContainer" Id="{6f1bfb39-c90d-44cd-a726-24b4c87f95f3}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ParallelJobContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
 VAR_INPUT
@@ -79,8 +79,7 @@ END_IF
       </Implementation>
     </Method>
     <Property Name="continuous_mode" Id="{5a12c80f-1f24-45b8-9b63-e15c40bbce74}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY continuous_mode : BOOL
+      <Declaration><![CDATA[PROPERTY continuous_mode : BOOL
 ]]></Declaration>
       <Set Name="Set" Id="{9e468597-2d05-4242-a638-d599c3209d8e}">
         <Declaration><![CDATA[VAR
@@ -292,8 +291,7 @@ reset := _total_futures = 0;]]></ST>
       </Implementation>
     </Method>
     <Property Name="state" Id="{dd769214-d2b5-42a0-a955-2cc090d41b8a}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY state : E_FutureExecutionState
+      <Declaration><![CDATA[PROPERTY state : E_FutureExecutionState
 ]]></Declaration>
       <Get Name="Get" Id="{3b2af759-d20a-44e0-951d-06ecaf30d6b2}">
         <Declaration><![CDATA[VAR
