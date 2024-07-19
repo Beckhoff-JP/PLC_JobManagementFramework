@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
   <POU Name="FB_ControllerType_2" Id="{fcedd839-491a-4b82-962e-a6b212add423}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ControllerType_2 EXTENDS FB_AbstructFuture
 VAR_INPUT
@@ -25,8 +25,18 @@ END_VAR
       <Declaration><![CDATA[METHOD abort : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[own_output := FALSE;
+        <ST><![CDATA[// The warning can be disabled here as the user is aware of the risk that the reference may not be valid by checking its validity
+{warning disable C0371}
+// Checking the VAR_IN_OUT reference, leave the current method in case of invalid reference
+IF NOT __ISVALIDREF(own_output) THEN
+     RETURN;
+END_IF
+
+own_output := FALSE;
 abort := TRUE;
+
+// The warning may be restored at the end of the access area
+{warning restore C0371}
 ]]></ST>
       </Implementation>
     </Method>
@@ -49,7 +59,14 @@ VAR_INST
 	input_memory :BOOL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[own_output := TRUE;
+        <ST><![CDATA[// The warning can be disabled here as the user is aware of the risk that the reference may not be valid by checking its validity
+{warning disable C0371}
+// Checking the VAR_IN_OUT reference, leave the current method in case of invalid reference
+IF NOT __ISVALIDREF(own_output) OR NOT __ISVALIDREF(own_input) THEN
+     RETURN;
+END_IF
+
+own_output := TRUE;
 IF own_input AND NOT input_memory THEN
 	_counter := counter + 1;
 END_IF
@@ -57,6 +74,9 @@ input_memory := own_input;
 IF _counter > _own_parameter THEN
 	execute := TRUE;
 END_IF
+
+// The warning may be restored at the end of the access area
+{warning restore C0371}
 ]]></ST>
       </Implementation>
     </Method>
@@ -66,11 +86,22 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[own_output := FALSE;
+        <ST><![CDATA[// The warning can be disabled here as the user is aware of the risk that the reference may not be valid by checking its validity
+{warning disable C0371}
+// Checking the VAR_IN_OUT reference, leave the current method in case of invalid reference
+IF NOT __ISVALIDREF(own_output) THEN
+     RETURN;
+END_IF
+
+own_output := FALSE;
 process_timer(IN := FALSE);
 blink_timer(IN := FALSE);
 _counter := 0;
-init := TRUE;]]></ST>
+init := TRUE;
+
+// The warning may be restored at the end of the access area
+{warning restore C0371}
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{16e63a23-0f02-402f-9998-37a3e09307d6}">
@@ -116,24 +147,39 @@ quit := TRUE;]]></ST>
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_2.abort">
+      <LineId Id="13" Count="4" />
+      <LineId Id="11" Count="1" />
       <LineId Id="4" Count="0" />
       <LineId Id="6" Count="0" />
+      <LineId Id="8" Count="2" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_2.counter.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_2.execute">
+      <LineId Id="35" Count="4" />
+      <LineId Id="33" Count="1" />
       <LineId Id="14" Count="0" />
       <LineId Id="20" Count="2" />
       <LineId Id="24" Count="3" />
+      <LineId Id="40" Count="2" />
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_2.init">
+      <LineId Id="26" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="20" Count="1" />
+      <LineId Id="18" Count="1" />
       <LineId Id="7" Count="1" />
       <LineId Id="10" Count="0" />
       <LineId Id="14" Count="0" />
       <LineId Id="5" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="23" Count="0" />
     </LineIds>
     <LineIds Name="FB_ControllerType_2.nErrorID.Get">
       <LineId Id="2" Count="0" />
