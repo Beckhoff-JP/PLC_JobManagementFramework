@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
   <POU Name="FB_AbstructFuture" Id="{e0e3f6dd-6f71-426e-8a03-d727df6ff260}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructFuture IMPLEMENTS InterfaceFuture
 VAR_INPUT
@@ -79,8 +79,7 @@ quit := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="state" Id="{91bd7ebd-9da1-475e-8562-21de65a90ef0}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY state : E_FutureExecutionState // Execution state of this future.
+      <Declaration><![CDATA[PROPERTY state : E_FutureExecutionState // Execution state of this future.
 ]]></Declaration>
       <Get Name="Get" Id="{5f907f7b-f09a-4df2-813b-0a4f8e85b687}">
         <Declaration><![CDATA[VAR
