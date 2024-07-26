@@ -214,7 +214,7 @@ IF _state <> _state_mem THEN
 		_quitting := TRUE;
 	END_IF
 		
-	IF _job_event_reporter <> 0 THEN
+	IF _job_event_reporter <> 0 AND _state > E_FutureExecutionState.idle AND _state <= E_FutureExecutionState.finish THEN
 		// reporter
 		_logging := TRUE;
 	END_IF

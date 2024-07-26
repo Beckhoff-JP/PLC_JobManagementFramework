@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="FB_ParallelJobContainer" Id="{6f1bfb39-c90d-44cd-a726-24b4c87f95f3}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ParallelJobContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
 VAR_INPUT
@@ -106,7 +106,9 @@ END_VAR
 FOR i := 1 TO _total_futures DO
 	// Execute all methods
 	IF _executors[i].current_state < E_FutureExecutionState.finish THEN
-		_executors[i].execute();
+		IF NOT _executors[i].execute() THEN
+			complete_all_task := FALSE;
+		END_IF
 	END_IF
 	IF (_executors[i].current_state = E_FutureExecutionState.wait_for_process AND _executors[i].ready) OR 
 		_executors[i].current_state = E_FutureExecutionState.abort THEN
@@ -117,11 +119,8 @@ FOR i := 1 TO _total_futures DO
 	IF FAILED(_executors[i].nErrorID) THEN
 		_error_id := _executors[i].nErrorID;
 	END_IF
-	
-	IF NOT _executors[i].done THEN
-		complete_all_task := FALSE;	
-	END_IF
 END_FOR
+
 current_executing_future := _executors[_total_futures].future;
 execute := complete_all_task;]]></ST>
       </Implementation>
@@ -336,7 +335,7 @@ END_VAR
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.execute">
-      <LineId Id="153" Count="20" />
+      <LineId Id="180" Count="19" />
       <LineId Id="4" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.future_name.Get">

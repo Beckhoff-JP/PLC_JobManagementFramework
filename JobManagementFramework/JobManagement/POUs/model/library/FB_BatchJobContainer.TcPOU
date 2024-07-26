@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="FB_BatchJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_BatchJobContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
 VAR_INPUT
@@ -101,11 +101,12 @@ END_FOR]]></ST>
 VAR_INST
 	i :UINT;
 	complete_last_proess :BOOL;
+	complete_all_process :BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[FOR i := 1 TO _total_futures DO
-	_executors[i].execute();
+	complete_all_process := _executors[i].execute();
 	_error_id := _executors[i].nErrorID;
 END_FOR
 
@@ -125,13 +126,13 @@ IF _executors[current_executing_future_id].current_state = E_FutureExecutionStat
 END_IF
 
 
-IF _executors[current_executing_future_id].done THEN
-	IF current_executing_future_id = _total_futures THEN
-		execute := NOT _continuous_mode;
-	ELSE
-		execute := FALSE;
-		current_executing_future_id := current_executing_future_id + 1;
-	END_IF
+IF _executors[current_executing_future_id].done AND current_executing_future_id < _total_futures THEN
+	execute := FALSE;
+	current_executing_future_id := current_executing_future_id + 1;
+END_IF
+
+IF complete_all_process THEN
+	execute := NOT _continuous_mode;	
 END_IF
 
 current_executing_future := _executors[current_executing_future_id].future;]]></ST>
@@ -317,32 +318,7 @@ END_VAR
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.execute">
-      <LineId Id="5" Count="0" />
-      <LineId Id="119" Count="0" />
-      <LineId Id="28" Count="0" />
-      <LineId Id="20" Count="0" />
-      <LineId Id="80" Count="0" />
-      <LineId Id="58" Count="0" />
-      <LineId Id="95" Count="0" />
-      <LineId Id="97" Count="1" />
-      <LineId Id="96" Count="0" />
-      <LineId Id="92" Count="0" />
-      <LineId Id="83" Count="0" />
-      <LineId Id="93" Count="0" />
-      <LineId Id="87" Count="1" />
-      <LineId Id="120" Count="0" />
-      <LineId Id="122" Count="0" />
-      <LineId Id="124" Count="1" />
-      <LineId Id="121" Count="0" />
-      <LineId Id="101" Count="0" />
-      <LineId Id="100" Count="0" />
-      <LineId Id="105" Count="1" />
-      <LineId Id="108" Count="0" />
-      <LineId Id="111" Count="0" />
-      <LineId Id="110" Count="0" />
-      <LineId Id="107" Count="0" />
-      <LineId Id="103" Count="0" />
-      <LineId Id="132" Count="0" />
+      <LineId Id="144" Count="29" />
       <LineId Id="75" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.future_name.Get">
