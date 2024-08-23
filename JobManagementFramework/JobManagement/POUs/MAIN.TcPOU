@@ -4,12 +4,19 @@
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
 	_state :UINT;
-	fbTask1 : FB_ControllerType_1;
-	fbTask2 : FB_ControllerType_1;
-	fbTask3 : FB_ControllerType_2;
-	fbTask4 : FB_ControllerType_2;
-	fbTask5 : FB_ControllerType_1;
-	fbTask6 : FB_ControllerType_1;
+	executor: FB_Executor; // main Executor
+	
+	_child_executor : REFERENCE TO FB_Executor;
+	
+	task_blink_1 : FutureTimerBlink;
+	task_blink_2 : FutureTimerBlink;
+	task_count_1 : FutureCounterBlink;
+	task_count_2 : FutureCounterBlink;
+
+	parallel_queue_job_container_creator :FB_ParallelQueueJobContainerCreator;
+	future_counter_creator : FutureCounterBlinkCreator;
+	future_timer_creator : FutureTimerBlinkCreator;
+
 	
 	component1_in : BOOL;
 	component1_out : BOOL;
@@ -19,17 +26,13 @@ VAR
 	component3_out : BOOL;
 	component4_in : BOOL;
 	component4_out : BOOL;
-	serial_job1 : FB_BatchJobContainer;
-	serial_job2 : FB_BatchJobContainer;
-	serial_job2_1 : FB_BatchJobContainer;
-	serial_job2_2 : FB_BatchJobContainer;
-	serial_job3 : FB_BatchJobContainer;
-	pararel_job1 : FB_ParallelJobContainer;
-	pararel_job2 : FB_ParallelJobContainer;
+
 	
-	queue_job : FB_ParallelQueueJobContainer;
+	// Dynamic instance use
+	_future: InterfaceFuture;
+	_container : InterfaceContainer;
+	
 	job_create_switch : ARRAY[1..4] OF BOOL;
-	executor: FB_Executor;
 	execution_step: STRING;
 	resume: BOOL;
 	abort: BOOL;
@@ -39,64 +42,65 @@ VAR
 	fb_adslog_reporter : FB_ADSLOG_reporter;
 	
 	end_of_manual: BOOL;
+	init :BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF abort THEN
+      <ST><![CDATA[IF NOT init THEN
+	executor.job_event_reporter := fb_adslog_reporter;
+	init := TRUE;
+END_IF
+
+IF abort THEN
 	executor.abort();
 END_IF
 
-// Output job state change to ADS log
-executor.job_event_reporter := fb_adslog_reporter;
 
 CASE _state OF
 	0:
-		// 固有パラメータ設
-		fbTask1.own_parameter := T#8S;
-		fbTask1.future_name := 'Blink-1';
-		fbTask2.own_parameter := T#5S;
-		fbTask2.future_name := 'Blink-2';
-		fbTask3.own_parameter := 2;
-		fbTask3.future_name := 'Button count-1';
-		fbTask4.own_parameter := 2;
-		fbTask4.future_name := 'Button count-2';
 
-		// 入出力変数の受け渡し
-		//fbTask1(own_output := component1_out);
-		//fbTask2(own_output := component2_out);
-		fbTask1.own_output REF= component1_out;
-		fbTask2.own_output REF= component2_out;
-		fbTask3(own_input := component3_in, own_output := component3_out);
-		fbTask4(own_input := component4_in, own_output := component4_out);
+		executor.create_container(ContainerType.BATCH, 'Parallel Container');
+		_child_executor REF= executor.children.create_container(ContainerType.PARALLEL, 'Static parallel tasks');
+
+		// Static instances
+		task_blink_1.own_parameter := T#5S;
+		task_blink_1.own_output REF= component1_out;
+		task_blink_1.future_name := 'Button 1 blink';
+		task_blink_2.own_parameter := T#3S;
+		task_blink_2.own_output REF= component2_out;
+		task_blink_2.future_name := 'Button 2 blink';
+		task_count_1.own_parameter := 3;
+		task_count_1.input REF= component3_in;
+		task_count_1.output REF= component3_out;
+		task_count_1.future_name := 'Button 3 count';
+		task_count_2.own_parameter := 5;
+		task_count_2.input REF= component4_in;
+		task_count_2.output REF= component4_out;
+		task_count_2.future_name := 'Button 4 count';
 		
-		// futureオブジェクトの配置により実行順序を定義
-		serial_job1.add_future(fbTask1);
-		serial_job1.add_future(fbTask2);
-		serial_job1.future_name := 'Batch process 1';
+		_child_executor.children.add_future(task_blink_1);
+		_child_executor.children.add_future(task_blink_2);
+		_child_executor.children.add_future(task_count_1);
+		_child_executor.children.add_future(task_count_2);
+		
+		// dynamic instances		
+		_child_executor REF= executor.children.create_container(ContainerType.PARALLEL, 'Dynamic parallel tasks');
+		
+		future_counter_creator.set_parameter(own_parameter := 2,input := component3_in, output := component3_out);
+		_child_executor.create_future(future_counter_creator, 'Dynamic job : Count-1');	
+		
+		future_counter_creator.set_parameter(own_parameter := 5,input := component4_in, output := component4_out);
+		_child_executor.create_future(future_counter_creator, 'Dynamic job : Count-2');
 
-		serial_job2_1.add_future(fbTask3);
-		serial_job2_1.add_future(fbTask4);
-		serial_job2_1.future_name := 'Batch process 2-1';
-		serial_job2.add_future(serial_job2_1);
+		future_counter_creator.set_parameter(own_parameter := 2,input := component3_in, output := component3_out);
+		_child_executor.create_future(future_counter_creator, 'Dynamic job : Counter3');
 
-		serial_job2_2.add_future(fbTask3);
-		serial_job2_2.add_future(fbTask4);
-		serial_job2_2.future_name := 'Batch process 2-2';
-		serial_job2.add_future(serial_job2_2);
-		serial_job2.future_name := 'Batch process 2';
+		future_counter_creator.set_parameter(own_parameter := 2,input := component3_in, output := component3_out);
+		_child_executor.create_future(future_counter_creator, 'Dynamic job : Counter4'); // 同時実行でなければ同じFutureオブジェクトを使いまわせる
+		future_counter_creator.set_parameter(own_parameter := 2,input := component4_in, output := component4_out);
+		_child_executor.create_future(future_counter_creator, 'Dynamic job : Counter5');
 
-		pararel_job1.add_future(serial_job2);
-		pararel_job1.add_future(serial_job1);
-		pararel_job1.future_name := 'Paralell 1';
-
-		pararel_job2.add_future(fbTask3); // 同時実行でなければ同じFutureオブジェクトを使いまわせる
-		pararel_job2.add_future(fbTask4);
-		pararel_job2.future_name := 'Paralell 2';
-		serial_job3.add_future(pararel_job1);
-		serial_job3.add_future(pararel_job2);
-		serial_job3.future_name := 'Main sequence';
-		executor.future := serial_job3;
-		executor.id := 'Fixed job';
+		executor.id := '1st step';
 		executor.continuous_mode := FALSE;
 		_state := 1;
 	1:
@@ -109,11 +113,9 @@ CASE _state OF
 			_state := 2;
 		END_IF
 	2:
-		executor.future := queue_job;
-		executor.id := 'Queued job';
+		executor.create_container(ContainerType.PRALLEL_QUEUE, 'Queued job');
 		executor.continuous_mode := TRUE;
-		executor.init();
-		_state := 3;
+		_state := 3;			
 	3:
 		// キュー
 		IF (executor.current_state = E_FutureExecutionState.wait_for_process AND executor.ready) OR 
@@ -122,17 +124,21 @@ CASE _state OF
 		END_IF
 		
 		IF job_create_switch[1] THEN
-			queue_job.add_future(fbTask1);
+			future_timer_creator.set_parameter(T#5S, component1_out);
+			executor.children.create_future(future_timer_creator, 'Button 1 Time blink 5s');
 			job_create_switch[1] := FALSE;
 		ELSIF job_create_switch[2] THEN
+			future_timer_creator.set_parameter(T#3S, component2_out);
+			executor.children.create_future(future_timer_creator, 'Button 2 Time blink 3s');
 			job_create_switch[2] := FALSE;
-			queue_job.add_future(fbTask2);
 		ELSIF  job_create_switch[3] THEN
 			job_create_switch[3] := FALSE;
-			queue_job.add_future(fbTask3);
+			future_counter_creator.set_parameter(own_parameter := 2,input := component3_in, output := component3_out);
+			executor.children.create_future(future_counter_creator, 'Dynamic job : Counter6');
 		ELSIF  job_create_switch[4] THEN
 			job_create_switch[4] := FALSE;
-			queue_job.add_future(fbTask4);
+			future_counter_creator.set_parameter(own_parameter := 4,input := component4_in, output := component4_out);
+			executor.children.create_future(future_counter_creator, 'Dynamic job : Counter7');
 		END_IF
 		IF reset THEN
 			executor.quit();
@@ -141,9 +147,7 @@ CASE _state OF
 			_state := 4;
 		END_IF
 	4:
-		executor.future := serial_job3;
-		executor.init();
-		_state := 1;
+		_state := 0;
 		
 END_CASE
 
@@ -151,52 +155,48 @@ IF reset THEN
 	reset := NOT executor.reset();
 END_IF
 
-execution_step := executor.active_future_id;
 resume := FALSE;
 ]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
-      <LineId Id="1869" Count="2" />
-      <LineId Id="1959" Count="0" />
-      <LineId Id="1872" Count="6" />
-      <LineId Id="1960" Count="0" />
-      <LineId Id="1879" Count="0" />
-      <LineId Id="1961" Count="0" />
-      <LineId Id="1880" Count="0" />
-      <LineId Id="1962" Count="0" />
-      <LineId Id="1881" Count="0" />
-      <LineId Id="1963" Count="0" />
-      <LineId Id="1882" Count="9" />
-      <LineId Id="2064" Count="1" />
-      <LineId Id="2074" Count="0" />
-      <LineId Id="2057" Count="0" />
-      <LineId Id="2055" Count="1" />
-      <LineId Id="2077" Count="0" />
-      <LineId Id="1896" Count="0" />
-      <LineId Id="2058" Count="0" />
-      <LineId Id="2060" Count="1" />
-      <LineId Id="2079" Count="0" />
-      <LineId Id="1897" Count="0" />
-      <LineId Id="2076" Count="0" />
-      <LineId Id="2062" Count="0" />
-      <LineId Id="2053" Count="0" />
-      <LineId Id="2069" Count="0" />
-      <LineId Id="2082" Count="0" />
-      <LineId Id="2072" Count="0" />
-      <LineId Id="1902" Count="1" />
-      <LineId Id="2083" Count="0" />
-      <LineId Id="1904" Count="1" />
-      <LineId Id="2084" Count="0" />
-      <LineId Id="1906" Count="1" />
-      <LineId Id="2004" Count="0" />
-      <LineId Id="1908" Count="12" />
-      <LineId Id="2002" Count="0" />
-      <LineId Id="1921" Count="21" />
-      <LineId Id="2123" Count="2" />
-      <LineId Id="2006" Count="5" />
-      <LineId Id="2005" Count="0" />
-      <LineId Id="1943" Count="0" />
-      <LineId Id="1951" Count="7" />
+      <LineId Id="3805" Count="0" />
+      <LineId Id="3807" Count="0" />
+      <LineId Id="3809" Count="0" />
+      <LineId Id="3808" Count="0" />
+      <LineId Id="3806" Count="0" />
+      <LineId Id="3569" Count="6" />
+      <LineId Id="3715" Count="0" />
+      <LineId Id="3718" Count="0" />
+      <LineId Id="3774" Count="0" />
+      <LineId Id="3781" Count="1" />
+      <LineId Id="3775" Count="0" />
+      <LineId Id="3783" Count="0" />
+      <LineId Id="3810" Count="0" />
+      <LineId Id="3789" Count="1" />
+      <LineId Id="3811" Count="0" />
+      <LineId Id="3791" Count="2" />
+      <LineId Id="3812" Count="0" />
+      <LineId Id="3794" Count="2" />
+      <LineId Id="3813" Count="0" />
+      <LineId Id="3788" Count="0" />
+      <LineId Id="3787" Count="0" />
+      <LineId Id="3799" Count="2" />
+      <LineId Id="3797" Count="1" />
+      <LineId Id="3803" Count="0" />
+      <LineId Id="3802" Count="0" />
+      <LineId Id="3576" Count="12" />
+      <LineId Id="3721" Count="1" />
+      <LineId Id="3589" Count="11" />
+      <LineId Id="3698" Count="0" />
+      <LineId Id="3804" Count="0" />
+      <LineId Id="3713" Count="0" />
+      <LineId Id="3606" Count="7" />
+      <LineId Id="3696" Count="1" />
+      <LineId Id="3615" Count="1" />
+      <LineId Id="3693" Count="1" />
+      <LineId Id="3617" Count="0" />
+      <LineId Id="3619" Count="15" />
+      <LineId Id="3637" Count="8" />
       <LineId Id="1744" Count="0" />
     </LineIds>
   </POU>

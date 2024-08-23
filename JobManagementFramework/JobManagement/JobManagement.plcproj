@@ -20,7 +20,7 @@
     <Released>false</Released>
     <Title>JobManagementFramework</Title>
     <ProjectVersion>1.0.0.1</ProjectVersion>
-    <DefaultNamespace>bajp_jobmgmt</DefaultNamespace>
+    <DefaultNamespace>jobmgmt</DefaultNamespace>
     <Author>Takashi Ichihashi</Author>
     <DocFormat>reStructuredText</DocFormat>
     <LibraryCategories>
@@ -75,6 +75,9 @@
     </SelectedLibraryCategories>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="DUTs\ContainerType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\E_FutureExecutionState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -83,6 +86,10 @@
     </Compile>
     <Compile Include="GlobalTextList.TcGTLO">
       <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="GVLs\GVL.TcGVL">
+      <SubType>Code</SubType>
+      <LinkAlways>true</LinkAlways>
     </Compile>
     <Compile Include="GVLs\ParamFuturesLib.TcGVL">
       <SubType>Code</SubType>
@@ -97,16 +104,31 @@
     <Compile Include="POUs\model\activities\FB_ADSLOG_reporter.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\activities\FB_ControllerType_1.TcPOU">
+    <Compile Include="POUs\model\activities\FutureCounterBlinkCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\activities\FB_ControllerType_2.TcPOU">
+    <Compile Include="POUs\model\activities\FutureTimerBlink.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureCounterBlink.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureTimerBlinkCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_AbstructFuture.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_BatchJobContainer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\FB_BatchJobContainerCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\FB_ParallelJobContainerCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\FB_ParallelQueueJobContainerCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_QueueJobContainer.TcPOU">
@@ -121,10 +143,16 @@
     <Compile Include="POUs\model\library\FB_ParallelQueueJobContainer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\FB_QueueJobContainerCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\InterfaceContainer.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\InterfaceFuture.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\InterfaceTaskCreator.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\InterfaceJobEventReporter.TcIO">

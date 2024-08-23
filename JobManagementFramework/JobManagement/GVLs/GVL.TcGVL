@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <GVL Name="GVL" Id="{aebb5ef8-c856-4078-a3d8-6ea013528e13}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+VAR_GLOBAL
+	batch_job_container_creator : FB_BatchJobContainerCreator;
+	parallel_job_container_creator : FB_ParallelJobContainerCreator;
+	queue_job_container_creator : FB_QueueJobContainerCreator;
+	parallel_queue_job_container_creator : FB_ParallelQueueJobContainerCreator;
+END_VAR]]></Declaration>
+  </GVL>
+</TcPlcObject>

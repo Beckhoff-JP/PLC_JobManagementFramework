@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <Itf Name="InterfaceTaskCreator" Id="{5a160255-cfe3-43e1-811b-0ee8dbed2e75}">
+    <Declaration><![CDATA[INTERFACE InterfaceTaskCreator
+]]></Declaration>
+    <Method Name="create_future" Id="{ea5b098b-00b2-478e-aedf-81f612d40841}">
+      <Declaration><![CDATA[METHOD create_future : InterfaceFuture
+VAR_INPUT
+	future_name :STRING; // Specify future name
+END_VAR]]></Declaration>
+    </Method>
+    <Method Name="destroy_future" Id="{15f94faf-ca5d-40d1-a839-33168d7f650c}">
+      <Declaration><![CDATA[METHOD destroy_future : InterfaceFuture
+VAR_INPUT
+	future : InterfaceFuture; // Specify future instance whtat you want to delete.
+END_VAR]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

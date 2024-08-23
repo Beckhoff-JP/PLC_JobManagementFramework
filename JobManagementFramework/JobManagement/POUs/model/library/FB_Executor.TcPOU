@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="FB_Executor" Id="{09518444-1d1d-452e-9e8f-647b2f8c5e33}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_Executor
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FB_Executor
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -17,12 +18,13 @@ VAR
 	 {attribute 'TcAnalytics'}
 	 _state :E_FutureExecutionState := E_FutureExecutionState.idle;
 	_last_state  :E_FutureExecutionState;
-	_future : InterfaceFuture;
 	_error_id : UDINT;
 	_aborting :BOOL;
 	_quitting :BOOL;
 	_interface_container : InterfaceContainer := 0;
 	_job_event_reporter: InterfaceJobEventReporter;
+	_future_creator : InterfaceTaskCreator;
+	_future : InterfaceFuture;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -48,54 +50,89 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="active_future_id" Id="{1d5492fe-a6ad-493b-953e-a8c2953cdc63}">
-      <Declaration><![CDATA[PROPERTY active_future_id : STRING]]></Declaration>
-      <Get Name="Get" Id="{6befbd93-e18a-48a2-99b9-2935f5e0112b}">
+    <Property Name="children" Id="{db662496-7037-4faa-b7c6-23f2d18395d1}">
+      <Declaration><![CDATA[PROPERTY children : InterfaceContainer // Accesser for interface pointer to child container instance.]]></Declaration>
+      <Get Name="Get" Id="{b5bd3ec9-ba69-4ba1-8ec7-43c8c7dc9772}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IF __QUERYINTERFACE(_future, _interface_container) THEN
-	active_future_id := _interface_container.active_future_id;	
-END_IF
-]]></ST>
+          <ST><![CDATA[children := _interface_container;]]></ST>
         </Implementation>
       </Get>
     </Property>
     <Property Name="continuous_mode" Id="{f813b158-0532-443d-867f-f3f4c7f7b526}">
-      <Declaration><![CDATA[PROPERTY continuous_mode : bool]]></Declaration>
+      <Declaration><![CDATA[PROPERTY continuous_mode : bool // Make true if keep executing state after all jobs be finished.]]></Declaration>
       <Set Name="Set" Id="{d13ba071-7139-40fe-a4d6-bf1103d7257f}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IF __QUERYINTERFACE(_future, _interface_container) THEN
-	_interface_container.continuous_mode := continuous_mode;
-END_IF]]></ST>
+          <ST><![CDATA[IF _future <> 0 THEN
+	IF __QUERYINTERFACE(_future, _interface_container) THEN
+		_interface_container.continuous_mode := continuous_mode;
+	END_IF	
+END_IF
+]]></ST>
         </Implementation>
       </Set>
     </Property>
+    <Method Name="create_container" Id="{3ee4e0b3-d5fa-4216-b2fc-b9b451f3b414}">
+      <Declaration><![CDATA[METHOD create_container : InterfaceContainer // Make container object onto child.
+VAR_INPUT
+	container_type : ContainerType; // specify container type
+	name: STRING;	// specify future name
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF THIS^.reset() THEN
+	CASE container_type OF
+		ContainerType.BATCH:
+			THIS^.future := create_future(GVL.batch_job_container_creator, name);
+		ContainerType.PARALLEL:
+			THIS^.future := create_future(GVL.parallel_job_container_creator, name);
+		ContainerType.QUEUE:
+			THIS^.future := create_future(GVL.queue_job_container_creator, name);
+		ContainerType.PRALLEL_QUEUE:
+			THIS^.future := create_future(GVL.parallel_queue_job_container_creator, name);
+	END_CASE
+	THIS^.init();
+	create_container := THIS^.children;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="create_future" Id="{4dbfc7cf-833f-45fc-a4dd-f4a1587ef4ef}">
+      <Declaration><![CDATA[METHOD create_future : InterfaceFuture // Create future dynamically.
+VAR_INPUT
+	creator : InterfaceTaskCreator; // Specify creator object by which Interface Task Creator implemented.
+	future_name: STRING; // Spcfigy future name.
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_future_creator := creator;
+IF _future_creator <> 0 THEN
+	THIS^.future := creator.create_future(future_name);
+END_IF
+create_future := _future;]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="current_state" Id="{9bdc45ea-e038-402f-9e8e-3b1c363b70b4}">
       <Declaration><![CDATA[{attribute 'OPC.UA.DA.Property' := '1'}
 {attribute 'monitoring' := 'call'}
 {attribute 'OPC.UA.DA.Description' := 'Current state of this executor object.'}
-PROPERTY current_state : E_FutureExecutionState]]></Declaration>
+PROPERTY current_state : E_FutureExecutionState // Get current job state]]></Declaration>
       <Get Name="Get" Id="{6d7ef6bc-7830-4957-91e4-53fd4bd8f4ba}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IF _future <> 0 THEN
-	current_state := _state;	
-ELSE
-	current_state := E_FutureExecutionState.idle;
-END_IF
+          <ST><![CDATA[current_state := _state;	
 ]]></ST>
         </Implementation>
       </Get>
     </Property>
     <Property Name="done" Id="{4120264c-9741-4f55-a3ec-37db4b2fdd1d}">
-      <Declaration><![CDATA[PROPERTY done : BOOL]]></Declaration>
+      <Declaration><![CDATA[PROPERTY done : BOOL // Present true if process be finished.]]></Declaration>
       <Get Name="Get" Id="{adfb9284-a38c-48f0-99cc-b8f7d36d7c03}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -106,7 +143,7 @@ END_VAR
       </Get>
     </Property>
     <Method Name="execute" Id="{12a00ca6-fc73-4fe5-8b5c-2a7a9dcde6d1}">
-      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+      <Declaration><![CDATA[METHOD execute : BOOL // Execute future process and return TRUE if all task are finished.
 VAR_INST
 	_state_mem :E_FutureExecutionState;
 	_logging :BOOL;
@@ -135,8 +172,9 @@ _quit := FALSE;
 CASE _state OF
 	E_FutureExecutionState.idle:
 		IF _future.state = E_FutureExecutionState.idle OR _future.state = E_FutureExecutionState.finish THEN
-			init();
-			_state := E_FutureExecutionState.init;			
+			IF init() THEN
+				_state := E_FutureExecutionState.init;
+			END_IF
 		END_IF
 	E_FutureExecutionState.init:
 		IF _future.init() THEN
@@ -184,6 +222,10 @@ CASE _state OF
 		END_IF
 	E_FutureExecutionState.finish:
 		IF NOT _logging THEN
+			//IF _future_creator <> 0 AND _future <> 0 THEN
+			//	_future_creator.destroy_future(_future);
+			//	_future := 0;
+			//END_IF
 			execute := TRUE;
 		END_IF
 END_CASE
@@ -214,7 +256,7 @@ IF _state <> _state_mem THEN
 		_quitting := TRUE;
 	END_IF
 		
-	IF _job_event_reporter <> 0 AND _state > E_FutureExecutionState.idle AND _state <= E_FutureExecutionState.finish THEN
+	IF _job_event_reporter <> 0 AND _state >= E_FutureExecutionState.idle AND _state <= E_FutureExecutionState.finish THEN
 		// reporter
 		_logging := TRUE;
 	END_IF
@@ -233,14 +275,14 @@ IF _logging THEN
 	END_IF
 END_IF
 
-IF _state > E_FutureExecutionState.idle THEN
+IF _state > E_FutureExecutionState.idle AND _future <> 0 THEN
 	_future.state := _state;
 END_IF
 ]]></ST>
       </Implementation>
     </Method>
     <Property Name="future" Id="{a5f34e34-fd86-442a-a2b3-dcfdacffba84}">
-      <Declaration><![CDATA[PROPERTY future : InterfaceFuture]]></Declaration>
+      <Declaration><![CDATA[PROPERTY future : InterfaceFuture // Set future instance direct.]]></Declaration>
       <Get Name="Get" Id="{ea3475fd-42f3-40d5-80b9-94fefa3dce7f}">
         <Declaration><![CDATA[
 VAR
@@ -259,12 +301,25 @@ END_VAR
 _future.state := _state;
 IF __QUERYINTERFACE(_future, _interface_container) THEN
 	_interface_container.parent_executor REF= THIS^;
+ELSE
+	_interface_container := 0;
 END_IF]]></ST>
         </Implementation>
       </Set>
     </Property>
+    <Property Name="future_creator" Id="{4ef3d23b-70fc-42e7-92d1-5df42cf5ccf9}">
+      <Declaration><![CDATA[PROPERTY future_creator : InterfaceTaskCreator // Set creator instance.]]></Declaration>
+      <Set Name="Set" Id="{73c997cd-b03a-40d8-97e1-94183b40cdc9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_future_creator := future_creator;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="id" Id="{cfcf1743-1715-4af2-a0a4-cd9f1ebd1808}">
-      <Declaration><![CDATA[PROPERTY id : T_MaxString
+      <Declaration><![CDATA[PROPERTY id : T_MaxString // Get job id.
 ]]></Declaration>
       <Get Name="Get" Id="{5863c94c-93ce-4810-8c6f-f18910d5e32a}">
         <Declaration><![CDATA[VAR
@@ -295,21 +350,31 @@ _ready := FALSE;
 _start := FALSE;
 _state := E_FutureExecutionState.init;
 _error_id := 0;
+IF _future <> 0 THEN
+	_future.init();
+END_IF
+
 INIT := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
     <Property Name="job_event_reporter" Id="{7070112e-2fb6-433d-85f5-f36a183c0a1e}">
       <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceJobEventReporter]]></Declaration>
+      <Get Name="Get" Id="{150bf335-b5f5-4890-8f09-a0bd37e70e48}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[job_event_reporter := _job_event_reporter;]]></ST>
+        </Implementation>
+      </Get>
       <Set Name="Set" Id="{4cb4a4bf-e492-4795-8469-65c6601636a4}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_job_event_reporter := job_event_reporter;
-IF __QUERYINTERFACE(_future, _interface_container) THEN
-	_interface_container.job_event_reporter := job_event_reporter;
-END_IF]]></ST>
+          <ST><![CDATA[_job_event_reporter := job_event_reporter;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -325,7 +390,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="nErrorID" Id="{b8e1cf4d-b2aa-4996-8037-fe94c831ada6}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT // Present error code when each process,init(), execute(), quit() are finished. '0' represent normal condition without any errors.
 ]]></Declaration>
       <Get Name="Get" Id="{279bd7d5-87e3-414a-919d-b55c6d45fe5f}">
         <Declaration><![CDATA[VAR
@@ -378,6 +443,9 @@ END_VAR
 	reset := _interface_container.reset();
 ELSE
 	reset := TRUE;
+END_IF
+IF reset AND _future_creator <> 0 AND _future <> 0 THEN
+	_future := _future_creator.destroy_future(_future);
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -406,19 +474,34 @@ END_VAR
       <LineId Id="11" Count="0" />
       <LineId Id="6" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Executor.active_future_id.Get">
-      <LineId Id="10" Count="0" />
-      <LineId Id="6" Count="0" />
-      <LineId Id="11" Count="0" />
+    <LineIds Name="FB_Executor.children.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.continuous_mode.Set">
-      <LineId Id="5" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="10" Count="1" />
       <LineId Id="2" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor.create_container">
+      <LineId Id="6" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="19" Count="2" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="8" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.create_future">
+      <LineId Id="6" Count="2" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.current_state.Get">
-      <LineId Id="6" Count="1" />
-      <LineId Id="9" Count="2" />
+      <LineId Id="7" Count="0" />
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.done.Get">
@@ -439,7 +522,9 @@ END_VAR
       <LineId Id="246" Count="0" />
       <LineId Id="13" Count="2" />
       <LineId Id="258" Count="0" />
-      <LineId Id="261" Count="1" />
+      <LineId Id="261" Count="0" />
+      <LineId Id="290" Count="0" />
+      <LineId Id="289" Count="0" />
       <LineId Id="260" Count="0" />
       <LineId Id="18" Count="1" />
       <LineId Id="75" Count="0" />
@@ -469,7 +554,9 @@ END_VAR
       <LineId Id="85" Count="0" />
       <LineId Id="236" Count="0" />
       <LineId Id="41" Count="1" />
-      <LineId Id="228" Count="0" />
+      <LineId Id="301" Count="0" />
+      <LineId Id="313" Count="2" />
+      <LineId Id="312" Count="0" />
       <LineId Id="231" Count="0" />
       <LineId Id="230" Count="0" />
       <LineId Id="44" Count="0" />
@@ -515,7 +602,12 @@ END_VAR
     <LineIds Name="FB_Executor.future.Set">
       <LineId Id="2" Count="0" />
       <LineId Id="13" Count="0" />
-      <LineId Id="5" Count="2" />
+      <LineId Id="5" Count="1" />
+      <LineId Id="16" Count="1" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.future_creator.Set">
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.id.Get">
       <LineId Id="2" Count="0" />
@@ -528,12 +620,16 @@ END_VAR
       <LineId Id="21" Count="0" />
       <LineId Id="7" Count="1" />
       <LineId Id="33" Count="1" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="45" Count="1" />
+      <LineId Id="44" Count="0" />
       <LineId Id="17" Count="0" />
       <LineId Id="26" Count="0" />
     </LineIds>
-    <LineIds Name="FB_Executor.job_event_reporter.Set">
+    <LineIds Name="FB_Executor.job_event_reporter.Get">
       <LineId Id="2" Count="0" />
-      <LineId Id="6" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_Executor.job_event_reporter.Set">
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.last_state.Get">
@@ -553,6 +649,9 @@ END_VAR
     <LineIds Name="FB_Executor.reset">
       <LineId Id="6" Count="3" />
       <LineId Id="5" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="20" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.start">
       <LineId Id="5" Count="0" />

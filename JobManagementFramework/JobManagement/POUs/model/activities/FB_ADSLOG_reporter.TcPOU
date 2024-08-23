@@ -32,16 +32,16 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[last_state := TO_STRING(old_state);
 current_state := TO_STRING(new_state);
+
 fb_timezone_info();
 text := FILETIME64_TO_ISO8601(fileTime := record_time, nBias := DINT_TO_INT(fb_timezone_info.tzInfo.bias), bUTC := TRUE,nPrecision := 6);
-text := CONCAT(text, ':');
-text := CONCAT(text, last_state);
-text := CONCAT(text, '->');
+text := CONCAT(text, '	');
 text := CONCAT(text, TO_STRING(current_state));
-text := CONCAT(text, ':');
+text := CONCAT(text, '			');
 text := CONCAT(text, executor.future.future_name);
-text := CONCAT(text, ':');
+text := CONCAT(text, '		');
 text := CONCAT(text, executor.id);
+
 
 ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG, msgFmtStr := text, strArg := '');
 
@@ -54,14 +54,16 @@ report := TRUE;]]></ST>
     <LineIds Name="FB_ADSLOG_reporter.report">
       <LineId Id="44" Count="0" />
       <LineId Id="40" Count="0" />
+      <LineId Id="61" Count="0" />
       <LineId Id="21" Count="0" />
       <LineId Id="16" Count="0" />
       <LineId Id="15" Count="0" />
-      <LineId Id="34" Count="2" />
+      <LineId Id="36" Count="0" />
       <LineId Id="45" Count="0" />
       <LineId Id="10" Count="0" />
       <LineId Id="17" Count="0" />
-      <LineId Id="11" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="63" Count="0" />
       <LineId Id="33" Count="0" />
       <LineId Id="32" Count="0" />
       <LineId Id="46" Count="0" />

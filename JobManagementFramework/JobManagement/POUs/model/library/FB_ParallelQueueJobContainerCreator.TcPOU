@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FB_ParallelQueueJobContainerCreator" Id="{9847853e-73aa-464f-b434-9aaf175e4eeb}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ParallelQueueJobContainerCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{9e874ed2-08b5-43dd-999f-e7f9cf182846}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD create_future : InterfaceFuture
+VAR_INPUT
+	future_name	: STRING;
+END_VAR
+VAR
+	_p_future : POINTER TO FB_ParallelQueueJobContainer;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FB_ParallelQueueJobContainer);
+_p_future^.future_name := future_name;
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{57fce153-6118-4cd5-aa4d-c65d04a504f1}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD destroy_future : InterfaceFuture
+VAR_INPUT
+	future	: InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FB_ParallelQueueJobContainer;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_ParallelQueueJobContainerCreator">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ParallelQueueJobContainerCreator.create_future">
+      <LineId Id="11" Count="1" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ParallelQueueJobContainerCreator.destroy_future">
+      <LineId Id="18" Count="5" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

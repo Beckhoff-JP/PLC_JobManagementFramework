@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ContainerType" Id="{f7e10c82-6af5-4b80-acaf-3886afe01fde}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE ContainerType :
+(
+	BATCH := 0,
+	PARALLEL,
+	QUEUE,
+	PRALLEL_QUEUE
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

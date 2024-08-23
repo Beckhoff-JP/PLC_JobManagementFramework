@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureCounterBlinkCreator" Id="{0aed4266-d9e2-40be-bcde-9c04d0aa9d0a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureCounterBlinkCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_own_parameter: UINT;
+	_input: REFERENCE TO BOOL;
+	_output: REFERENCE TO BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{58d1e4fb-374b-4c0d-8dc2-d3a37f94d8ac}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD create_future : InterfaceFuture
+VAR_INPUT
+	future_name :STRING;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureCounterBlink;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FutureCounterBlink);
+_p_future^.future_name := future_name;
+_p_future^.input REF= _input;
+_p_future^.output REF= _output;
+_p_future^.own_parameter := _own_parameter;
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{a7115440-52e4-4ce1-8ece-dcac8485997a}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD destroy_future : InterfaceFuture
+VAR_INPUT
+	future : InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureCounterBlink;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameter" Id="{ef0c8486-774e-4d75-b1d1-f87a41fcb3ae}">
+      <Declaration><![CDATA[METHOD set_parameter : BOOL
+VAR_INPUT
+	own_parameter: UINT;
+	input : REFERENCE TO BOOL;
+	output : REFERENCE TO BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_own_parameter := own_parameter;
+_input REF= input;
+_output REF= output;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureCounterBlinkCreator">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlinkCreator.create_future">
+      <LineId Id="4" Count="0" />
+      <LineId Id="24" Count="3" />
+      <LineId Id="23" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlinkCreator.destroy_future">
+      <LineId Id="36" Count="1" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlinkCreator.set_parameter">
+      <LineId Id="5" Count="0" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="28" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

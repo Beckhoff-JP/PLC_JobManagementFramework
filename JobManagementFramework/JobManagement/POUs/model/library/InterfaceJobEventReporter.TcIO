@@ -6,10 +6,10 @@
     <Method Name="report" Id="{09caa5d0-8b39-4577-9c48-876741e7c7cd}">
       <Declaration><![CDATA[METHOD report : BOOL
 VAR_INPUT
-	old_state : E_FutureExecutionState;
-	new_state : E_FutureExecutionState;
-	record_time	: T_FILETIME64;
-	executor	: REFERENCE TO FB_Executor;
+	old_state : E_FutureExecutionState; // Job state before transition.
+	new_state : E_FutureExecutionState; // Job state after transition.
+	record_time	: T_FILETIME64; // File-time at the time of transition.
+	executor	: REFERENCE TO FB_Executor; // Reference to job instance of which transition occurs.
 END_VAR
 ]]></Declaration>
     </Method>

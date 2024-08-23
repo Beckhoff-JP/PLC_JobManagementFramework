@@ -3,16 +3,8 @@
   <Itf Name="InterfaceContainer" Id="{24bfec70-0f3a-4ec1-a89e-5407d9c94d6d}">
     <Declaration><![CDATA[INTERFACE InterfaceContainer EXTENDS __SYSTEM.IQueryInterface 
 ]]></Declaration>
-    <Property Name="active_future_id" Id="{2d416ece-2dc1-4b01-a1fe-d0b196d80eaa}">
-      <Declaration><![CDATA[PROPERTY active_future_id : STRING]]></Declaration>
-      <Get Name="Get" Id="{9f74c5c8-3fa8-4c0a-9b16-6bb5d20b0f71}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-      </Get>
-    </Property>
     <Method Name="add_future" Id="{d49e697a-f8c3-49c2-92d4-238e4a1c4453}">
-      <Declaration><![CDATA[METHOD add_future : UINT
+      <Declaration><![CDATA[METHOD add_future : REFERENCE TO FB_Executor
 VAR_INPUT
 	future : InterfaceFuture;
 END_VAR
@@ -24,12 +16,22 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
-    <Property Name="job_event_reporter" Id="{2fe3906e-365c-4588-b62b-01dcef6f665c}">
-      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceJobEventReporter]]></Declaration>
-      <Set Name="Set" Id="{fee844e0-8ec3-4770-af6a-359a99f5213e}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Set>
-    </Property>
+    <Method Name="create_container" Id="{e55dfbbc-91c0-448f-b41c-696bb7a50e91}">
+      <Declaration><![CDATA[METHOD create_container : REFERENCE TO FB_Executor
+VAR_INPUT
+	container_type : ContainerType;
+	name: STRING;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="create_future" Id="{65cf060d-dd4c-4119-bcf8-79a9d41aeea7}">
+      <Declaration><![CDATA[METHOD create_future : REFERENCE TO FB_Executor
+VAR_INPUT
+	creator : InterfaceTaskCreator;
+	future_name: STRING;
+END_VAR
+]]></Declaration>
+    </Method>
     <Property Name="num_of_future" Id="{f8eb50f2-28cd-44d4-9501-560037cfcc71}">
       <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
       <Get Name="Get" Id="{9e329e0b-c0dd-4e74-8ae7-beef2f01ea63}">

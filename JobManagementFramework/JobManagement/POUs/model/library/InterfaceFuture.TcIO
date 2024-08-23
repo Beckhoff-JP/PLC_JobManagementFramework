@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <Itf Name="InterfaceFuture" Id="{882bc581-e126-40c6-885e-c12ccc2f0bb9}">
-    <Declaration><![CDATA[INTERFACE InterfaceFuture EXTENDS __System.IQueryInterface 
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+INTERFACE InterfaceFuture EXTENDS __System.IQueryInterface 
 ]]></Declaration>
     <Method Name="abort" Id="{527ff0b5-6fbb-4ad6-b3f1-4a79b5e73d86}">
       <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.

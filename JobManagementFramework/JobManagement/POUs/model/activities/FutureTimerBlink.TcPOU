@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
-  <POU Name="FB_ControllerType_1" Id="{1076d71a-3a65-40e8-9c4e-a3e9e6fe7b78}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_ControllerType_1 EXTENDS FB_AbstructFuture
+  <POU Name="FutureTimerBlink" Id="{1076d71a-3a65-40e8-9c4e-a3e9e6fe7b78}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureTimerBlink EXTENDS FB_AbstructFuture
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -110,10 +111,10 @@ END_VAR
 quit := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FB_ControllerType_1">
+    <LineIds Name="FutureTimerBlink">
       <LineId Id="9" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ControllerType_1.abort">
+    <LineIds Name="FutureTimerBlink.abort">
       <LineId Id="10" Count="0" />
       <LineId Id="13" Count="0" />
       <LineId Id="12" Count="0" />
@@ -122,31 +123,31 @@ quit := TRUE;]]></ST>
       <LineId Id="6" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ControllerType_1.execute">
+    <LineIds Name="FutureTimerBlink.execute">
       <LineId Id="57" Count="1" />
       <LineId Id="60" Count="1" />
       <LineId Id="63" Count="2" />
       <LineId Id="5" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ControllerType_1.init">
+    <LineIds Name="FutureTimerBlink.init">
       <LineId Id="14" Count="0" />
       <LineId Id="21" Count="0" />
       <LineId Id="15" Count="1" />
       <LineId Id="5" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ControllerType_1.nErrorID.Get">
+    <LineIds Name="FutureTimerBlink.nErrorID.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ControllerType_1.own_output.Set">
+    <LineIds Name="FutureTimerBlink.own_output.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ControllerType_1.own_parameter.Get">
+    <LineIds Name="FutureTimerBlink.own_parameter.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ControllerType_1.own_parameter.Set">
+    <LineIds Name="FutureTimerBlink.own_parameter.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ControllerType_1.quit">
+    <LineIds Name="FutureTimerBlink.quit">
       <LineId Id="19" Count="0" />
       <LineId Id="9" Count="0" />
     </LineIds>
