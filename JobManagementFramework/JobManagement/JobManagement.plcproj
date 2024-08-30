@@ -101,7 +101,7 @@
     <Compile Include="POUs\MAIN.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\activities\FB_ADSLOG_reporter.TcPOU">
+    <Compile Include="POUs\model\activities\FB_observer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\activities\FutureCounterBlinkCreator.TcPOU">
@@ -123,6 +123,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_BatchJobContainerCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\FB_ExecutorTreeSearch.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_ParallelJobContainerCreator.TcPOU">
@@ -155,7 +158,7 @@
     <Compile Include="POUs\model\library\InterfaceTaskCreator.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\library\InterfaceJobEventReporter.TcIO">
+    <Compile Include="POUs\model\library\InterfaceObserver.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Visualization Manager.TcVMO">

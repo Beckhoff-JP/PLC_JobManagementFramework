@@ -127,6 +127,7 @@ PLC上で様々な制御上のアクティビティを定義するフレーム�
         state : UDINT
     END_VAR
 
+
     CASE _state OF
     0:
         _mc_move_abs.Position := _target_position_;
@@ -149,6 +150,10 @@ PLC上で様々な制御上のアクティビティを定義するフレーム�
             _error_id := _mc_move_abs.ErrorID;
             execute := TRUE; // エラー中断時は_error_idを0以外の値にしてexecute = TRUEを返す。
         END_IF
+    END_CASE
+
+    _mc_move_abs(); // call MC_MoveAbsolute every cycle
+    _mc_reset(); // call MC_Reset every cycle
     ```
 
 

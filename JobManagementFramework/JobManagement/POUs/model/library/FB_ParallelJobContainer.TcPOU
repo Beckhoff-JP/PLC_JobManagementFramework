@@ -23,6 +23,30 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="_index_generator_" Id="{dd39dd0c-7557-43d9-b714-1347c8d3d391}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+(* This is the generator that iteratively generates references to FB_executor instances*)
+METHOD _index_generator_ : UINT
+VAR_INST
+	init : BOOL;
+	index: UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT init THEN
+	index := 0;
+	init := TRUE;
+END_IF
+
+IF _index_generator_ < _total_futures THEN
+	index := index + 1;
+ELSE
+	init := FALSE;
+	index := 0;
+END_IF
+
+_index_generator_ := index;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="abort" Id="{6723fd47-ba3e-4a36-9944-cfce9135076b}">
       <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
 VAR_INST
@@ -96,7 +120,7 @@ END_VAR
 		create_container REF= THIS^.create_future(GVL.parallel_job_container_creator,name);
 	ContainerType.QUEUE:
 		create_container REF= THIS^.create_future(GVL.queue_job_container_creator,name);
-	ContainerType.PRALLEL_QUEUE:
+	ContainerType.PARALLEL_QUEUE:
 		create_container REF= THIS^.create_future(GVL.parallel_queue_job_container_creator,name);
 END_CASE
 ]]></ST>
@@ -124,6 +148,26 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="each_executor" Id="{31b11d22-fce6-4003-a88d-8f786df1aaa0}">
+      <Declaration><![CDATA[{warning 'add property implementation'}
+PROPERTY each_executor : REFERENCE TO FB_Executor
+]]></Declaration>
+      <Get Name="Get" Id="{8b3dcb87-6f28-47ce-abfc-61698cedf4da}">
+        <Declaration><![CDATA[VAR
+	_index : UINT;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_index := _index_generator_();
+IF _index > 0 THEN
+	each_executor REF= _executors[_index]^;
+ELSE
+	each_executor REF= 0;
+END_IF
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="execute" Id="{d67c5d9a-b061-4fe3-a66e-2e859577c8d2}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INST
@@ -347,6 +391,10 @@ END_VAR
     <LineIds Name="FB_ParallelJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
+    <LineIds Name="FB_ParallelJobContainer._index_generator_">
+      <LineId Id="32" Count="11" />
+      <LineId Id="20" Count="0" />
+    </LineIds>
     <LineIds Name="FB_ParallelJobContainer.abort">
       <LineId Id="7" Count="1" />
       <LineId Id="14" Count="0" />
@@ -379,6 +427,10 @@ END_VAR
     <LineIds Name="FB_ParallelJobContainer.create_future">
       <LineId Id="39" Count="8" />
       <LineId Id="13" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ParallelJobContainer.each_executor.Get">
+      <LineId Id="13" Count="5" />
+      <LineId Id="8" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.execute">
       <LineId Id="208" Count="2" />

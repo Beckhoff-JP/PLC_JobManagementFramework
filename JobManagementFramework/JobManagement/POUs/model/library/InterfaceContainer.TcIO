@@ -3,6 +3,13 @@
   <Itf Name="InterfaceContainer" Id="{24bfec70-0f3a-4ec1-a89e-5407d9c94d6d}">
     <Declaration><![CDATA[INTERFACE InterfaceContainer EXTENDS __SYSTEM.IQueryInterface 
 ]]></Declaration>
+    <Method Name="_index_generator_" Id="{9ec47763-c977-452b-946a-3a4851940c77}">
+      <Declaration><![CDATA[(* This is the generator that iteratively generates references to FB_executor instances*)
+METHOD _index_generator_ : UINT;
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
     <Method Name="add_future" Id="{d49e697a-f8c3-49c2-92d4-238e4a1c4453}">
       <Declaration><![CDATA[METHOD add_future : REFERENCE TO FB_Executor
 VAR_INPUT
@@ -32,6 +39,12 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="each_executor" Id="{9e169ab1-5bb0-4c6d-a933-f3ef71b48570}">
+      <Declaration><![CDATA[PROPERTY each_executor : REFERENCE TO FB_Executor]]></Declaration>
+      <Get Name="Get" Id="{c8f368de-7b29-4b83-b05b-66036611f351}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
     <Property Name="num_of_future" Id="{f8eb50f2-28cd-44d4-9501-560037cfcc71}">
       <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
       <Get Name="Get" Id="{9e329e0b-c0dd-4e74-8ae7-beef2f01ea63}">

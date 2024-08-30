@@ -22,7 +22,7 @@ VAR
 	_aborting :BOOL;
 	_quitting :BOOL;
 	_interface_container : InterfaceContainer := 0;
-	_job_event_reporter: InterfaceJobEventReporter;
+	_job_event_reporter: InterfaceObserver;
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
 END_VAR]]></Declaration>
@@ -93,7 +93,7 @@ END_VAR
 			THIS^.future := create_future(GVL.parallel_job_container_creator, name);
 		ContainerType.QUEUE:
 			THIS^.future := create_future(GVL.queue_job_container_creator, name);
-		ContainerType.PRALLEL_QUEUE:
+		ContainerType.PARALLEL_QUEUE:
 			THIS^.future := create_future(GVL.parallel_queue_job_container_creator, name);
 	END_CASE
 	THIS^.init();
@@ -265,7 +265,7 @@ END_IF
 _state_mem := _state;
 
 IF _logging THEN
-	IF _job_event_reporter.report(
+	IF _job_event_reporter.subscribe_job_event(
 			old_state := _last_state,
 			new_state := _state,
 			record_time := F_GetSystemTime(),
@@ -359,7 +359,7 @@ INIT := TRUE;
       </Implementation>
     </Method>
     <Property Name="job_event_reporter" Id="{7070112e-2fb6-433d-85f5-f36a183c0a1e}">
-      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceJobEventReporter]]></Declaration>
+      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceObserver]]></Declaration>
       <Get Name="Get" Id="{150bf335-b5f5-4890-8f09-a0bd37e70e48}">
         <Declaration><![CDATA[
 VAR

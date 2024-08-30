@@ -8,7 +8,7 @@ TYPE ContainerType :
 	BATCH := 0,
 	PARALLEL,
 	QUEUE,
-	PRALLEL_QUEUE
+	PARALLEL_QUEUE
 );
 END_TYPE
 ]]></Declaration>
