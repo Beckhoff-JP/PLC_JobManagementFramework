@@ -371,10 +371,21 @@ END_VAR
       </Get>
       <Set Name="Set" Id="{4cb4a4bf-e492-4795-8469-65c6601636a4}">
         <Declaration><![CDATA[VAR
+	executor :REFERENCE TO FB_Executor;
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_job_event_reporter := job_event_reporter;]]></ST>
+          <ST><![CDATA[_job_event_reporter := job_event_reporter;
+IF THIS^.children <> 0 THEN
+	REPEAT
+		executor REF= THIS^.children.each_executor;
+		IF __ISVALIDREF(executor) THEN
+			executor.job_event_reporter := job_event_reporter;
+		END_IF
+	UNTIL
+		NOT __ISVALIDREF(executor)
+	END_REPEAT
+END_IF]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -631,6 +642,8 @@ END_VAR
     </LineIds>
     <LineIds Name="FB_Executor.job_event_reporter.Set">
       <LineId Id="5" Count="0" />
+      <LineId Id="9" Count="8" />
+      <LineId Id="8" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.last_state.Get">
       <LineId Id="2" Count="0" />
