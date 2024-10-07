@@ -7,8 +7,9 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_own_parameter: TIME;
 	_output: REFERENCE TO BOOL;
+	_process_time: TIME;
+	_error_test :BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -26,8 +27,8 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_p_future := __NEW(FutureTimerBlink);
 _p_future^.future_name := future_name;
-_p_future^.own_output REF= _output;
-_p_future^.own_parameter := _own_parameter;
+_p_future^.set_parameter(_process_time, _output);
+_p_future^.set_options(_error_test);
 create_future := _p_future^;]]></ST>
       </Implementation>
     </Method>
@@ -50,15 +51,25 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="set_parameter" Id="{7f70fd4b-7ed0-4b76-a834-f29f6d827f49}">
-      <Declaration><![CDATA[METHOD set_parameter : BOOL
+    <Method Name="set_options" Id="{01e1e1e6-08b1-4cf2-8dd3-a3eb97c661d5}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
 VAR_INPUT
-	own_parameter: TIME;
-	output : REFERENCE TO BOOL;
+	error_test: BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_own_parameter := own_parameter;
+        <ST><![CDATA[_error_test := error_test;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameter" Id="{2374fd8a-3136-4eab-bd97-a48d2753ddbb}">
+      <Declaration><![CDATA[METHOD set_parameter : BOOL
+VAR_INPUT
+	process_time: TIME;
+	output		: REFERENCE TO BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_process_time := process_time;
 _output REF= output;
 ]]></ST>
       </Implementation>
@@ -68,17 +79,20 @@ _output REF= output;
     </LineIds>
     <LineIds Name="FutureTimerBlinkCreator.create_future">
       <LineId Id="8" Count="1" />
-      <LineId Id="11" Count="1" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="21" Count="0" />
       <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="FutureTimerBlinkCreator.destroy_future">
       <LineId Id="24" Count="5" />
       <LineId Id="7" Count="0" />
     </LineIds>
-    <LineIds Name="FutureTimerBlinkCreator.set_parameter">
+    <LineIds Name="FutureTimerBlinkCreator.set_options">
       <LineId Id="5" Count="0" />
-      <LineId Id="12" Count="0" />
-      <LineId Id="28" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureTimerBlinkCreator.set_parameter">
+      <LineId Id="9" Count="1" />
+      <LineId Id="5" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

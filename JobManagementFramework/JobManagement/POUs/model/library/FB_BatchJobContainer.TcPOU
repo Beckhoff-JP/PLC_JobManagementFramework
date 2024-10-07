@@ -8,10 +8,14 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_parent_executor : REFERENCE TO FB_Executor;
+	_executor : REFERENCE TO FB_Executor;
 	{attribute 'TcEncoding':='UTF-8'}
 	_name 	: STRING := 'BATCH JOB';
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF POINTER TO FB_Executor;
+	_auto_start : BOOL := TRUE;
+	_start :BOOL;
+	_abort : BOOL;
+	_all_abort : BOOL;
 	_total_futures: UINT;
 	current_executing_future_id : UINT;
 	current_executing_future : InterfaceFuture;
@@ -25,45 +29,25 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="_index_generator_" Id="{4d063668-d033-4039-b03e-0be138f8b138}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-(* This is the generator that iteratively generates references to FB_executor instances*)
+      <Declaration><![CDATA[(* This is the generator that iteratively generates references to FB_executor instances*)
 METHOD _index_generator_ : UINT
 VAR_INST
-	init : BOOL;
-	index: UINT;
+	_index : UINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF NOT init THEN
-	index := 0;
-	init := TRUE;
+        <ST><![CDATA[_index := _index + 1;
+IF _index > _total_futures THEN
+	_index := 0;
 END_IF
-
-IF _index_generator_ < _total_futures THEN
-	index := index + 1;
-ELSE
-	init := FALSE;
-	index := 0;
-END_IF
-
-_index_generator_ := index;]]></ST>
+_index_generator_ := _index;
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="abort" Id="{df529d65-dccb-41d9-a15b-0d233c35e0bc}">
       <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
-VAR_INST
-
-	complete_abort :BOOL;
-	i: UINT;
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[complete_abort := TRUE;
-FOR i := 1 TO _total_futures DO
-	IF NOT _executors[i]^.abort() THEN
-		complete_abort := FALSE;
-	END_IF
-	_executors[i]^.execute();
-END_FOR
-abort := complete_abort;]]></ST>
+        <ST><![CDATA[abort := _executors[current_executing_future_id]^.abort();]]></ST>
       </Implementation>
     </Method>
     <Method Name="add_future" Id="{b9eaa379-22e0-4ad4-ac6d-bfe355dff4b3}">
@@ -72,39 +56,77 @@ VAR_INPUT
 	future : InterfaceFuture;
 END_VAR
 VAR
-	_parent_future_id: STRING;	
+	_executor : POINTER TO FB_Executor;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF future <> 0 AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
-	_total_futures := _total_futures + 1;
-	_executors[_total_futures] := __NEW(FB_Executor);
-	_executors[_total_futures]^.future := future;
-	
-	IF  __ISVALIDREF(_parent_executor) THEN
-		// Propergate task creator object
-		_executors[_total_futures]^.job_event_reporter := _parent_executor.job_event_reporter;
-		_parent_future_id := _parent_executor.id;
-	END_IF
-	_executors[_total_futures]^.id := CONCAT(_parent_future_id, CONCAT('/', UINT_TO_STRING(_total_futures)));
-	add_future REF= _executors[_total_futures]^;
+        <ST><![CDATA[IF future <> 0 THEN
+	_executor := __NEW(FB_Executor);
+	_executor^.future := future;
+	THIS^.add_job(_executor^);
+	add_future REF= _executor^;
+ELSE
+	add_future REF= 0;
 END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="add_job" Id="{9f51bca3-2eeb-4364-9ec6-76051ede9dd5}">
+      <Declaration><![CDATA[METHOD add_job : BOOL
+VAR_INPUT
+	executor	: REFERENCE TO FB_Executor;
+END_VAR
+VAR
+	_parent_future_id: STRING;	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
+	executor.init();
+	_total_futures := _total_futures + 1;
+	_executors[_total_futures] := ADR(executor);
+	IF  __ISVALIDREF(_executor) THEN
+		// Propergate task creator object
+		_executors[_total_futures]^.job_event_reporter := _executor.job_event_reporter;
+		_executors[_total_futures]^.parent_executor REF= _executor;
+		_executors[_total_futures]^.upstream_aborting := _executor.upstream_aborting;
+		_parent_future_id := _executor.id;
+	END_IF
+	_executors[_total_futures]^.id := CONCAT(_parent_future_id, CONCAT('/', UINT_TO_STRING(_total_futures)));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="auto_start" Id="{73840596-fc50-4068-bea8-54dd59f6b9d1}">
+      <Declaration><![CDATA[PROPERTY auto_start : BOOL
+]]></Declaration>
+      <Set Name="Set" Id="{e1f0eaa8-568e-4e8f-8cc5-b7cdf9b0f88f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_auto_start := auto_start;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="continuous_mode" Id="{343a3827-ff84-44f3-84ba-b113b2f26d90}">
       <Declaration><![CDATA[PROPERTY continuous_mode : BOOL
 ]]></Declaration>
       <Set Name="Set" Id="{faac3094-0403-47bd-bea8-9caac446a076}">
         <Declaration><![CDATA[VAR
-	i: UDINT;
+	_executor : REFERENCE TO FB_Executor;
 END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[_continuous_mode := continuous_mode;
-FOR i := 1 TO _total_futures DO
-	_executors[i]^.continuous_mode := continuous_mode;
-END_FOR]]></ST>
+REPEAT
+	_executor REF= THIS^.each_executor;
+	IF __ISVALIDREF(_executor) THEN
+		_executor.continuous_mode := continuous_mode;
+	END_IF
+UNTIL
+	NOT __ISVALIDREF(_executor)
+END_REPEAT
+]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -163,7 +185,13 @@ END_VAR
         <Implementation>
           <ST><![CDATA[_index := _index_generator_();
 IF _index > 0 THEN
-	each_executor REF= _executors[_index]^;
+	IF _executors[_index] <> 0 THEN
+		IF _executors[_index] <> 0 THEN
+			each_executor REF= _executors[_index]^;
+		ELSE
+			each_executor REF= 0;
+		END_IF
+	END_IF
 ELSE
 	each_executor REF= 0;
 END_IF
@@ -171,6 +199,30 @@ END_IF
         </Implementation>
       </Get>
     </Property>
+    <Method Name="error_reset" Id="{70a38084-4571-47cc-9171-677f460d44fb}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL
+VAR
+	_executor : REFERENCE TO FB_Executor;
+	complete : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[complete := TRUE;
+REPEAT
+	_executor REF= each_executor;
+	IF __ISVALIDREF(_executor) THEN
+		IF NOT _executor.error_reset() THEN
+			complete := FALSE;
+		END_IF
+	END_IF
+UNTIL
+	NOT __ISVALIDREF(_executor)
+END_REPEAT
+IF complete THEN
+	_error_id := 0;
+END_IF
+error_reset := complete;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="execute" Id="{3a50f198-985b-4ce4-97c9-3b4f8b04dcb5}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INST
@@ -184,6 +236,8 @@ END_VAR
 	RETURN;
 END_IF
 
+
+
 FOR i := 1 TO _total_futures DO
 	complete_all_process := _executors[i]^.execute();
 	_error_id := _executors[i]^.nErrorID;
@@ -195,27 +249,52 @@ ELSE
 	complete_last_proess := TRUE;
 END_IF
 
-IF _executors[current_executing_future_id]^.current_state = E_FutureExecutionState.wait_for_process AND 
-	_executors[current_executing_future_id]^.ready AND complete_last_proess THEN
-	_executors[current_executing_future_id]^.start();
-END_IF
+CASE _executors[current_executing_future_id]^.current_state OF
+	E_FutureExecutionState.init, E_FutureExecutionState.process, E_FutureExecutionState.quit:
+		_all_abort := FALSE;
+		IF _abort THEN
+			IF _executors[current_executing_future_id]^.abort() THEN
+				_all_abort := TRUE;
+			END_IF
+		END_IF
+	E_FutureExecutionState.wait_for_process:
+		IF _executors[current_executing_future_id]^.ready AND complete_last_proess AND _auto_start THEN
+			_executors[current_executing_future_id]^.start();
+		END_IF
+END_CASE
 
-IF _executors[current_executing_future_id]^.current_state = E_FutureExecutionState.abort THEN
-	_executors[current_executing_future_id]^.start();
-END_IF
-
-IF _executors[current_executing_future_id]^.done AND current_executing_future_id < _total_futures THEN
+IF complete_all_process THEN
+	execute := NOT _continuous_mode;
+ELSIF _executors[current_executing_future_id]^.done AND current_executing_future_id < _total_futures THEN
 	execute := FALSE;
 	current_executing_future_id := current_executing_future_id + 1;
 END_IF
 
-IF complete_all_process THEN
-	execute := NOT _continuous_mode;
-END_IF
-
-current_executing_future := _executors[current_executing_future_id]^.future;]]></ST>
+current_executing_future := _executors[current_executing_future_id]^.future;
+]]></ST>
       </Implementation>
     </Method>
+    <Property Name="executor" Id="{eb88ccef-069f-403e-90c4-a2b3262adc03}">
+      <Declaration><![CDATA[PROPERTY executor : REFERENCE TO FB_Executor
+]]></Declaration>
+      <Get Name="Get" Id="{77b09d17-85b6-4bca-94c7-b6e91332666a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[executor REF= _executor;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{ef04ea69-5331-45c5-aae7-ca9b5fb42e49}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_executor REF= executor;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="future_name" Id="{7c47fc4f-5425-4d59-a4a5-60284aba42f9}">
       <Declaration><![CDATA[PROPERTY future_name : STRING// Name of future.
 ]]></Declaration>
@@ -238,19 +317,27 @@ END_VAR
     </Property>
     <Method Name="init" Id="{5ef2a4ac-f57b-470f-97a3-ba7305857e0b}">
       <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
-VAR_INST
-	i :UINT;
-	//possible_to_start :BOOL;
+VAR
+	_executor : REFERENCE TO FB_Executor;
+	_init_done : BOOL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR i := 1 TO _total_futures DO
-	_executors[i]^.job_event_reporter := _parent_executor.job_event_reporter;
-	_executors[i]^.init();
-END_FOR
+        <ST><![CDATA[_init_done := TRUE;
+REPEAT
+	_executor REF= THIS^.each_executor;
+	IF __ISVALIDREF(_executor) THEN
+		_executor.job_event_reporter := _executor.job_event_reporter;
+		IF NOT _executor.init() THEN
+			_init_done := FALSE;
+		END_IF
+	END_IF
+UNTIL
+	NOT __ISVALIDREF(_executor)
+END_REPEAT
 
 current_executing_future_id := 1;
 _error_id := 0;
-init := TRUE;]]></ST>
+init := _init_done;]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{8185f34b-cb6a-4346-850b-314d75813c56}">
@@ -275,27 +362,6 @@ END_VAR
           <ST><![CDATA[num_of_future := _total_futures;]]></ST>
         </Implementation>
       </Get>
-    </Property>
-    <Property Name="parent_executor" Id="{eb88ccef-069f-403e-90c4-a2b3262adc03}">
-      <Declaration><![CDATA[PROPERTY parent_executor : REFERENCE TO FB_Executor
-]]></Declaration>
-      <Get Name="Get" Id="{77b09d17-85b6-4bca-94c7-b6e91332666a}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[parent_executor REF= _parent_executor;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{ef04ea69-5331-45c5-aae7-ca9b5fb42e49}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_parent_executor REF= parent_executor;
-]]></ST>
-        </Implementation>
-      </Set>
     </Property>
     <Method Name="quit" Id="{7bdf3f44-47c5-4d23-b936-9fe467aec209}">
       <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
@@ -322,22 +388,45 @@ END_IF
     </Method>
     <Method Name="reset" Id="{92b3e709-af95-4eb9-84ab-bb72db9fbb7f}">
       <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
-]]></Declaration>
+VAR
+	i : UINT;
+	_delete_counter : UINT;
+	text : STRING;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[WHILE _total_futures > 0 DO
-	IF _executors[_total_futures] <> 0 THEN
-		IF _executors[_total_futures] = 0 THEN
-			_error_id := 1;
-			reset := TRUE;
-			RETURN;
-		END_IF
-		IF _executors[_total_futures]^.reset() THEN
-			__DELETE(_executors[_total_futures]);
-			_total_futures := _total_futures - 1;
+        <ST><![CDATA[_delete_counter := 0;
+REPEAT
+	i := _index_generator_();
+	IF _total_futures >= i AND i > 0 THEN
+		IF _executors[i] <> 0 THEN
+			IF _executors[i]^.reset() THEN
+				__DELETE(_executors[i]);
+				_delete_counter := _delete_counter + 1;
+			END_IF
 		END_IF
 	END_IF
-END_WHILE
-reset := _total_futures = 0;]]></ST>
+UNTIL
+	i = 0
+END_REPEAT
+_total_futures := _total_futures - _delete_counter;
+reset := _total_futures = 0;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="resume" Id="{c327d95a-6f58-4d64-aad0-920807799bfb}">
+      <Declaration><![CDATA[METHOD resume : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[resume := _executors[current_executing_future_id]^.resume();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="start" Id="{9fc705dd-5825-4cad-a6ab-98fcdf75a61a}">
+      <Declaration><![CDATA[METHOD start : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[start := _executors[current_executing_future_id]^.start();
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="state" Id="{4d617c7f-61e3-48f4-a7e6-f4dbff20e9b3}">
@@ -365,31 +454,42 @@ END_VAR
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer._index_generator_">
-      <LineId Id="30" Count="11" />
-      <LineId Id="5" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="47" Count="1" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="59" Count="1" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.abort">
-      <LineId Id="5" Count="4" />
-      <LineId Id="21" Count="0" />
-      <LineId Id="10" Count="0" />
-      <LineId Id="4" Count="0" />
+      <LineId Id="75" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.add_future">
-      <LineId Id="6" Count="1" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="93" Count="0" />
+      <LineId Id="97" Count="0" />
       <LineId Id="34" Count="0" />
-      <LineId Id="46" Count="0" />
-      <LineId Id="67" Count="0" />
-      <LineId Id="23" Count="0" />
-      <LineId Id="57" Count="1" />
-      <LineId Id="25" Count="1" />
-      <LineId Id="18" Count="0" />
       <LineId Id="10" Count="0" />
+      <LineId Id="95" Count="1" />
       <LineId Id="5" Count="0" />
       <LineId Id="11" Count="0" />
     </LineIds>
+    <LineIds Name="FB_BatchJobContainer.add_job">
+      <LineId Id="8" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="12" Count="3" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.auto_start.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_BatchJobContainer.continuous_mode.Set">
       <LineId Id="10" Count="0" />
-      <LineId Id="5" Count="1" />
+      <LineId Id="23" Count="2" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="29" Count="3" />
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.create_container">
@@ -401,21 +501,53 @@ END_VAR
       <LineId Id="13" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.each_executor.Get">
-      <LineId Id="2" Count="0" />
-      <LineId Id="6" Count="0" />
-      <LineId Id="9" Count="0" />
-      <LineId Id="11" Count="1" />
-      <LineId Id="10" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="30" Count="2" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="20" Count="3" />
       <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.error_reset">
+      <LineId Id="15" Count="0" />
+      <LineId Id="4" Count="1" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="16" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="7" Count="1" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="23" Count="2" />
+      <LineId Id="18" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.execute">
       <LineId Id="180" Count="0" />
       <LineId Id="183" Count="1" />
+      <LineId Id="210" Count="1" />
       <LineId Id="182" Count="0" />
       <LineId Id="200" Count="0" />
-      <LineId Id="145" Count="17" />
-      <LineId Id="164" Count="9" />
+      <LineId Id="145" Count="8" />
+      <LineId Id="230" Count="1" />
+      <LineId Id="248" Count="0" />
+      <LineId Id="255" Count="0" />
+      <LineId Id="249" Count="1" />
+      <LineId Id="252" Count="1" />
+      <LineId Id="251" Count="0" />
+      <LineId Id="232" Count="0" />
+      <LineId Id="234" Count="2" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="244" Count="1" />
+      <LineId Id="165" Count="3" />
+      <LineId Id="173" Count="0" />
       <LineId Id="75" Count="0" />
+      <LineId Id="247" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.executor.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.executor.Set">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.future_name.Get">
       <LineId Id="2" Count="0" />
@@ -424,10 +556,10 @@ END_VAR
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.init">
-      <LineId Id="50" Count="0" />
-      <LineId Id="63" Count="0" />
-      <LineId Id="53" Count="0" />
-      <LineId Id="49" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="78" Count="3" />
+      <LineId Id="86" Count="2" />
+      <LineId Id="82" Count="3" />
       <LineId Id="39" Count="0" />
       <LineId Id="32" Count="0" />
       <LineId Id="4" Count="0" />
@@ -438,13 +570,6 @@ END_VAR
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.num_of_future.Get">
       <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_BatchJobContainer.parent_executor.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_BatchJobContainer.parent_executor.Set">
-      <LineId Id="2" Count="0" />
-      <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.quit">
       <LineId Id="5" Count="1" />
@@ -457,16 +582,26 @@ END_VAR
       <LineId Id="15" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.reset">
-      <LineId Id="6" Count="0" />
-      <LineId Id="17" Count="0" />
-      <LineId Id="21" Count="3" />
-      <LineId Id="20" Count="0" />
-      <LineId Id="7" Count="0" />
-      <LineId Id="15" Count="0" />
-      <LineId Id="12" Count="1" />
-      <LineId Id="18" Count="0" />
-      <LineId Id="8" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="49" Count="0" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="51" Count="2" />
+      <LineId Id="71" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="56" Count="3" />
+      <LineId Id="74" Count="0" />
+      <LineId Id="72" Count="0" />
       <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.resume">
+      <LineId Id="6" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.start">
+      <LineId Id="22" Count="0" />
+      <LineId Id="27" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.state.Get">
       <LineId Id="2" Count="0" />

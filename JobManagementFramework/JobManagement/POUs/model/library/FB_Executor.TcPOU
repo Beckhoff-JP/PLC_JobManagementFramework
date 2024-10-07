@@ -11,10 +11,11 @@ VAR
 	{attribute 'TcEncoding':='UTF-8'}
 	_id : T_MaxString;
 	_done : BOOL;
-	_ready : BOOL;
 	_start : BOOL;
-	_abort : BOOL;
+	_resume : BOOL;
+	_passive_abort : BOOL;
 	_quit : BOOL;
+	_upstream_aborting : BOOL := TRUE;
 	 {attribute 'TcAnalytics'}
 	 _state :E_FutureExecutionState := E_FutureExecutionState.idle;
 	_last_state  :E_FutureExecutionState;
@@ -25,31 +26,52 @@ VAR
 	_job_event_reporter: InterfaceObserver;
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
+	_parent_executor : REFERENCE TO FB_Executor REF= 0;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="abort" Id="{4a5ac73d-0cc9-4d9e-84fc-915012ed9ab4}">
-      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
+      <Declaration><![CDATA[(*abort method
+
+*)
+METHOD abort : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
+
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _state = E_FutureExecutionState.init OR
    _state = E_FutureExecutionState.process OR
    _state = E_FutureExecutionState.quit THEN
-	_abort := TRUE;	
+   	_start := FALSE;
+	_passive_abort := TRUE;	
+	THIS^.execute();
 END_IF
 
-IF 	_abort AND _state = E_FutureExecutionState.abort THEN
+IF 	_passive_abort AND _state = E_FutureExecutionState.abort THEN
 	abort := NOT _aborting;
 ELSE
 	abort := TRUE;
 END_IF
-
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="busy" Id="{4599679c-a89e-4edf-a42c-abccebfc0bd6}">
+      <Declaration><![CDATA[PROPERTY busy : BOOL]]></Declaration>
+      <Get Name="Get" Id="{31f63b84-9fea-4918-ac72-b4f3235d586f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[busy := (	_state = E_FutureExecutionState.init OR	
+			_state = E_FutureExecutionState.process OR 
+			_state = E_FutureExecutionState.quit
+		);
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="children" Id="{db662496-7037-4faa-b7c6-23f2d18395d1}">
       <Declaration><![CDATA[PROPERTY children : InterfaceContainer // Accesser for interface pointer to child container instance.]]></Declaration>
       <Get Name="Get" Id="{b5bd3ec9-ba69-4ba1-8ec7-43c8c7dc9772}">
@@ -83,9 +105,21 @@ VAR_INPUT
 	container_type : ContainerType; // specify container type
 	name: STRING;	// specify future name
 END_VAR
-]]></Declaration>
+VAR
+	delete_existing_container : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF THIS^.reset() THEN
+        <ST><![CDATA[IF _interface_container <> 0 THEN
+ 	IF _interface_container.reset() THEN
+		delete_existing_container := TRUE;
+	ELSE
+		delete_existing_container := FALSE;
+	END_IF
+ELSE
+	delete_existing_container := TRUE;
+END_IF
+
+IF delete_existing_container THEN
 	CASE container_type OF
 		ContainerType.BATCH:
 			THIS^.future := create_future(GVL.batch_job_container_creator, name);
@@ -142,11 +176,44 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Method Name="error_reset" Id="{2f58a820-9692-4e5a-84bc-d2abdb71e852}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _future <> 0 THEN
+	IF _future.error_reset() THEN
+		_error_id := _future.nErrorID;
+		error_reset := TRUE;
+		IF _job_event_reporter <> 0 THEN
+			_job_event_reporter.subscribe_job_event(
+						subject := 'ERROR_RESET',
+						old_state := _last_state,
+						new_state := _state,
+						record_time := F_GetSystemTime(),
+						executor := THIS^
+				);
+		END_IF
+	ELSE
+		error_reset := FALSE;
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="execute" Id="{12a00ca6-fc73-4fe5-8b5c-2a7a9dcde6d1}">
       <Declaration><![CDATA[METHOD execute : BOOL // Execute future process and return TRUE if all task are finished.
 VAR_INST
 	_state_mem :E_FutureExecutionState;
 	_logging :BOOL;
+	delay : TIME := T#3S;
+	sleep : TON;
+END_VAR
+VAR
+	_executor : REFERENCE TO FB_Executor;
+	start_all_children : BOOL;
+	exe: INT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _future = 0 THEN
@@ -156,18 +223,18 @@ ELSE
 	execute := FALSE;
 END_IF
 
-IF _abort THEN
+IF _passive_abort THEN
 	_state := E_FutureExecutionState.abort;
-	_error_id := 16#FFFFFFFF;
+	IF _error_id = 0 THEN
+		_error_id := E_ErrorId.PASSIVE_ABORT;
+	END_IF
+	_passive_abort := FALSE;
 END_IF
-_abort := FALSE;
-
 
 IF _quit THEN
 	_state := E_FutureExecutionState.quit;
 END_IF
 _quit := FALSE;
-
 
 CASE _state OF
 	E_FutureExecutionState.idle:
@@ -201,14 +268,16 @@ CASE _state OF
 			END_IF
 		END_IF
 	E_FutureExecutionState.abort:
-		IF _aborting AND _future.abort() THEN
-			_aborting := FALSE;
-		END_IF
-		IF _start AND NOT _aborting THEN
+		IF _aborting THEN
+			_resume := FALSE;
+			IF _upstream_aborting AND __ISVALIDREF(_parent_executor) THEN
+				_parent_executor.abort();				
+			END_IF
+			IF _future.abort() THEN
+				_aborting := FALSE;
+			END_IF
+		ELSIF _resume THEN
 			_state := _last_state;
-			_start := FALSE;
-		ELSE
-			_start := FALSE;
 		END_IF
 	E_FutureExecutionState.quit:
 		IF _future.quit() THEN
@@ -222,22 +291,9 @@ CASE _state OF
 		END_IF
 	E_FutureExecutionState.finish:
 		IF NOT _logging THEN
-			//IF _future_creator <> 0 AND _future <> 0 THEN
-			//	_future_creator.destroy_future(_future);
-			//	_future := 0;
-			//END_IF
 			execute := TRUE;
 		END_IF
 END_CASE
-
-IF _state = E_FutureExecutionState.wait_for_process OR 
-	(_state = E_FutureExecutionState.abort AND NOT _aborting) THEN
-	_ready := TRUE;
-ELSE
-	_ready := FALSE;
-END_IF
-
-
 
 IF _state <> _state_mem THEN
 	_last_state := _state_mem;
@@ -253,6 +309,7 @@ IF _state <> _state_mem THEN
 	END_IF
 	
 	IF _state = E_FutureExecutionState.quit THEN
+		sleep(IN := FALSE);
 		_quitting := TRUE;
 	END_IF
 		
@@ -266,6 +323,7 @@ _state_mem := _state;
 
 IF _logging THEN
 	IF _job_event_reporter.subscribe_job_event(
+			subject := 'TRANSITION',
 			old_state := _last_state,
 			new_state := _state,
 			record_time := F_GetSystemTime(),
@@ -299,9 +357,8 @@ END_VAR
         <Implementation>
           <ST><![CDATA[_future := future;
 _future.state := _state;
-IF __QUERYINTERFACE(_future, _interface_container) THEN
-	_interface_container.parent_executor REF= THIS^;
-ELSE
+_future.executor REF= THIS^;
+IF NOT __QUERYINTERFACE(_future, _interface_container) THEN
 	_interface_container := 0;
 END_IF]]></ST>
         </Implementation>
@@ -345,8 +402,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[_done := FALSE;
-_abort := FALSE;
-_ready := FALSE;
+_passive_abort := FALSE;
 _start := FALSE;
 _state := E_FutureExecutionState.init;
 _error_id := 0;
@@ -412,6 +468,25 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Property Name="parent_executor" Id="{b57cb923-713c-4924-8cfc-cae55fa1c52b}">
+      <Declaration><![CDATA[PROPERTY parent_executor : REFERENCE TO FB_Executor]]></Declaration>
+      <Get Name="Get" Id="{e78d9b69-dec8-4381-b9cd-280132473f08}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_parent_executor REF= parent_executor;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{577406ef-8da9-4b14-a0b7-e722091103f8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_parent_executor REF= parent_executor;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="quit" Id="{a3ed0ceb-2877-462b-84db-f716a8c9598e}">
       <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
 VAR_INPUT
@@ -439,7 +514,7 @@ END_IF
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[ready := _ready;
+          <ST><![CDATA[ready := _state = E_FutureExecutionState.wait_for_process;
 ]]></ST>
         </Implementation>
       </Get>
@@ -448,42 +523,121 @@ END_VAR
       <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
+VAR
+	text : STRING;
+	_reset_children :BOOL := FALSE;
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF __QUERYINTERFACE(_future, _interface_container) THEN
-	reset := _interface_container.reset();
+        <ST><![CDATA[// Waiting finish process and remove jobs from container items.
+IF THIS^.busy THEN
+	THIS^.abort();
+ELSIF _interface_container <> 0 THEN
+	IF _interface_container.reset() THEN
+		_reset_children := TRUE;
+	END_IF
 ELSE
-	reset := TRUE;
+	_reset_children := TRUE;
 END_IF
-IF reset AND _future_creator <> 0 AND _future <> 0 THEN
-	_future := _future_creator.destroy_future(_future);
-END_IF]]></ST>
+
+// Remove my future.
+IF _reset_children THEN
+	IF _future_creator <> 0 AND _future <> 0 THEN
+		_future := _future_creator.destroy_future(_future);
+		IF _future = 0 THEN
+			_interface_container := 0;
+			reset := TRUE;
+		END_IF
+	ELSE
+		_future := 0;
+		reset := TRUE;
+	END_IF
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="resume" Id="{e3dc2ca8-54b7-423a-8cca-8c4b62e978bb}">
+      <Declaration><![CDATA[METHOD resume : BOOL
+VAR_INST
+	_executor : REFERENCE TO FB_Executor;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_resume := TRUE;
+IF _interface_container <> 0 THEN
+	IF NOT _interface_container.resume() THEN
+		_resume := FALSE;
+	END_IF
+END_IF
+IF NOT _resume THEN
+	_future.execute();
+END_IF
+resume := _resume;
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="start" Id="{fb7671b6-91ac-4f18-8e41-b81f64039055}">
       <Declaration><![CDATA[METHOD start : BOOL
-VAR_INPUT
+VAR_INST
+	_executor : REFERENCE TO FB_Executor;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_start := TRUE;]]></ST>
+        <ST><![CDATA[IF _state = E_FutureExecutionState.wait_for_process THEN
+	_start := TRUE;
+END_IF
+IF _start THEN
+	start := _state = E_FutureExecutionState.process OR
+			 _state = E_FutureExecutionState.init OR 
+			 _state = E_FutureExecutionState.quit;
+ELSE
+	start := TRUE;
+END_IF
+]]></ST>
       </Implementation>
     </Method>
+    <Property Name="upstream_aborting" Id="{005019ae-b53c-48e8-93f8-286c00c2c383}">
+      <Declaration><![CDATA[PROPERTY upstream_aborting : BOOL]]></Declaration>
+      <Get Name="Get" Id="{63c291b8-3195-41b6-aa40-ef7a1188cf41}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[upstream_aborting := _upstream_aborting;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{591710e5-8526-4fe9-bae8-a2b8d28c07cb}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_upstream_aborting := upstream_aborting;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <LineIds Name="FB_Executor">
       <LineId Id="32" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.abort">
       <LineId Id="12" Count="0" />
       <LineId Id="14" Count="1" />
+      <LineId Id="87" Count="0" />
       <LineId Id="17" Count="0" />
+      <LineId Id="119" Count="0" />
       <LineId Id="10" Count="0" />
       <LineId Id="19" Count="0" />
       <LineId Id="18" Count="0" />
       <LineId Id="21" Count="0" />
       <LineId Id="20" Count="0" />
       <LineId Id="22" Count="1" />
+      <LineId Id="111" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.busy.Get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="12" Count="1" />
+      <LineId Id="15" Count="0" />
       <LineId Id="11" Count="0" />
-      <LineId Id="6" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.children.Get">
       <LineId Id="2" Count="0" />
@@ -496,15 +650,16 @@ END_VAR
     </LineIds>
     <LineIds Name="FB_Executor.create_container">
       <LineId Id="6" Count="0" />
-      <LineId Id="12" Count="1" />
-      <LineId Id="15" Count="0" />
-      <LineId Id="19" Count="2" />
-      <LineId Id="23" Count="0" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="16" Count="0" />
-      <LineId Id="14" Count="0" />
-      <LineId Id="8" Count="1" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="50" Count="0" />
+      <LineId Id="52" Count="1" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="48" Count="1" />
       <LineId Id="5" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="31" Count="11" />
+      <LineId Id="29" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.create_future">
       <LineId Id="6" Count="2" />
@@ -518,19 +673,32 @@ END_VAR
     <LineIds Name="FB_Executor.done.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor.error_reset">
+      <LineId Id="6" Count="1" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="19" Count="6" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="11" Count="1" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.execute">
       <LineId Id="8" Count="2" />
       <LineId Id="50" Count="1" />
       <LineId Id="11" Count="0" />
       <LineId Id="157" Count="0" />
       <LineId Id="162" Count="1" />
-      <LineId Id="165" Count="1" />
-      <LineId Id="168" Count="0" />
-      <LineId Id="245" Count="0" />
+      <LineId Id="421" Count="0" />
+      <LineId Id="424" Count="0" />
+      <LineId Id="423" Count="0" />
+      <LineId Id="425" Count="0" />
+      <LineId Id="166" Count="0" />
       <LineId Id="156" Count="0" />
       <LineId Id="237" Count="0" />
       <LineId Id="239" Count="2" />
-      <LineId Id="246" Count="0" />
       <LineId Id="13" Count="2" />
       <LineId Id="258" Count="0" />
       <LineId Id="261" Count="0" />
@@ -552,10 +720,15 @@ END_VAR
       <LineId Id="100" Count="0" />
       <LineId Id="34" Count="2" />
       <LineId Id="117" Count="0" />
-      <LineId Id="120" Count="1" />
-      <LineId Id="113" Count="0" />
-      <LineId Id="115" Count="1" />
-      <LineId Id="169" Count="1" />
+      <LineId Id="426" Count="0" />
+      <LineId Id="441" Count="0" />
+      <LineId Id="444" Count="0" />
+      <LineId Id="443" Count="0" />
+      <LineId Id="364" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="365" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="363" Count="0" />
       <LineId Id="112" Count="0" />
       <LineId Id="38" Count="1" />
       <LineId Id="81" Count="0" />
@@ -566,18 +739,9 @@ END_VAR
       <LineId Id="236" Count="0" />
       <LineId Id="41" Count="1" />
       <LineId Id="301" Count="0" />
-      <LineId Id="313" Count="2" />
-      <LineId Id="312" Count="0" />
-      <LineId Id="231" Count="0" />
+      <LineId Id="405" Count="0" />
       <LineId Id="230" Count="0" />
       <LineId Id="44" Count="0" />
-      <LineId Id="268" Count="1" />
-      <LineId Id="274" Count="0" />
-      <LineId Id="273" Count="0" />
-      <LineId Id="275" Count="1" />
-      <LineId Id="272" Count="0" />
-      <LineId Id="270" Count="0" />
-      <LineId Id="267" Count="0" />
       <LineId Id="66" Count="2" />
       <LineId Id="176" Count="0" />
       <LineId Id="179" Count="1" />
@@ -589,7 +753,9 @@ END_VAR
       <LineId Id="189" Count="0" />
       <LineId Id="188" Count="0" />
       <LineId Id="248" Count="0" />
-      <LineId Id="250" Count="2" />
+      <LineId Id="250" Count="0" />
+      <LineId Id="407" Count="0" />
+      <LineId Id="251" Count="1" />
       <LineId Id="249" Count="0" />
       <LineId Id="202" Count="0" />
       <LineId Id="205" Count="0" />
@@ -600,7 +766,9 @@ END_VAR
       <LineId Id="60" Count="0" />
       <LineId Id="172" Count="0" />
       <LineId Id="217" Count="0" />
-      <LineId Id="220" Count="7" />
+      <LineId Id="220" Count="0" />
+      <LineId Id="327" Count="0" />
+      <LineId Id="221" Count="6" />
       <LineId Id="219" Count="0" />
       <LineId Id="277" Count="0" />
       <LineId Id="257" Count="0" />
@@ -613,9 +781,8 @@ END_VAR
     <LineIds Name="FB_Executor.future.Set">
       <LineId Id="2" Count="0" />
       <LineId Id="13" Count="0" />
-      <LineId Id="5" Count="1" />
-      <LineId Id="16" Count="1" />
-      <LineId Id="7" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="22" Count="2" />
     </LineIds>
     <LineIds Name="FB_Executor.future_creator.Set">
       <LineId Id="2" Count="0" />
@@ -629,7 +796,7 @@ END_VAR
     <LineIds Name="FB_Executor.init">
       <LineId Id="6" Count="0" />
       <LineId Id="21" Count="0" />
-      <LineId Id="7" Count="1" />
+      <LineId Id="50" Count="0" />
       <LineId Id="33" Count="1" />
       <LineId Id="43" Count="0" />
       <LineId Id="45" Count="1" />
@@ -651,6 +818,12 @@ END_VAR
     <LineIds Name="FB_Executor.nErrorID.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor.parent_executor.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.parent_executor.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.quit">
       <LineId Id="6" Count="10" />
       <LineId Id="5" Count="0" />
@@ -660,14 +833,47 @@ END_VAR
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.reset">
-      <LineId Id="6" Count="3" />
+      <LineId Id="159" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="70" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="150" Count="0" />
+      <LineId Id="58" Count="0" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="145" Count="0" />
+      <LineId Id="136" Count="0" />
+      <LineId Id="139" Count="5" />
+      <LineId Id="146" Count="2" />
+      <LineId Id="137" Count="1" />
+      <LineId Id="158" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.resume">
+      <LineId Id="10" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="59" Count="1" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="65" Count="2" />
+      <LineId Id="64" Count="0" />
       <LineId Id="5" Count="0" />
-      <LineId Id="15" Count="0" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="20" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.start">
-      <LineId Id="5" Count="0" />
+      <LineId Id="70" Count="3" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="92" Count="0" />
+      <LineId Id="74" Count="2" />
+      <LineId Id="41" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.upstream_aborting.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.upstream_aborting.Set">
+      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

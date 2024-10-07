@@ -10,12 +10,27 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Method Name="error_reset" Id="{a9eb976f-3758-4671-96e5-921c7b463a22}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
     <Method Name="execute" Id="{4a0b4721-18ea-4776-928a-5b24c49dda75}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="executor" Id="{1ffce432-14a7-4918-9f9c-90ae1bb1d90d}">
+      <Declaration><![CDATA[PROPERTY executor : REFERENCE TO FB_Executor]]></Declaration>
+      <Get Name="Get" Id="{a1986d22-3041-4060-aadc-fc03953d80fb}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{cb8b03d6-1988-4e67-b1fe-27b0d43d581d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Property Name="future_name" Id="{89ef3158-3550-438a-bee3-821a3cca9058}">
       <Declaration><![CDATA[PROPERTY future_name : STRING // Name of future.]]></Declaration>
       <Get Name="Get" Id="{d6d11718-73bb-4401-91ac-a3e6b656d939}">

@@ -13,6 +13,7 @@ END_VAR
     <Method Name="subscribe_job_event" Id="{09caa5d0-8b39-4577-9c48-876741e7c7cd}">
       <Declaration><![CDATA[METHOD subscribe_job_event : BOOL
 VAR_INPUT
+	subject	  : T_MaxString;	// Subject text of event
 	old_state : E_FutureExecutionState; // Job state before transition.
 	new_state : E_FutureExecutionState; // Job state after transition.
 	record_time	: T_FILETIME64; // File-time at the time of transition.

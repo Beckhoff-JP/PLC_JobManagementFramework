@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="FB_AbstructFuture" Id="{e0e3f6dd-6f71-426e-8a03-d727df6ff260}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructFuture IMPLEMENTS InterfaceFuture
 VAR_INPUT
@@ -7,6 +7,7 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
+	_executor : REFERENCE TO FB_Executor;
 	{attribute 'TcEncoding':='UTF-8'}
 	_future_name :STRING := 'NO_NAME';
 	_busy : BOOL; 
@@ -17,19 +18,46 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="abort" Id="{862be836-a2ae-4f1d-92dd-4b23d30b26d7}">
-      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
+      <Declaration><![CDATA[METHOD abort : BOOL // Must be overrided if future has any errors.
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[abort := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="error_reset" Id="{b981eea4-5db0-43d5-b56c-c56507a8ebe0}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[error_reset := TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="execute" Id="{ba07fa30-bd40-4f42-b8d8-9c368f5519ee}">
-      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+      <Declaration><![CDATA[METHOD execute : BOOL // Must be overrided.
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
+    <Property Name="executor" Id="{e22af436-28ff-4128-a585-9527975f7a68}">
+      <Declaration><![CDATA[PROPERTY executor : REFERENCE TO FB_Executor
+]]></Declaration>
+      <Get Name="Get" Id="{75135c4d-3399-4ea9-9504-13410d982d3c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[executor REF= _executor;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{68b7c622-1aa4-4f24-afe2-48d4071f5eae}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_executor REF= executor;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="future_name" Id="{2365611b-3978-40e5-af7c-084e8898106e}">
       <Declaration><![CDATA[PROPERTY future_name : STRING // Name of future.
 ]]></Declaration>
@@ -59,7 +87,7 @@ END_VAR
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{5e96776e-2ecf-4a2b-b5d9-c234f6343ca2}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT // Set result code when finished any method. 0 should be set when normal case.
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT // Must be overrided if future has any errors.
 ]]></Declaration>
       <Get Name="Get" Id="{60455303-60d8-490d-880a-ad439ea813d7}">
         <Declaration><![CDATA[VAR
@@ -104,8 +132,17 @@ END_VAR
     <LineIds Name="FB_AbstructFuture.abort">
       <LineId Id="4" Count="0" />
     </LineIds>
+    <LineIds Name="FB_AbstructFuture.error_reset">
+      <LineId Id="4" Count="0" />
+    </LineIds>
     <LineIds Name="FB_AbstructFuture.execute">
       <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.executor.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructFuture.executor.Set">
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_AbstructFuture.future_name.Get">
       <LineId Id="2" Count="0" />

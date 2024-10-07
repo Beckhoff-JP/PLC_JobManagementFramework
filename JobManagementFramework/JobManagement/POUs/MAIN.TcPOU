@@ -4,6 +4,7 @@
     <Declaration><![CDATA[PROGRAM MAIN
 VAR
 	_state :UINT;
+	actual_job : REFERENCE TO FB_Executor;
 	executor: FB_Executor; // main Executor
 	
 	_child_executor : REFERENCE TO FB_Executor;
@@ -43,113 +44,156 @@ VAR
 	
 	end_of_manual: BOOL;
 	init :BOOL;
+	test_executor : POINTER TO FB_BatchJobContainer;
+	
+	future_timer : FutureTimerBlink;
+	future_counter : FutureCounterBlink;
+	
+	_monitor_job : REFERENCE TO FB_Executor;
+	_monitor_count_blinker : POINTER TO FutureCounterBlink;
+	_monitor_time_blinker : POINTER TO FutureTimerBlink;
+	
+	_job_debug_monitoring : FB_Executor;
+	
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[IF NOT init THEN
-	executor.job_event_reporter := fbObserver;
+	//executor.job_event_reporter := fbObserver;
 	init := TRUE;
+	executor.id := 'ROOT';
+	executor.upstream_aborting := FALSE;
+	executor.create_container(ContainerType.PARALLEL_QUEUE,'BASE');
+	executor.continuous_mode := TRUE;
+	executor.job_event_reporter := fbObserver;
+
+	//actual_job REF= executor.children.create_container(ContainerType.QUEUE, 'Batch Container');
+	//actual_job.continuous_mode := TRUE;
 END_IF
 
 IF abort THEN
 	executor.abort();
 END_IF
 
+executor.execute();
+
+IF executor.ready THEN
+	executor.start();
+END_IF
+
+IF resume THEN
+	IF executor.error_reset() THEN
+		IF executor.resume() THEN
+			resume := FALSE;
+		END_IF
+	END_IF
+END_IF
+
+
 
 CASE _state OF
 	0:
-
-		executor.id := 'MAIN JOB';
-		executor.create_container(ContainerType.BATCH, 'Batch Container');
-		_child_executor REF= executor.children.create_container(ContainerType.PARALLEL, 'Parallel Container');
-
+		_child_executor REF= executor.children.create_container(ContainerType.PARALLEL_QUEUE, 'Parallel Container');
 		// Static instances
-		task_blink_1.own_parameter := T#5S;
-		task_blink_1.own_output REF= component1_out;
+		task_blink_1.set_parameter(T#5S, component1_out);
 		task_blink_1.future_name := 'Button 1 blink';
-		task_blink_2.own_parameter := T#3S;
-		task_blink_2.own_output REF= component2_out;
+		task_blink_2.set_parameter(T#3S, component2_out);
 		task_blink_2.future_name := 'Button 2 blink';
-		task_count_1.own_parameter := 3;
-		task_count_1.input REF= component3_in;
-		task_count_1.output REF= component3_out;
+		task_count_1.set_parameter(3, component3_in,component3_out);
 		task_count_1.future_name := 'Button 3 count';
-		task_count_2.own_parameter := 5;
-		task_count_2.input REF= component4_in;
-		task_count_2.output REF= component4_out;
+		task_count_2.set_parameter(5, component4_in, component4_out);
+		task_count_2.error_test := FALSE;
 		task_count_2.future_name := 'Button 4 count';
 		
 		_child_executor.children.add_future(task_blink_1);
 		_child_executor.children.add_future(task_blink_2);
 		_child_executor.children.add_future(task_count_1);
 		_child_executor.children.add_future(task_count_2);
+		__QUERYPOINTER(_child_executor.children,test_executor);
 		
 		// dynamic instances		
-		_child_executor REF= executor.children.create_container(ContainerType.PARALLEL, 'Dynamic parallel tasks');
+		//_child_executor REF= actual_job.children.create_container(ContainerType.PARALLEL, 'Dynamic parallel tasks');
 		
-		future_counter_creator.set_parameter(own_parameter := 2,input := component3_in, output := component3_out);
+		future_counter_creator.set_parameter(2, component3_in, component3_out);
 		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Count-1');	
 		
-		future_counter_creator.set_parameter(own_parameter := 5,input := component4_in, output := component4_out);
+		future_counter_creator.set_parameter(5, component4_in, component4_out);
 		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Count-2');
 
-		future_counter_creator.set_parameter(own_parameter := 2,input := component3_in, output := component3_out);
+		future_counter_creator.set_parameter(2,component3_in, component3_out);
 		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Counter3');
 
-		future_counter_creator.set_parameter(own_parameter := 2,input := component3_in, output := component3_out);
+		future_counter_creator.set_parameter(2, component3_in, component3_out);
 		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Counter4'); // 同時実行でなければ同じFutureオブジェクトを使いまわせる
-		future_counter_creator.set_parameter(own_parameter := 2,input := component4_in, output := component4_out);
+		future_counter_creator.set_parameter(2, component4_in, component4_out);
 		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Counter5');
-
-		// Automatically quit after all process done.
-		executor.continuous_mode := FALSE;
 		
 		// Report 'executor' job directory
 		fbJobTreeSearch.subscriber := fbObserver;
 		fbJobTreeSearch.search(executor);
-		
+			
 		_state := 1;
 	1:
 		// シーケンス制御
-		IF (executor.current_state = E_FutureExecutionState.wait_for_process AND executor.ready) OR 
-			(executor.current_state = E_FutureExecutionState.abort AND resume) THEN
-			executor.start();
-		END_IF
-		IF executor.execute() AND executor.nErrorID = 0 THEN
-			_state := 2;
+		IF _child_executor.done THEN
+			_state := 3;
 		END_IF
 	2:
-		executor.create_container(ContainerType.QUEUE, 'Queued job');
-		executor.continuous_mode := TRUE;
 		_state := 3;			
 	3:
-		// キュー
-		IF (executor.current_state = E_FutureExecutionState.wait_for_process AND executor.ready) OR 
-			(executor.current_state = E_FutureExecutionState.abort AND resume) THEN
-			executor.start();
-		END_IF
 		
 		IF job_create_switch[1] THEN
 			future_timer_creator.set_parameter(T#5S, component1_out);
-			executor.children.create_future(future_timer_creator, 'Button 1 Time blink 5s');
+			future_timer_creator.set_options(FALSE);
+			_monitor_job REF= executor.children.create_future(future_timer_creator, 'Button 1 Time blink 5s');
+			IF NOT  __QUERYPOINTER(_monitor_job.future, _monitor_count_blinker) THEN
+				_monitor_count_blinker := 0;
+			END_IF
+			IF NOT __QUERYPOINTER(_monitor_job.future, _monitor_time_blinker)  THEN
+				_monitor_time_blinker := 0;
+			END_IF
 			job_create_switch[1] := FALSE;
+		
 		ELSIF job_create_switch[2] THEN
 			future_timer_creator.set_parameter(T#3S, component2_out);
-			executor.children.create_future(future_timer_creator, 'Button 2 Time blink 3s');
+			future_timer_creator.set_options(FALSE);
+			_monitor_job REF= executor.children.create_future(future_timer_creator, 'Button 2 Time blink 3s');
+			IF NOT  __QUERYPOINTER(_monitor_job.future, _monitor_count_blinker) THEN
+				_monitor_count_blinker := 0;
+			END_IF
+			IF NOT __QUERYPOINTER(_monitor_job.future, _monitor_time_blinker)  THEN
+				_monitor_time_blinker := 0;
+			END_IF
 			job_create_switch[2] := FALSE;
+		
 		ELSIF  job_create_switch[3] THEN
 			job_create_switch[3] := FALSE;
-			future_counter_creator.set_parameter(own_parameter := 2,input := component3_in, output := component3_out);
-			executor.children.create_future(future_counter_creator, 'Dynamic job : Counter6');
+			future_counter_creator.set_parameter(2, component3_in, component3_out);
+			future_counter_creator.set_options(FALSE);
+			_monitor_job REF= executor.children.create_future(future_counter_creator, 'Dynamic job : Counter6');
+			IF NOT  __QUERYPOINTER(_monitor_job.future, _monitor_count_blinker) THEN
+				_monitor_count_blinker := 0;
+			END_IF
+			IF NOT __QUERYPOINTER(_monitor_job.future, _monitor_time_blinker)  THEN
+				_monitor_time_blinker := 0;
+			END_IF
+			job_create_switch[3] := FALSE;
 		ELSIF  job_create_switch[4] THEN
 			job_create_switch[4] := FALSE;
-			future_counter_creator.set_parameter(own_parameter := 4,input := component4_in, output := component4_out);
-			executor.children.create_future(future_counter_creator, 'Dynamic job : Counter7');
+			future_counter_creator.set_parameter(4, component4_in, component4_out);
+			future_counter_creator.set_options(TRUE);
+			_monitor_job REF= executor.children.create_future(future_counter_creator, 'Dynamic job : Counter7');
+			IF NOT  __QUERYPOINTER(_monitor_job.future, _monitor_count_blinker) THEN
+				_monitor_count_blinker := 0;
+			END_IF
+			IF NOT __QUERYPOINTER(_monitor_job.future, _monitor_time_blinker)  THEN
+				_monitor_time_blinker := 0;
+			END_IF
+			job_create_switch[4] := FALSE;
+		
 		END_IF
 		IF reset THEN
 			executor.quit();
-		END_IF
-		IF executor.execute() AND executor.nErrorID = 0 THEN
 			_state := 4;
 		END_IF
 	4:
@@ -157,21 +201,87 @@ CASE _state OF
 		
 END_CASE
 
-IF reset THEN
-	reset := NOT executor.reset();
-END_IF
+MEMCPY(ADR(_job_debug_monitoring), ADR(_child_executor), SIZEOF(_job_debug_monitoring));
 
-resume := FALSE;
-]]></ST>
+IF reset AND NOT executor.busy THEN
+	IF executor.children.reset() THEN
+		reset := FALSE;
+	END_IF
+END_IF]]></ST>
     </Implementation>
     <LineIds Name="MAIN">
-      <LineId Id="3914" Count="11" />
-      <LineId Id="4034" Count="0" />
-      <LineId Id="3926" Count="44" />
+      <LineId Id="3914" Count="2" />
+      <LineId Id="4439" Count="0" />
+      <LineId Id="4745" Count="0" />
+      <LineId Id="4438" Count="0" />
+      <LineId Id="4494" Count="0" />
+      <LineId Id="4514" Count="0" />
+      <LineId Id="4512" Count="0" />
+      <LineId Id="4441" Count="0" />
+      <LineId Id="4510" Count="0" />
+      <LineId Id="3917" Count="4" />
+      <LineId Id="4498" Count="0" />
+      <LineId Id="3922" Count="0" />
+      <LineId Id="4686" Count="3" />
+      <LineId Id="4685" Count="0" />
+      <LineId Id="4501" Count="0" />
+      <LineId Id="4503" Count="5" />
+      <LineId Id="4499" Count="1" />
+      <LineId Id="3923" Count="2" />
+      <LineId Id="3928" Count="0" />
+      <LineId Id="3930" Count="1" />
+      <LineId Id="3933" Count="1" />
+      <LineId Id="3936" Count="1" />
+      <LineId Id="3940" Count="1" />
+      <LineId Id="4081" Count="0" />
+      <LineId Id="3944" Count="5" />
+      <LineId Id="4084" Count="0" />
+      <LineId Id="3950" Count="16" />
+      <LineId Id="3970" Count="0" />
       <LineId Id="4033" Count="0" />
       <LineId Id="3971" Count="1" />
-      <LineId Id="3975" Count="54" />
-      <LineId Id="1744" Count="0" />
+      <LineId Id="4129" Count="0" />
+      <LineId Id="4131" Count="0" />
+      <LineId Id="3977" Count="1" />
+      <LineId Id="3983" Count="2" />
+      <LineId Id="4496" Count="1" />
+      <LineId Id="3990" Count="0" />
+      <LineId Id="3996" Count="2" />
+      <LineId Id="4201" Count="0" />
+      <LineId Id="3999" Count="0" />
+      <LineId Id="4281" Count="4" />
+      <LineId Id="4197" Count="0" />
+      <LineId Id="4000" Count="0" />
+      <LineId Id="4300" Count="0" />
+      <LineId Id="4381" Count="0" />
+      <LineId Id="4002" Count="0" />
+      <LineId Id="4200" Count="0" />
+      <LineId Id="4003" Count="0" />
+      <LineId Id="4276" Count="4" />
+      <LineId Id="4194" Count="0" />
+      <LineId Id="4004" Count="0" />
+      <LineId Id="4307" Count="0" />
+      <LineId Id="4005" Count="2" />
+      <LineId Id="4199" Count="0" />
+      <LineId Id="4008" Count="0" />
+      <LineId Id="4271" Count="4" />
+      <LineId Id="4193" Count="0" />
+      <LineId Id="4296" Count="0" />
+      <LineId Id="4009" Count="2" />
+      <LineId Id="4079" Count="0" />
+      <LineId Id="4012" Count="0" />
+      <LineId Id="4266" Count="4" />
+      <LineId Id="4191" Count="0" />
+      <LineId Id="4297" Count="0" />
+      <LineId Id="4320" Count="0" />
+      <LineId Id="4013" Count="2" />
+      <LineId Id="4509" Count="0" />
+      <LineId Id="4016" Count="0" />
+      <LineId Id="4020" Count="3" />
+      <LineId Id="4571" Count="1" />
+      <LineId Id="4024" Count="2" />
+      <LineId Id="4628" Count="1" />
+      <LineId Id="4027" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

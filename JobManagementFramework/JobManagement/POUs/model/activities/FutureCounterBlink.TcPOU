@@ -8,13 +8,14 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_own_parameter: UINT;
 	process_timer: TON;
 	blink_timer: TON;
-	_result :UDINT;
 	_counter :UINT;
-	_own_input: REFERENCE TO BOOL;
-	_own_output: REFERENCE TO BOOL;
+	_error_id :UDINT;
+	_target_count: UINT;
+	_count_trigger: REFERENCE TO BOOL;
+	_output: REFERENCE TO BOOL;
+	_error_test :BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -27,11 +28,11 @@ END_VAR
         <ST><![CDATA[// The warning can be disabled here as the user is aware of the risk that the reference may not be valid by checking its validity
 {warning disable C0371}
 // Checking the VAR_IN_OUT reference, leave the current method in case of invalid reference
-IF NOT __ISVALIDREF(_own_output) THEN
+IF NOT __ISVALIDREF(_output) THEN
      RETURN;
 END_IF
 
-_own_output := FALSE;
+_output := FALSE;
 abort := TRUE;
 
 // The warning may be restored at the end of the access area
@@ -50,6 +51,26 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Method Name="error_reset" Id="{e3513bdf-5d7b-4204-a6d2-e9e7a2b30828}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_error_test := FALSE;
+_error_id := 0;
+error_reset := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="error_test" Id="{b3589396-124f-4237-a39b-fb8ae5a2e47b}">
+      <Declaration><![CDATA[PROPERTY error_test : BOOL]]></Declaration>
+      <Set Name="Set" Id="{7dfabde6-7ed6-45fa-b2b1-95ec152353ab}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_error_test := error_test;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="execute" Id="{06ca504b-2230-462e-b402-b0513637b891}">
       <Declaration><![CDATA[METHOD execute : BOOL
 VAR_INPUT
@@ -61,16 +82,22 @@ END_VAR]]></Declaration>
         <ST><![CDATA[// The warning can be disabled here as the user is aware of the risk that the reference may not be valid by checking its validity
 {warning disable C0371}
 // Checking the VAR_IN_OUT reference, leave the current method in case of invalid reference
-IF NOT __ISVALIDREF(_own_output) OR NOT __ISVALIDREF(_own_input) THEN
+IF NOT __ISVALIDREF(_output) OR NOT __ISVALIDREF(_count_trigger) THEN
+	_error_id := 1;
      RETURN;
 END_IF
 
-_own_output := TRUE;
-IF _own_input AND NOT input_memory THEN
-	_counter := counter + 1;
+IF _error_test THEN
+	_error_id := 9;
+	execute := TRUE;
 END_IF
-input_memory := _own_input;
-IF _counter > _own_parameter THEN
+
+_output := TRUE;
+IF _count_trigger AND NOT input_memory THEN
+	_counter := _counter + 1;
+END_IF
+input_memory := _count_trigger;
+IF _counter > _target_count THEN
 	execute := TRUE;
 END_IF
 
@@ -88,12 +115,12 @@ END_VAR
         <ST><![CDATA[// The warning can be disabled here as the user is aware of the risk that the reference may not be valid by checking its validity
 {warning disable C0371}
 // Checking the VAR_IN_OUT reference, leave the current method in case of invalid reference
-IF NOT __ISVALIDREF(_own_output) THEN
-	_result := 1;
+IF NOT __ISVALIDREF(_output) THEN
+	_error_id := 1;
      RETURN;
 END_IF
 
-_own_output := FALSE;
+_output := FALSE;
 process_timer(IN := FALSE);
 blink_timer(IN := FALSE);
 _counter := 0;
@@ -104,17 +131,6 @@ init := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="input" Id="{9b9ce6d4-2b7c-46f1-863a-ec0e0ee528c8}">
-      <Declaration><![CDATA[PROPERTY input : REFERENCE TO BOOL;]]></Declaration>
-      <Set Name="Set" Id="{394f91d6-bbd4-402b-9daf-3e63549cb838}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_own_input REF= input;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <Property Name="nErrorID" Id="{16e63a23-0f02-402f-9998-37a3e09307d6}">
       <Declaration><![CDATA[PROPERTY nErrorID : UDINT
 ]]></Declaration>
@@ -123,39 +139,9 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[nErrorID := _result;]]></ST>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
         </Implementation>
       </Get>
-    </Property>
-    <Property Name="output" Id="{b3cff984-3339-47bc-bc72-9fee666901a0}">
-      <Declaration><![CDATA[PROPERTY output : REFERENCE TO BOOL;]]></Declaration>
-      <Set Name="Set" Id="{cc76f589-3252-467a-a02f-9f4006b5aa11}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_own_output REF= output;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
-    <Property Name="own_parameter" Id="{44c22855-b665-42b9-9698-003553798c6b}">
-      <Declaration><![CDATA[PROPERTY own_parameter : UINT]]></Declaration>
-      <Get Name="Get" Id="{a4ce69b5-d711-41f1-b7ea-5a7f1940c7a1}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[own_parameter := _own_parameter;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{20314786-f00f-435f-bd37-c1bd1124cdd5}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_own_parameter := own_parameter;]]></ST>
-        </Implementation>
-      </Set>
     </Property>
     <Method Name="quit" Id="{77d78392-ba97-4c0d-a7ef-71aa64534b7c}">
       <Declaration><![CDATA[METHOD quit : BOOL
@@ -163,6 +149,30 @@ END_VAR
       <Implementation>
         <ST><![CDATA[THIS^.init();
 quit := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_options" Id="{f8372cc1-da3c-428a-8da3-423e5528f601}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	error_test: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_error_test := error_test;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameter" Id="{f5250f51-595c-4dc8-9963-8e58f447985d}">
+      <Declaration><![CDATA[METHOD set_parameter : BOOL
+VAR_INPUT
+	target_count: UINT;
+	count_trigger : REFERENCE TO BOOL;
+	output		: REFERENCE TO BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_count_trigger REF= count_trigger;
+_output REF= output;
+_target_count := target_count;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FutureCounterBlink">
@@ -179,9 +189,23 @@ quit := TRUE;]]></ST>
     <LineIds Name="FutureCounterBlink.counter.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
+    <LineIds Name="FutureCounterBlink.error_reset">
+      <LineId Id="3" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.error_test.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FutureCounterBlink.execute">
-      <LineId Id="35" Count="4" />
-      <LineId Id="33" Count="1" />
+      <LineId Id="35" Count="3" />
+      <LineId Id="48" Count="0" />
+      <LineId Id="39" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="49" Count="1" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="51" Count="1" />
+      <LineId Id="34" Count="0" />
       <LineId Id="14" Count="0" />
       <LineId Id="20" Count="2" />
       <LineId Id="24" Count="3" />
@@ -205,24 +229,19 @@ quit := TRUE;]]></ST>
       <LineId Id="24" Count="0" />
       <LineId Id="23" Count="0" />
     </LineIds>
-    <LineIds Name="FutureCounterBlink.input.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
     <LineIds Name="FutureCounterBlink.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.output.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.own_parameter.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.own_parameter.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FutureCounterBlink.quit">
       <LineId Id="4" Count="0" />
       <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.set_options">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.set_parameter">
+      <LineId Id="9" Count="1" />
+      <LineId Id="5" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

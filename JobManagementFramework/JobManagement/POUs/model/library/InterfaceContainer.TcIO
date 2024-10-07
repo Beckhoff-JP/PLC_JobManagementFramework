@@ -17,6 +17,19 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Method Name="add_job" Id="{13525ac4-1052-4243-89ff-99407fdec1ac}">
+      <Declaration><![CDATA[METHOD add_job : BOOL
+VAR_INPUT
+	executor	: REFERENCE TO FB_Executor;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="auto_start" Id="{2e7e6e99-de52-4cca-a980-c03dd8230e0f}">
+      <Declaration><![CDATA[PROPERTY auto_start : bool]]></Declaration>
+      <Set Name="Set" Id="{b376652a-a263-4fd4-bbb2-fe00b56cdc19}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Property Name="continuous_mode" Id="{97d37245-0a02-4783-8ab5-0f90cb1fc2d0}">
       <Declaration><![CDATA[PROPERTY continuous_mode : bool]]></Declaration>
       <Set Name="Set" Id="{67c23647-8ef5-47ae-81ce-913de28a5e0e}">
@@ -51,19 +64,20 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Property Name="parent_executor" Id="{3a8974e9-dbcb-4ac9-aa11-4d3a1b8b49c1}">
-      <Declaration><![CDATA[PROPERTY parent_executor : REFERENCE TO FB_Executor]]></Declaration>
-      <Get Name="Get" Id="{f2838a4e-ac9a-4cb4-b2f1-998d701b75c7}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-      <Set Name="Set" Id="{1f55717a-0f1f-430f-9f48-3a9f0b747ea1}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Set>
-    </Property>
     <Method Name="reset" Id="{cf0bbd9b-2cd6-46f3-b203-68cba1d854bb}">
       <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
 VAR_INPUT
 END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="resume" Id="{597002ce-cb7b-432c-9246-ab23473411e0}">
+      <Declaration><![CDATA[METHOD resume : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="start" Id="{31efdc2e-5217-4bb1-99d2-b528d594f419}">
+      <Declaration><![CDATA[METHOD start : BOOL
 ]]></Declaration>
     </Method>
   </Itf>

@@ -7,9 +7,10 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_own_parameter: UINT;
-	_input: REFERENCE TO BOOL;
+	_target_count: UINT;
+	_count_trigger: REFERENCE TO BOOL;
 	_output: REFERENCE TO BOOL;
+	_error_test :BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -27,9 +28,8 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_p_future := __NEW(FutureCounterBlink);
 _p_future^.future_name := future_name;
-_p_future^.input REF= _input;
-_p_future^.output REF= _output;
-_p_future^.own_parameter := _own_parameter;
+_p_future^.set_parameter(_target_count, _count_trigger, _output);
+_p_future^.error_test := _error_test;
 create_future := _p_future^;]]></ST>
       </Implementation>
     </Method>
@@ -52,19 +52,28 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="set_parameter" Id="{ef0c8486-774e-4d75-b1d1-f87a41fcb3ae}">
-      <Declaration><![CDATA[METHOD set_parameter : BOOL
+    <Method Name="set_options" Id="{9f7ce681-1261-4d9c-92ef-8077f0af5f5d}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
 VAR_INPUT
-	own_parameter: UINT;
-	input : REFERENCE TO BOOL;
-	output : REFERENCE TO BOOL;
+	error_test: BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_own_parameter := own_parameter;
-_input REF= input;
+        <ST><![CDATA[_error_test := error_test;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameter" Id="{d9e127df-2710-4a99-b60e-f867a11b9223}">
+      <Declaration><![CDATA[METHOD set_parameter : BOOL
+VAR_INPUT
+	target_count: UINT;
+	count_trigger : REFERENCE TO BOOL;
+	output		: REFERENCE TO BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_count_trigger REF= count_trigger;
 _output REF= output;
-]]></ST>
+_target_count := target_count;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FutureCounterBlinkCreator">
@@ -72,7 +81,8 @@ _output REF= output;
     </LineIds>
     <LineIds Name="FutureCounterBlinkCreator.create_future">
       <LineId Id="4" Count="0" />
-      <LineId Id="24" Count="3" />
+      <LineId Id="24" Count="1" />
+      <LineId Id="36" Count="0" />
       <LineId Id="23" Count="0" />
     </LineIds>
     <LineIds Name="FutureCounterBlinkCreator.destroy_future">
@@ -83,10 +93,12 @@ _output REF= output;
       <LineId Id="39" Count="0" />
       <LineId Id="20" Count="0" />
     </LineIds>
-    <LineIds Name="FutureCounterBlinkCreator.set_parameter">
+    <LineIds Name="FutureCounterBlinkCreator.set_options">
       <LineId Id="5" Count="0" />
-      <LineId Id="11" Count="1" />
-      <LineId Id="28" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlinkCreator.set_parameter">
+      <LineId Id="9" Count="1" />
+      <LineId Id="5" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

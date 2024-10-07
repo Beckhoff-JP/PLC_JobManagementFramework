@@ -8,12 +8,13 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_own_parameter: TIME;
-	_set_time: TIME;
 	process_timer: TON;
 	blink_timer: TON;
+	_set_time :TIME;
 	_result :UDINT;
-	_own_output: REFERENCE TO BOOL;
+	_output: REFERENCE TO BOOL;
+	_process_time: TIME;
+	_error_test :BOOL;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -27,11 +28,31 @@ END_VAR
 	_set_time := process_timer.PT - process_timer.ET;
 END_IF
 process_timer(IN := FALSE);
-_own_output := FALSE;
+_output := FALSE;
 abort := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="error_reset" Id="{815d8bd7-31f0-4c03-b2f4-4d31f789f9df}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_error_test := FALSE;
+_result := 0;
+error_reset := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="error_test" Id="{d9b3cf67-16cb-49d7-8b46-3414806d9c30}">
+      <Declaration><![CDATA[PROPERTY error_test : BOOL]]></Declaration>
+      <Set Name="Set" Id="{5564eced-c26d-425e-a4dd-cec087f3b7c5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_error_test := error_test;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="execute" Id="{a437ddec-c1d7-448f-a879-d2b8cfc9472f}">
       <Declaration><![CDATA[METHOD execute : BOOL
 VAR_INPUT
@@ -39,13 +60,18 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[blink_timer(IN := NOT blink_timer.Q, PT := T#0.5S);
-IF _own_output AND blink_timer.Q THEN
-	_own_output := FALSE;
+IF _output AND blink_timer.Q THEN
+	_output := FALSE;
 ELSIF blink_timer.Q THEN
-	_own_output := TRUE;
+	_output := TRUE;
 END_IF
-process_timer(IN := TRUE,PT := _set_time);
-execute := process_timer.Q;]]></ST>
+process_timer(IN := TRUE,PT := _process_time);
+execute := process_timer.Q;
+
+IF _error_test THEN
+	_result := 9;
+	execute := TRUE;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="init" Id="{67f09d3d-5c6c-4b82-bc02-bd0d47e41f54}">
@@ -54,8 +80,8 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_own_output := FALSE;
-_set_time := _own_parameter;
+        <ST><![CDATA[_output := FALSE;
+_set_time := _process_time;
 process_timer(IN := FALSE);
 blink_timer(IN := FALSE);
 init := TRUE;]]></ST>
@@ -73,42 +99,35 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Property Name="own_output" Id="{2295a85b-9376-4fc8-b085-e01f4425b124}">
-      <Declaration><![CDATA[PROPERTY own_output : REFERENCE TO BOOL]]></Declaration>
-      <Set Name="Set" Id="{e86570c8-396d-4fc0-9e05-2ad72049042f}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_own_output REF= own_output;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
-    <Property Name="own_parameter" Id="{da3dcd0a-6ea7-4769-9b14-2d35ed1ea4ae}">
-      <Declaration><![CDATA[PROPERTY own_parameter : TIME]]></Declaration>
-      <Get Name="Get" Id="{91ea83f3-ac89-44fe-88f4-aaf098638ab9}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[own_parameter := _own_parameter;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{6598af7b-282d-427f-83dd-91a46e26192a}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_own_parameter := own_parameter;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <Method Name="quit" Id="{906e42c6-5cb2-4ee4-be39-84be0bedded2}">
       <Declaration><![CDATA[METHOD quit : BOOL
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[THIS^.init();
 quit := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_options" Id="{0a1e520d-d945-4d73-90d6-0bff08014023}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	error_test: BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_error_test := error_test;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameter" Id="{591902e6-3324-4e1f-b5ae-fd9dd8b19019}">
+      <Declaration><![CDATA[METHOD set_parameter : BOOL
+VAR_INPUT
+	process_time: TIME;
+	output		: REFERENCE TO BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_process_time := process_time;
+_output REF= output;
+]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FutureTimerBlink">
@@ -123,11 +142,21 @@ quit := TRUE;]]></ST>
       <LineId Id="6" Count="0" />
       <LineId Id="5" Count="0" />
     </LineIds>
+    <LineIds Name="FutureTimerBlink.error_reset">
+      <LineId Id="3" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureTimerBlink.error_test.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FutureTimerBlink.execute">
       <LineId Id="57" Count="1" />
       <LineId Id="60" Count="1" />
       <LineId Id="63" Count="2" />
       <LineId Id="5" Count="0" />
+      <LineId Id="70" Count="3" />
+      <LineId Id="69" Count="0" />
     </LineIds>
     <LineIds Name="FutureTimerBlink.init">
       <LineId Id="14" Count="0" />
@@ -138,18 +167,16 @@ quit := TRUE;]]></ST>
     <LineIds Name="FutureTimerBlink.nErrorID.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FutureTimerBlink.own_output.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.own_parameter.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.own_parameter.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
     <LineIds Name="FutureTimerBlink.quit">
       <LineId Id="19" Count="0" />
       <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureTimerBlink.set_options">
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureTimerBlink.set_parameter">
+      <LineId Id="9" Count="1" />
+      <LineId Id="5" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>
