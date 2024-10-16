@@ -31,6 +31,65 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="_append_job" Id="{8f105f35-ff05-4a73-8bbf-cd1b6276e3e6}">
+      <Declaration><![CDATA[METHOD PRIVATE _append_job : BOOL
+VAR_INPUT
+	executor	: REFERENCE TO FB_Executor;
+END_VAR
+VAR
+	_parent_future_id: STRING;
+END_VAR
+VAR_INST
+	carry_flag:		BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Set buffer index
+IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
+	executor.init();
+	// Spawn new task with specified feature
+	_executors[nWriteIndex] := ADR(executor);
+
+	// Get parent tssk id
+	IF  __ISVALIDREF(_executor) THEN
+		_executors[nWriteIndex]^.job_event_reporter := _executor.job_event_reporter;
+		_executors[nWriteIndex]^.parent_executor REF= _executor;
+		_executors[nWriteIndex]^.upstream_aborting := _executor.upstream_aborting;
+		_parent_future_id := _executor.id;
+	END_IF
+
+	// Set my task ID
+	_executors[nWriteIndex]^.id := CONCAT(_parent_future_id, CONCAT('/', ULINT_TO_STRING(_serial)));
+	
+	// generate new serial number
+	IF _serial = 16#FFFFFFFFFFFFFFFF THEN
+		_serial := 0;
+	END_IF
+	_serial := _serial + 1;
+
+
+	nWriteIndex := nWriteIndex + 1;
+	IF nWriteIndex > ParamFuturesLib.MAX_TASK_NUM THEN
+		nWriteIndex := 1;
+	END_IF
+	
+	IF nWriteIndex = nReadIndex AND _total_futures = ParamFuturesLib.MAX_TASK_NUM - 1 THEN 
+		carry_flag := TRUE;
+	END_IF
+
+	// calculate order number of executing futures by queue address
+	IF carry_flag THEN
+		_total_futures := ParamFuturesLib.MAX_TASK_NUM;
+		carry_flag := FALSE;
+	ELSIF nWriteIndex >= nReadIndex THEN
+		_total_futures := nWriteIndex - nReadIndex;
+	ELSE
+		_total_futures := ParamFuturesLib.MAX_TASK_NUM - nReadIndex + nWriteIndex;
+	END_IF
+
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="_index_generator_" Id="{9ef6efa5-8390-4d8b-8176-a5198402cdfe}">
       <Declaration><![CDATA[(* This is the generator that iteratively generates references to FB_executor instances*)
 METHOD _index_generator_ : UINT;
@@ -110,7 +169,8 @@ END_VAR
         <ST><![CDATA[IF future <> 0 THEN
 	_executor := __NEW(FB_Executor);
 	_executor^.future := future;
-	THIS^.add_job(_executor^);
+	_executor^.persistent_job := FALSE;
+	THIS^._append_job(_executor^);
 	add_future REF= _executor^;
 ELSE
 	add_future REF= 0;
@@ -118,63 +178,16 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="add_job" Id="{8f105f35-ff05-4a73-8bbf-cd1b6276e3e6}">
-      <Declaration><![CDATA[METHOD add_job : BOOL
+    <Method Name="append_job" Id="{b48bacbc-2237-47db-bed7-cd89d8b77d8e}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD append_job : BOOL
 VAR_INPUT
 	executor	: REFERENCE TO FB_Executor;
 END_VAR
-VAR
-	_parent_future_id: STRING;
-END_VAR
-VAR_INST
-	carry_flag:		BOOL;
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[//Set buffer index
-IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
-	executor.init();
-	// Spawn new task with specified feature
-	_executors[nWriteIndex] := ADR(executor);
-
-	// Get parent tssk id
-	IF  __ISVALIDREF(_executor) THEN
-		_executors[nWriteIndex]^.job_event_reporter := _executor.job_event_reporter;
-		_executors[nWriteIndex]^.parent_executor REF= _executor;
-		_executors[nWriteIndex]^.upstream_aborting := _executor.upstream_aborting;
-		_parent_future_id := _executor.id;
-	END_IF
-
-	// Set my task ID
-	_executors[nWriteIndex]^.id := CONCAT(_parent_future_id, CONCAT('/', ULINT_TO_STRING(_serial)));
-	
-	// generate new serial number
-	IF _serial = 16#FFFFFFFFFFFFFFFF THEN
-		_serial := 0;
-	END_IF
-	_serial := _serial + 1;
-
-
-	nWriteIndex := nWriteIndex + 1;
-	IF nWriteIndex > ParamFuturesLib.MAX_TASK_NUM THEN
-		nWriteIndex := 1;
-	END_IF
-	
-	IF nWriteIndex = nReadIndex AND _total_futures = ParamFuturesLib.MAX_TASK_NUM - 1 THEN 
-		carry_flag := TRUE;
-	END_IF
-
-	// calculate order number of executing futures by queue address
-	IF carry_flag THEN
-		_total_futures := ParamFuturesLib.MAX_TASK_NUM;
-		carry_flag := FALSE;
-	ELSIF nWriteIndex >= nReadIndex THEN
-		_total_futures := nWriteIndex - nReadIndex;
-	ELSE
-		_total_futures := ParamFuturesLib.MAX_TASK_NUM - nReadIndex + nWriteIndex;
-	END_IF
-
-END_IF
-]]></ST>
+        <ST><![CDATA[executor.persistent_job := TRUE;
+THIS^._append_job(executor);]]></ST>
       </Implementation>
     </Method>
     <Property Name="auto_start" Id="{ba61d42a-8e61-4136-bcf1-5b876a72eff3}">
@@ -373,9 +386,11 @@ REPEAT
 		IF _execution_complete THEN
 			IF _head THEN
 				// キューの先頭がfinish状態になれば取り出してキューから削除する
-				IF _executor^.reset() THEN
+				IF _executor^.reset(FALSE) THEN
 					THIS^.dequeue();
-					__DELETE(_executor);
+					IF NOT _executor^.persistent_job THEN
+						__DELETE(_executor);
+					END_IF
 				END_IF
 			END_IF		
 		END_IF
@@ -490,18 +505,22 @@ END_VAR
     </Method>
     <Method Name="reset" Id="{ccbd18fe-4845-4721-a8b2-2fdef0ba08ea}">
       <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
+VAR_INPUT
+	deep : BOOL := FALSE;
+END_VAR
 VAR
 	i : UINT;
 	_delete_counter : UINT;
 	text : STRING;
-END_VAR]]></Declaration>
+END_VAR
+]]></Declaration>
       <Implementation>
         <ST><![CDATA[_delete_counter := 0;
 REPEAT
 	i := _index_generator_();
 	IF _total_futures >= i AND i > 0 THEN
 		IF _executors[i] <> 0 THEN
-			IF _executors[i]^.reset() THEN
+			IF _executors[i]^.reset(deep) THEN
 				__DELETE(_executors[i]);
 				_delete_counter := _delete_counter + 1;
 			END_IF
@@ -583,6 +602,15 @@ END_VAR
     <LineIds Name="FB_QueueJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
+    <LineIds Name="FB_QueueJobContainer._append_job">
+      <LineId Id="8" Count="1" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="10" Count="1" />
+      <LineId Id="16" Count="4" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="21" Count="32" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
     <LineIds Name="FB_QueueJobContainer._index_generator_">
       <LineId Id="743" Count="40" />
       <LineId Id="289" Count="0" />
@@ -596,16 +624,12 @@ END_VAR
     <LineIds Name="FB_QueueJobContainer.add_future">
       <LineId Id="150" Count="1" />
       <LineId Id="157" Count="0" />
+      <LineId Id="165" Count="0" />
       <LineId Id="152" Count="4" />
       <LineId Id="10" Count="0" />
     </LineIds>
-    <LineIds Name="FB_QueueJobContainer.add_job">
-      <LineId Id="8" Count="1" />
-      <LineId Id="63" Count="0" />
-      <LineId Id="10" Count="1" />
-      <LineId Id="16" Count="4" />
-      <LineId Id="73" Count="0" />
-      <LineId Id="21" Count="32" />
+    <LineIds Name="FB_QueueJobContainer.append_job">
+      <LineId Id="8" Count="0" />
       <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="FB_QueueJobContainer.auto_start.Set">
@@ -674,7 +698,8 @@ END_VAR
       <LineId Id="338" Count="3" />
       <LineId Id="438" Count="0" />
       <LineId Id="552" Count="0" />
-      <LineId Id="441" Count="0" />
+      <LineId Id="565" Count="1" />
+      <LineId Id="564" Count="0" />
       <LineId Id="440" Count="0" />
       <LineId Id="343" Count="0" />
       <LineId Id="345" Count="0" />

@@ -17,8 +17,8 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
-    <Method Name="add_job" Id="{13525ac4-1052-4243-89ff-99407fdec1ac}">
-      <Declaration><![CDATA[METHOD add_job : BOOL
+    <Method Name="append_job" Id="{3242dd7f-8422-475c-9ef2-fac3e07fa8b2}">
+      <Declaration><![CDATA[METHOD append_job : BOOL
 VAR_INPUT
 	executor	: REFERENCE TO FB_Executor;
 END_VAR
@@ -67,6 +67,7 @@ END_VAR
     <Method Name="reset" Id="{cf0bbd9b-2cd6-46f3-b203-68cba1d854bb}">
       <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
 VAR_INPUT
+	deep : BOOL := FALSE;
 END_VAR
 ]]></Declaration>
     </Method>

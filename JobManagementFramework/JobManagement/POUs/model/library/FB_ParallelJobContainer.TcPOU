@@ -26,6 +26,32 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="_append_job" Id="{81418414-1797-4aac-a0ce-a5cebe4c8012}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD PRIVATE _append_job : BOOL
+VAR_INPUT
+	executor	: REFERENCE TO FB_Executor;
+END_VAR
+VAR
+	_parent_future_id :STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
+	executor.init();
+	_total_futures := _total_futures + 1;
+	_executors[_total_futures] := ADR(executor);
+	IF  __ISVALIDREF(_executor) THEN
+		// Propergate task creator object
+		_executors[_total_futures]^.job_event_reporter := _executor.job_event_reporter;
+		_executors[_total_futures]^.parent_executor REF= _executor;
+		_executors[_total_futures]^.upstream_aborting := _executor.upstream_aborting;
+		_parent_future_id := _executor.id;
+	END_IF
+	_executors[_total_futures]^.id := CONCAT(_parent_future_id, CONCAT('/', UINT_TO_STRING(_total_futures)));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="_index_generator_" Id="{dd39dd0c-7557-43d9-b714-1347c8d3d391}">
       <Declaration><![CDATA[(* This is the generator that iteratively generates references to FB_executor instances*)
 METHOD _index_generator_ : UINT
@@ -79,7 +105,8 @@ END_VAR
         <ST><![CDATA[IF future <> 0 THEN
 	_executor := __NEW(FB_Executor);
 	_executor^.future := future;
-	THIS^.add_job(_executor^);
+	_executor^.persistent_job := FALSE;
+	THIS^._append_job(_executor^);
 	add_future REF= _executor^;
 ELSE
 	add_future REF= 0;
@@ -87,30 +114,16 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="add_job" Id="{81418414-1797-4aac-a0ce-a5cebe4c8012}">
+    <Method Name="append_job" Id="{b3a7aa1c-5ba8-49eb-aed4-9b28eae02be3}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD add_job : BOOL
+METHOD append_job : BOOL
 VAR_INPUT
 	executor	: REFERENCE TO FB_Executor;
 END_VAR
-VAR
-	_parent_future_id :STRING;
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
-	executor.init();
-	_total_futures := _total_futures + 1;
-	_executors[_total_futures] := ADR(executor);
-	IF  __ISVALIDREF(_executor) THEN
-		// Propergate task creator object
-		_executors[_total_futures]^.job_event_reporter := _executor.job_event_reporter;
-		_executors[_total_futures]^.parent_executor REF= _executor;
-		_executors[_total_futures]^.upstream_aborting := _executor.upstream_aborting;
-		_parent_future_id := _executor.id;
-	END_IF
-	_executors[_total_futures]^.id := CONCAT(_parent_future_id, CONCAT('/', UINT_TO_STRING(_total_futures)));
-END_IF
-]]></ST>
+        <ST><![CDATA[executor.persistent_job := TRUE;
+THIS^._append_job(executor);]]></ST>
       </Implementation>
     </Method>
     <Property Name="auto_start" Id="{4bda4684-b76e-4e05-b609-e6ad3b606b51}">
@@ -399,6 +412,9 @@ END_IF
     </Method>
     <Method Name="reset" Id="{70ccd7f5-34e7-4cfd-9935-d01e8eb77de7}">
       <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
+VAR_INPUT
+	deep : BOOL := FALSE;
+END_VAR
 VAR
 	i : UINT;
 	_delete_counter : UINT;
@@ -410,7 +426,7 @@ REPEAT
 	i := _index_generator_();
 	IF _total_futures >= i AND i > 0 THEN
 		IF _executors[i] <> 0 THEN
-			IF _executors[i]^.reset() THEN
+			IF _executors[i]^.reset(deep) THEN
 				__DELETE(_executors[i]);
 				_delete_counter := _delete_counter + 1;
 			END_IF
@@ -494,6 +510,15 @@ END_VAR
     <LineIds Name="FB_ParallelJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
+    <LineIds Name="FB_ParallelJobContainer._append_job">
+      <LineId Id="24" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="25" Count="5" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="31" Count="2" />
+      <LineId Id="35" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
     <LineIds Name="FB_ParallelJobContainer._index_generator_">
       <LineId Id="50" Count="0" />
       <LineId Id="53" Count="0" />
@@ -509,16 +534,12 @@ END_VAR
     <LineIds Name="FB_ParallelJobContainer.add_future">
       <LineId Id="150" Count="1" />
       <LineId Id="157" Count="0" />
+      <LineId Id="165" Count="0" />
       <LineId Id="152" Count="4" />
       <LineId Id="10" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.add_job">
-      <LineId Id="24" Count="0" />
-      <LineId Id="43" Count="0" />
-      <LineId Id="25" Count="5" />
-      <LineId Id="52" Count="0" />
-      <LineId Id="31" Count="2" />
-      <LineId Id="35" Count="0" />
+    <LineIds Name="FB_ParallelJobContainer.append_job">
+      <LineId Id="8" Count="0" />
       <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.auto_start.Set">

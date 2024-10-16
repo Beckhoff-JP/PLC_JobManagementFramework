@@ -66,7 +66,6 @@ END_VAR
 	executor.create_container(ContainerType.PARALLEL_QUEUE,'BASE');
 	executor.continuous_mode := TRUE;
 	executor.job_event_reporter := fbObserver;
-
 	//actual_job REF= executor.children.create_container(ContainerType.QUEUE, 'Batch Container');
 	//actual_job.continuous_mode := TRUE;
 END_IF
@@ -204,7 +203,7 @@ END_CASE
 MEMCPY(ADR(_job_debug_monitoring), ADR(_child_executor), SIZEOF(_job_debug_monitoring));
 
 IF reset AND NOT executor.busy THEN
-	IF executor.children.reset() THEN
+	IF executor.children.reset(TRUE) THEN
 		reset := FALSE;
 	END_IF
 END_IF]]></ST>
@@ -216,7 +215,6 @@ END_IF]]></ST>
       <LineId Id="4438" Count="0" />
       <LineId Id="4494" Count="0" />
       <LineId Id="4514" Count="0" />
-      <LineId Id="4512" Count="0" />
       <LineId Id="4441" Count="0" />
       <LineId Id="4510" Count="0" />
       <LineId Id="3917" Count="4" />

@@ -28,6 +28,31 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="_append_job" Id="{9f51bca3-2eeb-4364-9ec6-76051ede9dd5}">
+      <Declaration><![CDATA[METHOD PRIVATE _append_job : BOOL
+VAR_INPUT
+	executor	: REFERENCE TO FB_Executor;
+END_VAR
+VAR
+	_parent_future_id: STRING;	
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
+	executor.init();
+	_total_futures := _total_futures + 1;
+	_executors[_total_futures] := ADR(executor);
+	IF  __ISVALIDREF(_executor) THEN
+		// Propergate task creator object
+		_executors[_total_futures]^.job_event_reporter := _executor.job_event_reporter;
+		_executors[_total_futures]^.parent_executor REF= _executor;
+		_executors[_total_futures]^.upstream_aborting := _executor.upstream_aborting;
+		_parent_future_id := _executor.id;
+	END_IF
+	_executors[_total_futures]^.id := CONCAT(_parent_future_id, CONCAT('/', UINT_TO_STRING(_total_futures)));
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="_index_generator_" Id="{4d063668-d033-4039-b03e-0be138f8b138}">
       <Declaration><![CDATA[(* This is the generator that iteratively generates references to FB_executor instances*)
 METHOD _index_generator_ : UINT
@@ -63,7 +88,8 @@ END_VAR
         <ST><![CDATA[IF future <> 0 THEN
 	_executor := __NEW(FB_Executor);
 	_executor^.future := future;
-	THIS^.add_job(_executor^);
+	_executor^.persistent_job := FALSE;
+	THIS^._append_job(_executor^);
 	add_future REF= _executor^;
 ELSE
 	add_future REF= 0;
@@ -71,29 +97,16 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="add_job" Id="{9f51bca3-2eeb-4364-9ec6-76051ede9dd5}">
-      <Declaration><![CDATA[METHOD add_job : BOOL
+    <Method Name="append_job" Id="{daad9a87-dd31-4294-aed4-a03c4c20f522}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD append_job : BOOL
 VAR_INPUT
 	executor	: REFERENCE TO FB_Executor;
 END_VAR
-VAR
-	_parent_future_id: STRING;	
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
-	executor.init();
-	_total_futures := _total_futures + 1;
-	_executors[_total_futures] := ADR(executor);
-	IF  __ISVALIDREF(_executor) THEN
-		// Propergate task creator object
-		_executors[_total_futures]^.job_event_reporter := _executor.job_event_reporter;
-		_executors[_total_futures]^.parent_executor REF= _executor;
-		_executors[_total_futures]^.upstream_aborting := _executor.upstream_aborting;
-		_parent_future_id := _executor.id;
-	END_IF
-	_executors[_total_futures]^.id := CONCAT(_parent_future_id, CONCAT('/', UINT_TO_STRING(_total_futures)));
-END_IF
-]]></ST>
+        <ST><![CDATA[executor.persistent_job := TRUE;
+THIS^._append_job(executor);]]></ST>
       </Implementation>
     </Method>
     <Property Name="auto_start" Id="{73840596-fc50-4068-bea8-54dd59f6b9d1}">
@@ -388,6 +401,9 @@ END_IF
     </Method>
     <Method Name="reset" Id="{92b3e709-af95-4eb9-84ab-bb72db9fbb7f}">
       <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
+VAR_INPUT
+	deep : BOOL := FALSE;
+END_VAR
 VAR
 	i : UINT;
 	_delete_counter : UINT;
@@ -399,7 +415,7 @@ REPEAT
 	i := _index_generator_();
 	IF _total_futures >= i AND i > 0 THEN
 		IF _executors[i] <> 0 THEN
-			IF _executors[i]^.reset() THEN
+			IF _executors[i]^.reset(deep) THEN
 				__DELETE(_executors[i]);
 				_delete_counter := _delete_counter + 1;
 			END_IF
@@ -453,6 +469,16 @@ END_VAR
     <LineIds Name="FB_BatchJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
+    <LineIds Name="FB_BatchJobContainer._append_job">
+      <LineId Id="8" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="9" Count="1" />
+      <LineId Id="12" Count="3" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="16" Count="2" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
     <LineIds Name="FB_BatchJobContainer._index_generator_">
       <LineId Id="57" Count="0" />
       <LineId Id="47" Count="1" />
@@ -463,23 +489,13 @@ END_VAR
       <LineId Id="75" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.add_future">
-      <LineId Id="6" Count="0" />
-      <LineId Id="93" Count="0" />
-      <LineId Id="97" Count="0" />
-      <LineId Id="34" Count="0" />
-      <LineId Id="10" Count="0" />
-      <LineId Id="95" Count="1" />
-      <LineId Id="5" Count="0" />
+      <LineId Id="105" Count="2" />
+      <LineId Id="113" Count="0" />
+      <LineId Id="108" Count="4" />
       <LineId Id="11" Count="0" />
     </LineIds>
-    <LineIds Name="FB_BatchJobContainer.add_job">
+    <LineIds Name="FB_BatchJobContainer.append_job">
       <LineId Id="8" Count="0" />
-      <LineId Id="27" Count="0" />
-      <LineId Id="9" Count="1" />
-      <LineId Id="12" Count="3" />
-      <LineId Id="34" Count="0" />
-      <LineId Id="16" Count="2" />
-      <LineId Id="20" Count="0" />
       <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.auto_start.Set">

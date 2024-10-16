@@ -29,6 +29,46 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="_append_job" Id="{495b462b-8875-4d61-81d1-98086729a5d3}">
+      <Declaration><![CDATA[METHOD PRIVATE _append_job : BOOL
+VAR_INPUT
+	executor	: REFERENCE TO FB_Executor;
+END_VAR
+VAR
+	future_order_number: INT;
+	_parent_future_id: STRING;
+	i: 	UINT := 1;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[//Set buffer index
+IF _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
+	i := 1;
+	WHILE _executors[i] <> 0 DO
+		i := i + 1;
+	END_WHILE
+
+	// Spawn new task with specified future
+	executor.init();
+	_executors[i] := ADR(executor);
+	
+	// Get parent task id
+	IF  __ISVALIDREF(_executor) THEN
+		_executors[i]^.job_event_reporter := _executor.job_event_reporter;
+		_executors[i]^.parent_executor REF= _executor;
+		_executors[i]^.upstream_aborting := _executor.upstream_aborting;
+		_parent_future_id := _executor.id;
+	END_IF
+	_executors[i]^.id := CONCAT(_parent_future_id, CONCAT('/', ULINT_TO_STRING(_serial)));
+	_serial := _serial + 1;
+	IF _serial = 16#FFFFFFFFFFFFFFFF THEN
+		_serial := 0;
+	END_IF
+	_total_futures := _total_futures + 1;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="_index_generator_" Id="{0ed4ef36-277f-45bf-bd2d-f3582de94507}">
       <Declaration><![CDATA[(* This is the generator that iteratively generates references to FB_executor instances*)
 METHOD _index_generator_ : UINT;
@@ -110,7 +150,8 @@ END_VAR
         <ST><![CDATA[IF future <> 0 THEN
 	_executor := __NEW(FB_Executor);
 	_executor^.future := future;
-	THIS^.add_job(_executor^);
+	_executor^.persistent_job := FALSE;
+	THIS^._append_job(_executor^);
 	add_future REF= _executor^;
 ELSE
 	add_future REF= 0;
@@ -118,45 +159,16 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="add_job" Id="{495b462b-8875-4d61-81d1-98086729a5d3}">
+    <Method Name="append_job" Id="{d1bdede9-2b03-4b73-a524-c35dbc04bfff}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD add_job : BOOL
+METHOD append_job : BOOL
 VAR_INPUT
 	executor	: REFERENCE TO FB_Executor;
 END_VAR
-VAR
-	future_order_number: INT;
-	_parent_future_id: STRING;
-	i: 	UINT := 1;
-END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[//Set buffer index
-IF _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
-	i := 1;
-	WHILE _executors[i] <> 0 DO
-		i := i + 1;
-	END_WHILE
-
-	// Spawn new task with specified future
-	executor.init();
-	_executors[i] := ADR(executor);
-	
-	// Get parent task id
-	IF  __ISVALIDREF(_executor) THEN
-		_executors[i]^.job_event_reporter := _executor.job_event_reporter;
-		_executors[i]^.parent_executor REF= _executor;
-		_executors[i]^.upstream_aborting := _executor.upstream_aborting;
-		_parent_future_id := _executor.id;
-	END_IF
-	_executors[i]^.id := CONCAT(_parent_future_id, CONCAT('/', ULINT_TO_STRING(_serial)));
-	_serial := _serial + 1;
-	IF _serial = 16#FFFFFFFFFFFFFFFF THEN
-		_serial := 0;
-	END_IF
-	_total_futures := _total_futures + 1;
-END_IF
-]]></ST>
+        <ST><![CDATA[executor.persistent_job := TRUE;
+THIS^._append_job(executor);]]></ST>
       </Implementation>
     </Method>
     <Property Name="auto_start" Id="{27468994-60b1-4889-aa20-4af00ec62b05}">
@@ -306,8 +318,12 @@ REPEAT
 	i := _index_generator_();
 	IF i > 0 THEN
 		IF _executors[i]^.execute() THEN
-			IF _executors[i]^.reset() THEN
-				__DELETE(_executors[i]);
+			IF _executors[i]^.reset(FALSE) THEN
+				IF _executors[i]^.persistent_job THEN
+					_executors[i] := 0;
+				ELSE
+					__DELETE(_executors[i]);
+				END_IF
 				_total_futures := _total_futures - 1;
 			END_IF
 			execute := _total_futures = 0 AND NOT _continuous_mode;
@@ -432,6 +448,9 @@ END_VAR
     </Method>
     <Method Name="reset" Id="{8793c16f-e411-4da8-92c1-d2cdf13f4859}">
       <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
+VAR_INPUT
+	deep : BOOL := FALSE;
+END_VAR
 VAR
 	i : UINT;
 	_delete_counter : UINT;
@@ -443,7 +462,7 @@ REPEAT
 	i := _index_generator_();
 	IF _total_futures >= i AND i > 0 THEN
 		IF _executors[i] <> 0 THEN
-			IF _executors[i]^.reset() THEN
+			IF _executors[i]^.reset(deep) THEN
 				__DELETE(_executors[i]);
 				_delete_counter := _delete_counter + 1;
 			END_IF
@@ -527,6 +546,17 @@ END_VAR
     <LineIds Name="FB_ParallelQueueJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
+    <LineIds Name="FB_ParallelQueueJobContainer._append_job">
+      <LineId Id="8" Count="7" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="20" Count="3" />
+      <LineId Id="64" Count="0" />
+      <LineId Id="24" Count="7" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="7" Count="0" />
+    </LineIds>
     <LineIds Name="FB_ParallelQueueJobContainer._index_generator_">
       <LineId Id="647" Count="28" />
       <LineId Id="498" Count="0" />
@@ -538,18 +568,12 @@ END_VAR
     <LineIds Name="FB_ParallelQueueJobContainer.add_future">
       <LineId Id="150" Count="1" />
       <LineId Id="157" Count="0" />
+      <LineId Id="165" Count="0" />
       <LineId Id="152" Count="4" />
       <LineId Id="10" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ParallelQueueJobContainer.add_job">
-      <LineId Id="8" Count="7" />
-      <LineId Id="52" Count="0" />
-      <LineId Id="16" Count="0" />
-      <LineId Id="51" Count="0" />
-      <LineId Id="20" Count="3" />
-      <LineId Id="64" Count="0" />
-      <LineId Id="24" Count="7" />
-      <LineId Id="33" Count="0" />
+    <LineIds Name="FB_ParallelQueueJobContainer.append_job">
+      <LineId Id="8" Count="0" />
       <LineId Id="7" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelQueueJobContainer.auto_start.Set">
@@ -595,7 +619,12 @@ END_VAR
       <LineId Id="315" Count="3" />
       <LineId Id="468" Count="0" />
       <LineId Id="322" Count="0" />
-      <LineId Id="504" Count="1" />
+      <LineId Id="504" Count="0" />
+      <LineId Id="570" Count="0" />
+      <LineId Id="583" Count="0" />
+      <LineId Id="582" Count="0" />
+      <LineId Id="573" Count="0" />
+      <LineId Id="572" Count="0" />
       <LineId Id="516" Count="0" />
       <LineId Id="503" Count="0" />
       <LineId Id="395" Count="0" />
