@@ -10,13 +10,6 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
-    <Method Name="add_future" Id="{d49e697a-f8c3-49c2-92d4-238e4a1c4453}">
-      <Declaration><![CDATA[METHOD add_future : REFERENCE TO FB_Executor
-VAR_INPUT
-	future : InterfaceFuture;
-END_VAR
-]]></Declaration>
-    </Method>
     <Method Name="append_job" Id="{3242dd7f-8422-475c-9ef2-fac3e07fa8b2}">
       <Declaration><![CDATA[METHOD append_job : BOOL
 VAR_INPUT
@@ -44,8 +37,8 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
-    <Method Name="create_future" Id="{65cf060d-dd4c-4119-bcf8-79a9d41aeea7}">
-      <Declaration><![CDATA[METHOD create_future : REFERENCE TO FB_Executor
+    <Method Name="create_job" Id="{65cf060d-dd4c-4119-bcf8-79a9d41aeea7}">
+      <Declaration><![CDATA[METHOD create_job : REFERENCE TO FB_Executor
 VAR_INPUT
 	creator : InterfaceTaskCreator;
 	future_name: STRING;
@@ -74,6 +67,13 @@ END_VAR
     <Method Name="resume" Id="{597002ce-cb7b-432c-9246-ab23473411e0}">
       <Declaration><![CDATA[METHOD resume : BOOL
 VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="spawn_job" Id="{d49e697a-f8c3-49c2-92d4-238e4a1c4453}">
+      <Declaration><![CDATA[METHOD spawn_job : REFERENCE TO FB_Executor
+VAR_INPUT
+	future : InterfaceFuture;
 END_VAR
 ]]></Declaration>
     </Method>

@@ -13,8 +13,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="create_future" Id="{2a5ce7c8-44bb-4ea8-88ae-9f8a9b48cc13}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : InterfaceFuture
+      <Declaration><![CDATA[METHOD create_future : InterfaceFuture
 VAR_INPUT
 	future_name :STRING;
 END_VAR

@@ -32,7 +32,7 @@ END_VAR]]></Declaration>
 		job_log := CONCAT(job_log, ', ');	
 	END_IF
 	job_log := CONCAT(job_log, 'JOB_ID : ');
-	job_log := CONCAT(job_log, executor.id);
+	job_log := CONCAT(job_log, executor.uid);
 
 	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG, msgFmtStr := job_log, strArg := '');
 END_IF]]></ST>
@@ -69,10 +69,12 @@ IF __ISVALIDREF(executor) THEN
 	text := CONCAT(text, '		');
 	text := CONCAT(text, executor.future.future_name);
 	text := CONCAT(text, '		');
-	text := CONCAT(text, executor.id);
+	text := CONCAT(text, executor.uid);
 	
 	
-	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG, msgFmtStr := text, strArg := '');	
+	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG,
+ 			 msgFmtStr := text, 
+			strArg := '');	
 END_IF
 
 subscribe_job_event := TRUE;]]></ST>
@@ -97,6 +99,7 @@ subscribe_job_event := TRUE;]]></ST>
     <LineIds Name="FB_observer.subscribe_job_event">
       <LineId Id="120" Count="2" />
       <LineId Id="183" Count="14" />
+      <LineId Id="212" Count="1" />
       <LineId Id="182" Count="0" />
       <LineId Id="134" Count="0" />
       <LineId Id="12" Count="0" />

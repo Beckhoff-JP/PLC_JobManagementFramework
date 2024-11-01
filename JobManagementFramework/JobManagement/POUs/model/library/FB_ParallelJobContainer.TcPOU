@@ -2,33 +2,20 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
   <POU Name="FB_ParallelJobContainer" Id="{6f1bfb39-c90d-44cd-a726-24b4c87f95f3}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
-FUNCTION_BLOCK FB_ParallelJobContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
+FUNCTION_BLOCK FB_ParallelJobContainer EXTENDS FB_AbstructContainer
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_executor : REFERENCE TO FB_Executor;
-	{attribute 'TcEncoding':='UTF-8'}
-	_name :STRING := 'PARALLEL JOB';
-	_start :BOOL;
-	_auto_start : BOOL := TRUE;
-	_abort : BOOL;
-	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF POINTER TO FB_Executor;
-	_total_futures: UINT;
-	current_executing_future : InterfaceFuture;
-	_continuous_mode : BOOL;
 	_initialize :BOOL;
-	_error_id :UDINT;
-	_state : E_FutureExecutionState;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="_append_job" Id="{81418414-1797-4aac-a0ce-a5cebe4c8012}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD PRIVATE _append_job : BOOL
+      <Declaration><![CDATA[METHOD PROTECTED _append_job : BOOL
 VAR_INPUT
 	executor	: REFERENCE TO FB_Executor;
 END_VAR
@@ -39,6 +26,7 @@ END_VAR]]></Declaration>
         <ST><![CDATA[IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
 	executor.init();
 	_total_futures := _total_futures + 1;
+	executor.id := UINT_TO_STRING(_total_futures);
 	_executors[_total_futures] := ADR(executor);
 	IF  __ISVALIDREF(_executor) THEN
 		// Propergate task creator object
@@ -47,7 +35,6 @@ END_VAR]]></Declaration>
 		_executors[_total_futures]^.upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
 	END_IF
-	_executors[_total_futures]^.id := CONCAT(_parent_future_id, CONCAT('/', UINT_TO_STRING(_total_futures)));
 END_IF
 ]]></ST>
       </Implementation>
@@ -92,143 +79,6 @@ END_REPEAT
 abort := _all_done;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="add_future" Id="{7731e7d8-603c-4ad1-977c-94c19c582af9}">
-      <Declaration><![CDATA[METHOD add_future : REFERENCE TO FB_Executor
-VAR_INPUT
-	future : InterfaceFuture;
-END_VAR
-VAR
-	_executor : POINTER TO FB_Executor;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF future <> 0 THEN
-	_executor := __NEW(FB_Executor);
-	_executor^.future := future;
-	_executor^.persistent_job := FALSE;
-	THIS^._append_job(_executor^);
-	add_future REF= _executor^;
-ELSE
-	add_future REF= 0;
-END_IF
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="append_job" Id="{b3a7aa1c-5ba8-49eb-aed4-9b28eae02be3}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD append_job : BOOL
-VAR_INPUT
-	executor	: REFERENCE TO FB_Executor;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[executor.persistent_job := TRUE;
-THIS^._append_job(executor);]]></ST>
-      </Implementation>
-    </Method>
-    <Property Name="auto_start" Id="{4bda4684-b76e-4e05-b609-e6ad3b606b51}">
-      <Declaration><![CDATA[PROPERTY auto_start : BOOL
-]]></Declaration>
-      <Set Name="Set" Id="{b8ecfed2-d8b4-4559-8b74-272c0dba5ec0}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_auto_start := auto_start;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
-    <Property Name="continuous_mode" Id="{4b6330d9-93fc-4bf0-ba79-309f16586ecb}">
-      <Declaration><![CDATA[PROPERTY continuous_mode : BOOL
-]]></Declaration>
-      <Set Name="Set" Id="{8e8a71ac-63d3-41a1-9c17-18556eaf214d}">
-        <Declaration><![CDATA[VAR
-	_executor : REFERENCE TO FB_Executor;
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_continuous_mode := continuous_mode;
-REPEAT
-	_executor REF= THIS^.each_executor;
-	IF __ISVALIDREF(_executor) THEN
-		_executor.continuous_mode := continuous_mode;
-	END_IF
-UNTIL
-	NOT __ISVALIDREF(_executor)
-END_REPEAT
-]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
-    <Method Name="create_container" Id="{08c495b6-9902-48d0-9044-5c9f417790e4}">
-      <Declaration><![CDATA[METHOD create_container : REFERENCE TO FB_Executor
-VAR_INPUT
-	container_type	: ContainerType;
-	name	: STRING;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[CASE container_type OF
-	ContainerType.BATCH:
-		create_container REF= THIS^.create_future(GVL.batch_job_container_creator,name);
-	ContainerType.PARALLEL:
-		create_container REF= THIS^.create_future(GVL.parallel_job_container_creator,name);
-	ContainerType.QUEUE:
-		create_container REF= THIS^.create_future(GVL.queue_job_container_creator,name);
-	ContainerType.PARALLEL_QUEUE:
-		create_container REF= THIS^.create_future(GVL.parallel_queue_job_container_creator,name);
-END_CASE
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="create_future" Id="{cf207510-a7f8-4214-a771-6dc47062e5c8}">
-      <Declaration><![CDATA[METHOD create_future : REFERENCE TO FB_Executor
-VAR_INPUT
-	creator	: InterfaceTaskCreator;
-	future_name	: STRING;
-END_VAR
-VAR
-	future : InterfaceFuture;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
-	future := creator.create_future(future_name);
-	create_future REF= THIS^.add_future(future);
-	IF __ISVALIDREF(create_future) THEN
-		create_future.future_creator := creator;
-	ELSE
-		creator.destroy_future(future);
-	END_IF
-END_IF
-]]></ST>
-      </Implementation>
-    </Method>
-    <Property Name="each_executor" Id="{31b11d22-fce6-4003-a88d-8f786df1aaa0}">
-      <Declaration><![CDATA[{warning 'add property implementation'}
-PROPERTY each_executor : REFERENCE TO FB_Executor
-]]></Declaration>
-      <Get Name="Get" Id="{8b3dcb87-6f28-47ce-abfc-61698cedf4da}">
-        <Declaration><![CDATA[VAR
-	_index : UINT;
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_index := _index_generator_();
-IF _index > 0 THEN
-	IF _executors[_index] <> 0 THEN
-		IF _executors[_index] <> 0 THEN
-			each_executor REF= _executors[_index]^;
-		ELSE
-			each_executor REF= 0;
-		END_IF
-	END_IF
-ELSE
-	each_executor REF= 0;
-END_IF
-]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Method Name="error_reset" Id="{854d543e-7307-40a1-8e1c-60c38f66723f}">
       <Declaration><![CDATA[METHOD error_reset : BOOL
 VAR
@@ -294,47 +144,6 @@ execute := complete_all_task;
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="executor" Id="{c693f493-6d1b-41ca-8d4f-d7127793b5ff}">
-      <Declaration><![CDATA[PROPERTY executor : REFERENCE TO FB_Executor
-]]></Declaration>
-      <Get Name="Get" Id="{dbf4f5c8-848a-4c86-bebb-551f1592d7d3}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[executor REF= _executor;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{9b81c7d9-e27a-43f4-8007-60735ae60769}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_executor REF= executor;
-]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
-    <Property Name="future_name" Id="{d54c93e3-c6dc-4912-8189-f00de2cbf2b9}">
-      <Declaration><![CDATA[PROPERTY future_name : STRING// Name of future.
-]]></Declaration>
-      <Get Name="Get" Id="{384e4123-78a7-4a7d-86b6-7f594ccbbe31}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[future_name := _name;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{a647d294-ace7-418c-b584-b051d8a03aab}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_name := future_name;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <Method Name="init" Id="{625c2131-03a0-45b4-9fa6-8b896834412c}">
       <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR
@@ -361,29 +170,6 @@ init := _init_done;
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="nErrorID" Id="{e11c378f-8958-4239-9ae1-c4dfcb9daf49}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT
-]]></Declaration>
-      <Get Name="Get" Id="{dc6cadd6-e0ee-4656-bb80-87816f2b333a}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[nErrorID := _error_id;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
-    <Property Name="num_of_future" Id="{ca144e76-67c3-42ca-a2ce-65c65b7af632}">
-      <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
-      <Get Name="Get" Id="{caec5525-0916-4530-8d4a-d03e13e55263}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[num_of_future := _total_futures;]]></ST>
-        </Implementation>
-      </Get>
-    </Property>
     <Method Name="quit" Id="{45e620fb-665e-4cea-b7f5-8d6c239f0a4c}">
       <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
 VAR_INST
@@ -407,36 +193,6 @@ IF complete_all_task THEN
 	_initialize := FALSE;
 	quit := TRUE;	
 END_IF
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="reset" Id="{70ccd7f5-34e7-4cfd-9935-d01e8eb77de7}">
-      <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
-VAR_INPUT
-	deep : BOOL := FALSE;
-END_VAR
-VAR
-	i : UINT;
-	_delete_counter : UINT;
-	text : STRING;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_delete_counter := 0;
-REPEAT
-	i := _index_generator_();
-	IF _total_futures >= i AND i > 0 THEN
-		IF _executors[i] <> 0 THEN
-			IF _executors[i]^.reset(deep) THEN
-				__DELETE(_executors[i]);
-				_delete_counter := _delete_counter + 1;
-			END_IF
-		END_IF
-	END_IF
-UNTIL
-	i = 0
-END_REPEAT
-_total_futures := _total_futures - _delete_counter;
-reset := _total_futures = 0;
 ]]></ST>
       </Implementation>
     </Method>
@@ -486,36 +242,17 @@ END_REPEAT
 start := _all_done;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="state" Id="{dd769214-d2b5-42a0-a955-2cc090d41b8a}">
-      <Declaration><![CDATA[PROPERTY state : E_FutureExecutionState
-]]></Declaration>
-      <Get Name="Get" Id="{3b2af759-d20a-44e0-951d-06ecaf30d6b2}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[state := _state;
-]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{f6afed83-9092-41de-9405-bf23635132c7}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_state := state;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <LineIds Name="FB_ParallelJobContainer">
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer._append_job">
       <LineId Id="24" Count="0" />
       <LineId Id="43" Count="0" />
-      <LineId Id="25" Count="5" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="26" Count="4" />
       <LineId Id="52" Count="0" />
-      <LineId Id="31" Count="2" />
+      <LineId Id="31" Count="1" />
       <LineId Id="35" Count="0" />
       <LineId Id="7" Count="0" />
     </LineIds>
@@ -530,39 +267,6 @@ END_VAR
     <LineIds Name="FB_ParallelJobContainer.abort">
       <LineId Id="108" Count="10" />
       <LineId Id="100" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.add_future">
-      <LineId Id="150" Count="1" />
-      <LineId Id="157" Count="0" />
-      <LineId Id="165" Count="0" />
-      <LineId Id="152" Count="4" />
-      <LineId Id="10" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.append_job">
-      <LineId Id="8" Count="0" />
-      <LineId Id="7" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.auto_start.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.continuous_mode.Set">
-      <LineId Id="10" Count="0" />
-      <LineId Id="23" Count="2" />
-      <LineId Id="35" Count="0" />
-      <LineId Id="29" Count="3" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.create_container">
-      <LineId Id="29" Count="9" />
-      <LineId Id="18" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.create_future">
-      <LineId Id="39" Count="8" />
-      <LineId Id="13" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.each_executor.Get">
-      <LineId Id="27" Count="11" />
-      <LineId Id="8" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.error_reset">
       <LineId Id="15" Count="0" />
@@ -586,30 +290,11 @@ END_VAR
       <LineId Id="220" Count="1" />
       <LineId Id="267" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.executor.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.executor.Set">
-      <LineId Id="2" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.future_name.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.future_name.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
     <LineIds Name="FB_ParallelJobContainer.init">
       <LineId Id="219" Count="12" />
       <LineId Id="233" Count="0" />
       <LineId Id="216" Count="0" />
       <LineId Id="62" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.num_of_future.Get">
-      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.quit">
       <LineId Id="13" Count="1" />
@@ -622,13 +307,6 @@ END_VAR
       <LineId Id="34" Count="1" />
       <LineId Id="24" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.reset">
-      <LineId Id="64" Count="1" />
-      <LineId Id="91" Count="0" />
-      <LineId Id="66" Count="7" />
-      <LineId Id="81" Count="4" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
     <LineIds Name="FB_ParallelJobContainer.resume">
       <LineId Id="9" Count="10" />
       <LineId Id="4" Count="0" />
@@ -636,13 +314,6 @@ END_VAR
     <LineIds Name="FB_ParallelJobContainer.start">
       <LineId Id="29" Count="10" />
       <LineId Id="22" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.state.Get">
-      <LineId Id="2" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.state.Set">
-      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

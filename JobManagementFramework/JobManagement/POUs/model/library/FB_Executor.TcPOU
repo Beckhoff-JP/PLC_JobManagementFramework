@@ -108,6 +108,7 @@ VAR_INPUT
 END_VAR
 VAR
 	delete_existing_container : BOOL;
+	created_future : InterfaceFuture;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _interface_container <> 0 THEN
@@ -123,17 +124,22 @@ END_IF
 IF delete_existing_container THEN
 	CASE container_type OF
 		ContainerType.BATCH:
-			THIS^.future := create_future(GVL.batch_job_container_creator, name);
+			created_future := create_future(GVL.batch_job_container_creator, name);
+			created_future.executor.persistent_job := FALSE;
 		ContainerType.PARALLEL:
-			THIS^.future := create_future(GVL.parallel_job_container_creator, name);
+			created_future := create_future(GVL.parallel_job_container_creator, name);
+			created_future.executor.persistent_job := FALSE;
 		ContainerType.QUEUE:
-			THIS^.future := create_future(GVL.queue_job_container_creator, name);
+			created_future := create_future(GVL.queue_job_container_creator, name);
+			created_future.executor.persistent_job := TRUE;
 		ContainerType.PARALLEL_QUEUE:
-			THIS^.future := create_future(GVL.parallel_queue_job_container_creator, name);
+			created_future := create_future(GVL.parallel_queue_job_container_creator, name);
+			created_future.executor.persistent_job := TRUE;
 	END_CASE
 	THIS^.init();
 	create_container := THIS^.children;
-END_IF]]></ST>
+END_IF
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="create_future" Id="{4dbfc7cf-833f-45fc-a4dd-f4a1587ef4ef}">
@@ -148,7 +154,8 @@ END_VAR
 IF _future_creator <> 0 THEN
 	THIS^.future := creator.create_future(future_name);
 END_IF
-create_future := _future;]]></ST>
+create_future := _future;
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="current_state" Id="{9bdc45ea-e038-402f-9e8e-3b1c363b70b4}">
@@ -383,9 +390,7 @@ END_VAR
       <Declaration><![CDATA[PROPERTY id : T_MaxString // Get job id.
 ]]></Declaration>
       <Get Name="Get" Id="{5863c94c-93ce-4810-8c6f-f18910d5e32a}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
+        <Declaration><![CDATA[]]></Declaration>
         <Implementation>
           <ST><![CDATA[id := _id;]]></ST>
         </Implementation>
@@ -479,7 +484,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_parent_executor REF= parent_executor;]]></ST>
+          <ST><![CDATA[parent_executor REF= _parent_executor;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{577406ef-8da9-4b14-a0b7-e722091103f8}">
@@ -622,6 +627,32 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="uid" Id="{564a3395-593c-4073-b553-e3a86e6b9914}">
+      <Declaration><![CDATA[PROPERTY uid : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{c15a7ab7-b8a0-43cc-8050-a48bb688e753}">
+        <Declaration><![CDATA[VAR
+	_eval_executor : REFERENCE TO FB_Executor;
+	_uid : T_MaxString;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_eval_executor REF= _parent_executor;
+_uid := _id;
+REPEAT
+	_uid := CONCAT('/',_uid);
+	IF __ISVALIDREF(_eval_executor) THEN
+		_uid := CONCAT(_eval_executor.id, _uid);
+		_eval_executor REF= _eval_executor._parent_executor;
+	END_IF
+UNTIL
+	NOT __ISVALIDREF(_eval_executor)
+END_REPEAT
+
+uid := _uid;
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="upstream_aborting" Id="{005019ae-b53c-48e8-93f8-286c00c2c383}">
       <Declaration><![CDATA[PROPERTY upstream_aborting : BOOL]]></Declaration>
       <Get Name="Get" Id="{63c291b8-3195-41b6-aa40-ef7a1188cf41}">
@@ -684,13 +715,23 @@ END_VAR
       <LineId Id="5" Count="0" />
       <LineId Id="30" Count="0" />
       <LineId Id="46" Count="0" />
-      <LineId Id="31" Count="11" />
+      <LineId Id="31" Count="2" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="34" Count="1" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="36" Count="1" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="40" Count="2" />
       <LineId Id="29" Count="0" />
+      <LineId Id="61" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.create_future">
       <LineId Id="6" Count="2" />
       <LineId Id="5" Count="0" />
       <LineId Id="11" Count="0" />
+      <LineId Id="17" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.current_state.Get">
       <LineId Id="7" Count="0" />
@@ -904,6 +945,22 @@ END_VAR
       <LineId Id="132" Count="0" />
       <LineId Id="131" Count="0" />
       <LineId Id="41" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.uid.Get">
+      <LineId Id="75" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="56" Count="0" />
+      <LineId Id="60" Count="0" />
+      <LineId Id="76" Count="0" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="72" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.upstream_aborting.Get">
       <LineId Id="2" Count="0" />

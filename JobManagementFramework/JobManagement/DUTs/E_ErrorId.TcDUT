@@ -5,8 +5,9 @@
 {attribute 'strict'}
 TYPE E_ErrorId :
 (
-	PASSIVE_ABORT := 16#FFFFFFFF
-)UDINT;
+	PASSIVE_ABORT := 16#FFFFFFFF,
+	NOT_CONTAINER := 16#FFFFFFFE
+) UDINT;
 END_TYPE
 ]]></Declaration>
   </DUT>

@@ -104,28 +104,28 @@ CASE _state OF
 		task_count_2.error_test := FALSE;
 		task_count_2.future_name := 'Button 4 count';
 		
-		_child_executor.children.add_future(task_blink_1);
-		_child_executor.children.add_future(task_blink_2);
-		_child_executor.children.add_future(task_count_1);
-		_child_executor.children.add_future(task_count_2);
+		_child_executor.children.spawn_job(task_blink_1);
+		_child_executor.children.spawn_job(task_blink_2);
+		_child_executor.children.spawn_job(task_count_1);
+		_child_executor.children.spawn_job(task_count_2);
 		__QUERYPOINTER(_child_executor.children,test_executor);
 		
 		// dynamic instances		
 		//_child_executor REF= actual_job.children.create_container(ContainerType.PARALLEL, 'Dynamic parallel tasks');
 		
 		future_counter_creator.set_parameter(2, component3_in, component3_out);
-		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Count-1');	
+		_child_executor.children.create_job(future_counter_creator, 'Dynamic job : Count-1');	
 		
 		future_counter_creator.set_parameter(5, component4_in, component4_out);
-		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Count-2');
+		_child_executor.children.create_job(future_counter_creator, 'Dynamic job : Count-2');
 
 		future_counter_creator.set_parameter(2,component3_in, component3_out);
-		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Counter3');
+		_child_executor.children.create_job(future_counter_creator, 'Dynamic job : Counter3');
 
 		future_counter_creator.set_parameter(2, component3_in, component3_out);
-		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Counter4'); // 同時実行でなければ同じFutureオブジェクトを使いまわせる
+		_child_executor.children.create_job(future_counter_creator, 'Dynamic job : Counter4'); // 同時実行でなければ同じFutureオブジェクトを使いまわせる
 		future_counter_creator.set_parameter(2, component4_in, component4_out);
-		_child_executor.children.create_future(future_counter_creator, 'Dynamic job : Counter5');
+		_child_executor.children.create_job(future_counter_creator, 'Dynamic job : Counter5');
 		
 		// Report 'executor' job directory
 		fbJobTreeSearch.subscriber := fbObserver;
@@ -144,7 +144,7 @@ CASE _state OF
 		IF job_create_switch[1] THEN
 			future_timer_creator.set_parameter(T#5S, component1_out);
 			future_timer_creator.set_options(FALSE);
-			_monitor_job REF= executor.children.create_future(future_timer_creator, 'Button 1 Time blink 5s');
+			_monitor_job REF= executor.children.create_job(future_timer_creator, 'Button 1 Time blink 5s');
 			IF NOT  __QUERYPOINTER(_monitor_job.future, _monitor_count_blinker) THEN
 				_monitor_count_blinker := 0;
 			END_IF
@@ -156,7 +156,7 @@ CASE _state OF
 		ELSIF job_create_switch[2] THEN
 			future_timer_creator.set_parameter(T#3S, component2_out);
 			future_timer_creator.set_options(FALSE);
-			_monitor_job REF= executor.children.create_future(future_timer_creator, 'Button 2 Time blink 3s');
+			_monitor_job REF= executor.children.create_job(future_timer_creator, 'Button 2 Time blink 3s');
 			IF NOT  __QUERYPOINTER(_monitor_job.future, _monitor_count_blinker) THEN
 				_monitor_count_blinker := 0;
 			END_IF
@@ -169,7 +169,7 @@ CASE _state OF
 			job_create_switch[3] := FALSE;
 			future_counter_creator.set_parameter(2, component3_in, component3_out);
 			future_counter_creator.set_options(FALSE);
-			_monitor_job REF= executor.children.create_future(future_counter_creator, 'Dynamic job : Counter6');
+			_monitor_job REF= executor.children.create_job(future_counter_creator, 'Dynamic job : Counter6');
 			IF NOT  __QUERYPOINTER(_monitor_job.future, _monitor_count_blinker) THEN
 				_monitor_count_blinker := 0;
 			END_IF
@@ -181,7 +181,7 @@ CASE _state OF
 			job_create_switch[4] := FALSE;
 			future_counter_creator.set_parameter(4, component4_in, component4_out);
 			future_counter_creator.set_options(TRUE);
-			_monitor_job REF= executor.children.create_future(future_counter_creator, 'Dynamic job : Counter7');
+			_monitor_job REF= executor.children.create_job(future_counter_creator, 'Dynamic job : Counter7');
 			IF NOT  __QUERYPOINTER(_monitor_job.future, _monitor_count_blinker) THEN
 				_monitor_count_blinker := 0;
 			END_IF
