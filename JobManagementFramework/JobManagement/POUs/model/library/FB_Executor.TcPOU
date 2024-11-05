@@ -249,7 +249,9 @@ _quit := FALSE;
 
 CASE _state OF
 	E_FutureExecutionState.idle:
-		IF _future.state = E_FutureExecutionState.idle OR _future.state = E_FutureExecutionState.finish THEN
+		ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG, msgFmtStr := TO_STRING(_future.state), strArg := '');
+		IF _future.state = E_FutureExecutionState.idle OR 
+			_future.state = E_FutureExecutionState.finish THEN
 			IF init() THEN
 				_state := E_FutureExecutionState.init;
 			END_IF
@@ -259,6 +261,7 @@ CASE _state OF
 			IF _future.nErrorID = 0 THEN
 				_state := E_FutureExecutionState.wait_for_process;
 			ELSE
+				_last_state := E_FutureExecutionState.init;
 				_error_id := _future.nErrorID;
 				_state := E_FutureExecutionState.abort;
 			END_IF
@@ -289,6 +292,10 @@ CASE _state OF
 			END_IF
 		ELSIF _resume THEN
 			_state := _last_state;
+			IF _error_id = E_ErrorId.PASSIVE_ABORT THEN
+				_error_id := 0;
+			END_IF
+			_resume := FALSE;
 		END_IF
 	E_FutureExecutionState.quit:
 		IF _future.quit() THEN
@@ -344,7 +351,7 @@ IF _logging THEN
 	END_IF
 END_IF
 
-IF _state > E_FutureExecutionState.idle AND _future <> 0 THEN
+IF _future <> 0 THEN
 	_future.state := _state;
 END_IF
 ]]></ST>
@@ -569,15 +576,22 @@ ELSE
 END_IF
 
 // Remove my future.
-IF _reset_children THEN
-	IF _future_creator <> 0 AND _future <> 0 AND (NOT _persistent_job OR deep) THEN
-		_future := _future_creator.destroy_future(_future);
+IF _reset_children AND _future <> 0 THEN
+	IF  NOT _persistent_job OR deep THEN
+		IF _future_creator <> 0 THEN
+			_future := _future_creator.destroy_future(_future);
+		ELSIF _future.init() THEN
+			_future.state := E_FutureExecutionState.idle;
+			_future := 0;
+		END_IF
 		IF _future = 0 THEN
 			_interface_container := 0;
 			reset := TRUE;
 		END_IF
 	ELSE
-		reset := TRUE;
+		IF _future.init() THEN
+			reset := TRUE;
+		END_IF
 	END_IF
 END_IF
 ]]></ST>
@@ -770,7 +784,9 @@ END_VAR
       <LineId Id="237" Count="0" />
       <LineId Id="239" Count="2" />
       <LineId Id="13" Count="2" />
+      <LineId Id="474" Count="0" />
       <LineId Id="258" Count="0" />
+      <LineId Id="471" Count="0" />
       <LineId Id="261" Count="0" />
       <LineId Id="290" Count="0" />
       <LineId Id="289" Count="0" />
@@ -779,6 +795,7 @@ END_VAR
       <LineId Id="75" Count="0" />
       <LineId Id="21" Count="0" />
       <LineId Id="76" Count="0" />
+      <LineId Id="473" Count="0" />
       <LineId Id="122" Count="1" />
       <LineId Id="78" Count="0" />
       <LineId Id="22" Count="3" />
@@ -799,6 +816,8 @@ END_VAR
       <LineId Id="365" Count="0" />
       <LineId Id="121" Count="0" />
       <LineId Id="363" Count="0" />
+      <LineId Id="468" Count="2" />
+      <LineId Id="456" Count="0" />
       <LineId Id="112" Count="0" />
       <LineId Id="38" Count="1" />
       <LineId Id="81" Count="0" />
@@ -922,9 +941,16 @@ END_VAR
       <LineId Id="160" Count="0" />
       <LineId Id="145" Count="0" />
       <LineId Id="136" Count="0" />
-      <LineId Id="139" Count="5" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="168" Count="0" />
+      <LineId Id="171" Count="1" />
+      <LineId Id="182" Count="0" />
+      <LineId Id="169" Count="1" />
+      <LineId Id="141" Count="3" />
       <LineId Id="146" Count="0" />
+      <LineId Id="173" Count="0" />
       <LineId Id="148" Count="0" />
+      <LineId Id="174" Count="0" />
       <LineId Id="137" Count="1" />
       <LineId Id="158" Count="0" />
     </LineIds>

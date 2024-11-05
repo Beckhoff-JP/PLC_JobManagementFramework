@@ -79,31 +79,7 @@ END_REPEAT
 abort := _all_done;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="error_reset" Id="{854d543e-7307-40a1-8e1c-60c38f66723f}">
-      <Declaration><![CDATA[METHOD error_reset : BOOL
-VAR
-	_executor : REFERENCE TO FB_Executor;
-	complete : BOOL;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[complete := TRUE;
-REPEAT
-	_executor REF= each_executor;
-	IF __ISVALIDREF(_executor) THEN
-		IF NOT _executor.error_reset() THEN
-			complete := FALSE;
-		END_IF
-	END_IF
-UNTIL
-	NOT __ISVALIDREF(_executor)
-END_REPEAT
-IF complete THEN
-	_error_id := 0;
-END_IF
-error_reset := complete;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="execute" Id="{d67c5d9a-b061-4fe3-a66e-2e859577c8d2}">
+    <Method Name="execute" Id="{c011c6dd-8dac-426e-8a5d-1e6786a4ab46}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INST
 	i :UINT;
@@ -196,29 +172,6 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="resume" Id="{70ea49d5-1b0f-4247-9f85-25d56c070d0b}">
-      <Declaration><![CDATA[METHOD resume : BOOL
-VAR
-	_all_done : BOOL;
-END_VAR
-VAR_INST
-	_executor : REFERENCE TO FB_Executor;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_all_done := TRUE;
-REPEAT
-	_executor REF= THIS^.each_executor;
-	IF __ISVALIDREF(_executor) THEN
-		IF NOT _executor.resume() THEN
-			_all_done := FALSE;
-		END_IF
-	END_IF
-UNTIL
-	NOT __ISVALIDREF(_executor)
-END_REPEAT
-resume := _all_done;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="start" Id="{ee5f3f9a-6bf3-4152-ba8b-8cd61ca8e446}">
       <Declaration><![CDATA[METHOD start : BOOL
 VAR
@@ -268,27 +221,9 @@ start := _all_done;]]></ST>
       <LineId Id="108" Count="10" />
       <LineId Id="100" Count="0" />
     </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.error_reset">
-      <LineId Id="15" Count="0" />
-      <LineId Id="4" Count="1" />
-      <LineId Id="11" Count="1" />
-      <LineId Id="16" Count="1" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="7" Count="1" />
-      <LineId Id="6" Count="0" />
-      <LineId Id="25" Count="2" />
-      <LineId Id="18" Count="0" />
-    </LineIds>
     <LineIds Name="FB_ParallelJobContainer.execute">
-      <LineId Id="208" Count="2" />
-      <LineId Id="274" Count="0" />
-      <LineId Id="180" Count="8" />
-      <LineId Id="244" Count="1" />
-      <LineId Id="247" Count="2" />
-      <LineId Id="246" Count="0" />
-      <LineId Id="192" Count="7" />
-      <LineId Id="220" Count="1" />
-      <LineId Id="267" Count="0" />
+      <LineId Id="11" Count="28" />
+      <LineId Id="4" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.init">
       <LineId Id="219" Count="12" />
@@ -306,10 +241,6 @@ start := _all_done;]]></ST>
       <LineId Id="36" Count="0" />
       <LineId Id="34" Count="1" />
       <LineId Id="24" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainer.resume">
-      <LineId Id="9" Count="10" />
-      <LineId Id="4" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.start">
       <LineId Id="29" Count="10" />

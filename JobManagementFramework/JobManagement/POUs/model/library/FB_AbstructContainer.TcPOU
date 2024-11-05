@@ -331,12 +331,27 @@ reset := _total_futures = 0;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="resume" Id="{11e257a3-8b97-4d32-b96d-5061e333db10}">
+    <Method Name="resume" Id="{70ea49d5-1b0f-4247-9f85-25d56c070d0b}">
       <Declaration><![CDATA[METHOD resume : BOOL
-]]></Declaration>
+VAR
+	_all_done : BOOL;
+END_VAR
+VAR_INST
+	_executor : REFERENCE TO FB_Executor;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[resume := _executors[current_executing_future_id]^.resume();
-]]></ST>
+        <ST><![CDATA[_all_done := TRUE;
+REPEAT
+	_executor REF= THIS^.each_executor;
+	IF __ISVALIDREF(_executor) THEN
+		IF NOT _executor.resume() THEN
+			_all_done := FALSE;
+		END_IF
+	END_IF
+UNTIL
+	NOT __ISVALIDREF(_executor)
+END_REPEAT
+resume := _all_done;]]></ST>
       </Implementation>
     </Method>
     <Method Name="spawn_job" Id="{851bbe10-8432-4972-a365-3ae0b2c9678a}">
@@ -497,7 +512,7 @@ END_VAR
       <LineId Id="5" Count="0" />
     </LineIds>
     <LineIds Name="FB_AbstructContainer.resume">
-      <LineId Id="6" Count="0" />
+      <LineId Id="9" Count="10" />
       <LineId Id="4" Count="0" />
     </LineIds>
     <LineIds Name="FB_AbstructContainer.spawn_job">

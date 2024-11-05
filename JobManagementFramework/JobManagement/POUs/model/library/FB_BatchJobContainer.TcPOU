@@ -61,30 +61,6 @@ _index_generator_ := _index;
         <ST><![CDATA[abort := _executors[current_executing_future_id]^.abort();]]></ST>
       </Implementation>
     </Method>
-    <Method Name="error_reset" Id="{70a38084-4571-47cc-9171-677f460d44fb}">
-      <Declaration><![CDATA[METHOD error_reset : BOOL
-VAR
-	_executor : REFERENCE TO FB_Executor;
-	complete : BOOL;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[complete := TRUE;
-REPEAT
-	_executor REF= each_executor;
-	IF __ISVALIDREF(_executor) THEN
-		IF NOT _executor.error_reset() THEN
-			complete := FALSE;
-		END_IF
-	END_IF
-UNTIL
-	NOT __ISVALIDREF(_executor)
-END_REPEAT
-IF complete THEN
-	_error_id := 0;
-END_IF
-error_reset := complete;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="execute" Id="{3a50f198-985b-4ce4-97c9-3b4f8b04dcb5}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INST
@@ -184,6 +160,14 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="resume" Id="{95a869b1-5218-4fef-8feb-47be8459cb7d}">
+      <Declaration><![CDATA[METHOD resume : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[resume := _executors[current_executing_future_id]^.resume();
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="start" Id="{9fc705dd-5825-4cad-a6ab-98fcdf75a61a}">
       <Declaration><![CDATA[METHOD start : BOOL
 ]]></Declaration>
@@ -215,17 +199,6 @@ END_IF
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.abort">
       <LineId Id="75" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_BatchJobContainer.error_reset">
-      <LineId Id="15" Count="0" />
-      <LineId Id="4" Count="1" />
-      <LineId Id="11" Count="1" />
-      <LineId Id="16" Count="1" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="7" Count="1" />
-      <LineId Id="6" Count="0" />
-      <LineId Id="23" Count="2" />
-      <LineId Id="18" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.execute">
       <LineId Id="180" Count="0" />
@@ -269,6 +242,10 @@ END_IF
       <LineId Id="24" Count="2" />
       <LineId Id="23" Count="0" />
       <LineId Id="15" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_BatchJobContainer.resume">
+      <LineId Id="6" Count="0" />
+      <LineId Id="4" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.start">
       <LineId Id="22" Count="0" />

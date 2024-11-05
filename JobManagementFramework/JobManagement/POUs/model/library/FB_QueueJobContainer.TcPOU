@@ -164,30 +164,6 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="error_reset" Id="{15463a0d-3f62-4950-9604-5cc8f17984e8}">
-      <Declaration><![CDATA[METHOD error_reset : BOOL
-VAR
-	_executor : REFERENCE TO FB_Executor;
-	complete : BOOL;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[complete := TRUE;
-REPEAT
-	_executor REF= each_executor;
-	IF __ISVALIDREF(_executor) THEN
-		IF NOT _executor.error_reset() THEN
-			complete := FALSE;
-		END_IF
-	END_IF
-UNTIL
-	NOT __ISVALIDREF(_executor)
-END_REPEAT
-IF complete THEN
-	_error_id := 0;
-END_IF
-error_reset := complete;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="execute" Id="{08489d90-f655-4964-9e80-20dd5ed12d14}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR
@@ -277,51 +253,6 @@ init := _init_done;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="resume" Id="{6cef8b84-fa72-4fc9-8e51-74bc627fc599}">
-      <Declaration><![CDATA[METHOD resume : BOOL
-VAR
-	_all_done : BOOL;
-END_VAR
-VAR_INST
-	_executor : REFERENCE TO FB_Executor;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_all_done := TRUE;
-REPEAT
-	_executor REF= THIS^.each_executor;
-	IF __ISVALIDREF(_executor) THEN
-		IF NOT _executor.resume() THEN
-			_all_done := FALSE;
-		END_IF
-	END_IF
-UNTIL
-	NOT __ISVALIDREF(_executor)
-END_REPEAT
-resume := _all_done;]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="spawn_job" Id="{f9d39857-bd04-4db2-906f-56828b5496cc}">
-      <Declaration><![CDATA[METHOD spawn_job : REFERENCE TO FB_Executor
-VAR_INPUT
-	future : InterfaceFuture;
-END_VAR
-VAR
-	_executor : POINTER TO FB_Executor;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF future <> 0 THEN
-	_executor := __NEW(FB_Executor);
-	_executor^.future := future;
-	_executor^.persistent_job := FALSE;
-	THIS^._append_job(_executor^);
-	spawn_job REF= _executor^;
-ELSE
-	spawn_job REF= 0;
-END_IF
-]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="start" Id="{4cf224e9-838c-49df-961f-f92e9826d1b5}">
       <Declaration><![CDATA[METHOD start : BOOL
 VAR
@@ -374,17 +305,6 @@ END_IF]]></ST>
       <LineId Id="17" Count="0" />
       <LineId Id="16" Count="0" />
     </LineIds>
-    <LineIds Name="FB_QueueJobContainer.error_reset">
-      <LineId Id="15" Count="0" />
-      <LineId Id="4" Count="1" />
-      <LineId Id="11" Count="1" />
-      <LineId Id="16" Count="1" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="7" Count="1" />
-      <LineId Id="6" Count="0" />
-      <LineId Id="24" Count="2" />
-      <LineId Id="18" Count="0" />
-    </LineIds>
     <LineIds Name="FB_QueueJobContainer.execute">
       <LineId Id="313" Count="0" />
       <LineId Id="368" Count="3" />
@@ -424,17 +344,6 @@ END_IF]]></ST>
       <LineId Id="119" Count="0" />
       <LineId Id="45" Count="0" />
       <LineId Id="42" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_QueueJobContainer.resume">
-      <LineId Id="9" Count="10" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_QueueJobContainer.spawn_job">
-      <LineId Id="150" Count="1" />
-      <LineId Id="157" Count="0" />
-      <LineId Id="165" Count="0" />
-      <LineId Id="152" Count="4" />
-      <LineId Id="10" Count="0" />
     </LineIds>
     <LineIds Name="FB_QueueJobContainer.start">
       <LineId Id="39" Count="0" />
