@@ -28,7 +28,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[//Set buffer index
-IF _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
+IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	i := 1;
 	WHILE _executors[i] <> 0 DO
 		i := i + 1;
@@ -50,7 +50,7 @@ IF _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
 	IF _serial = 16#FFFFFFFFFFFFFFFF THEN
 		_serial := 0;
 	END_IF
-	_total_futures := _total_futures + 1;
+	_num_of_jobs := _num_of_jobs + 1;
 END_IF
 ]]></ST>
       </Implementation>
@@ -74,12 +74,12 @@ END_VAR
 	_init := TRUE;
 END_IF
 
-IF _total_futures = 0 THEN
+IF _num_of_jobs = 0 THEN
 	RETURN;
 END_IF
 
 
-IF _current_order_number >= _total_futures OR _index > ParamFuturesLib.MAX_TASK_NUM THEN
+IF _current_order_number >= _num_of_jobs OR _index > ParamFuturesLib.MAX_TASK_NUM THEN
 	_init := FALSE;
 END_IF
 
@@ -134,7 +134,7 @@ END_VAR
       <Implementation>
         <ST><![CDATA[execute := FALSE;
 
-IF _total_futures = 0 THEN
+IF _num_of_jobs = 0 THEN
 	RETURN;
 END_IF
 
@@ -149,9 +149,9 @@ REPEAT
 				ELSE
 					__DELETE(_executors[i]);
 				END_IF
-				_total_futures := _total_futures - 1;
+				_num_of_jobs := _num_of_jobs - 1;
 			END_IF
-			execute := _total_futures = 0 AND NOT _continuous_mode;
+			execute := _num_of_jobs = 0 AND NOT _continuous_mode;
 		ELSE
 			CASE _executors[i]^.current_state OF
 				E_FutureExecutionState.idle:

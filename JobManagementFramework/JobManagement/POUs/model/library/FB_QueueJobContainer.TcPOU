@@ -28,7 +28,7 @@ VAR_INST
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[//Set buffer index
-IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
+IF __ISVALIDREF(executor) AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	executor.init();
 	// Spawn new task with specified feature
 	_executors[nWriteIndex] := ADR(executor);
@@ -55,18 +55,18 @@ IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
 		nWriteIndex := 1;
 	END_IF
 	
-	IF nWriteIndex = nReadIndex AND _total_futures = ParamFuturesLib.MAX_TASK_NUM - 1 THEN 
+	IF nWriteIndex = nReadIndex AND _num_of_jobs = ParamFuturesLib.MAX_TASK_NUM - 1 THEN 
 		carry_flag := TRUE;
 	END_IF
 
 	// calculate order number of executing futures by queue address
 	IF carry_flag THEN
-		_total_futures := ParamFuturesLib.MAX_TASK_NUM;
+		_num_of_jobs := ParamFuturesLib.MAX_TASK_NUM;
 		carry_flag := FALSE;
 	ELSIF nWriteIndex >= nReadIndex THEN
-		_total_futures := nWriteIndex - nReadIndex;
+		_num_of_jobs := nWriteIndex - nReadIndex;
 	ELSE
-		_total_futures := ParamFuturesLib.MAX_TASK_NUM - nReadIndex + nWriteIndex;
+		_num_of_jobs := ParamFuturesLib.MAX_TASK_NUM - nReadIndex + nWriteIndex;
 	END_IF
 
 END_IF
@@ -91,7 +91,7 @@ END_VAR
 END_IF
 
 // calculate order number of executing futures by queue address
-IF _total_futures = 0 THEN
+IF _num_of_jobs = 0 THEN
 	_current_order_number := 0;
 ELSIF _carry_flag THEN // 
 	_current_order_number := ParamFuturesLib.MAX_TASK_NUM;
@@ -111,7 +111,7 @@ END_IF
 _index_generator_ := _index;
 
 //Set buffer index
-IF _total_futures = 0 OR _total_futures < _current_order_number THEN
+IF _num_of_jobs = 0 OR _num_of_jobs < _current_order_number THEN
 	_init := FALSE;
 END_IF
 
@@ -146,7 +146,7 @@ END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[//Set buffer index
-IF _total_futures > 0 THEN
+IF _num_of_jobs > 0 THEN
 	dequeue := _executors[nReadIndex];
 	nReadIndex := nReadIndex + 1;
 	IF nReadIndex > ParamFuturesLib.MAX_TASK_NUM THEN
@@ -154,9 +154,9 @@ IF _total_futures > 0 THEN
 	END_IF
 	// calculate order number of executing futures by queue address
 	IF nWriteIndex >= nReadIndex THEN
-		_total_futures := nWriteIndex - nReadIndex;
+		_num_of_jobs := nWriteIndex - nReadIndex;
 	ELSE
-		_total_futures := ParamFuturesLib.MAX_TASK_NUM - nReadIndex + nWriteIndex;
+		_num_of_jobs := ParamFuturesLib.MAX_TASK_NUM - nReadIndex + nWriteIndex;
 	END_IF
 ELSE
 	dequeue := 0;

@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCReset" Id="{ee805a4a-5dfe-4650-9a98-91a6767180f3}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureMCReset EXTENDS FB_AbstructFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis: REFERENCE TO AXIS_REF;
+	_mc_reset	: MC_Reset;
+	_error_id :UDINT;
+	_exec_state : UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="execute" Id="{92464e08-2363-42d1-8525-536370e535b6}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+CASE _exec_state OF
+	0:
+		_mc_reset(axis := _axis, Execute := FALSE);
+		_mc_reset(Axis:= _axis, Execute := TRUE );
+		_exec_state := 1;
+	1:
+		IF _mc_reset.Busy THEN
+			_mc_reset(Axis:= _axis,Execute := FALSE);
+		END_IF
+END_CASE
+
+_error_id := _mc_reset.ErrorID;
+execute := _mc_reset.Done OR _mc_reset.Error;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{83fe482e-32ec-4cb8-8167-dc39efd52913}">
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_exec_state := 0;
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nErrorID" Id="{a880be76-8bd0-48c4-a77e-d3d6f9cb688f}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{802abbee-6aaf-42e2-bb73-83c390bd9c0b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0a0bed34-02c2-4cee-9f6b-40295d9a6828}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="set_parameters" Id="{20e83138-9b09-4010-ae06-16dcf275b143}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCReset">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCReset.execute">
+      <LineId Id="111" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCReset.init">
+      <LineId Id="6" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCReset.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCReset.nErrorID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCReset.set_parameters">
+      <LineId Id="40" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

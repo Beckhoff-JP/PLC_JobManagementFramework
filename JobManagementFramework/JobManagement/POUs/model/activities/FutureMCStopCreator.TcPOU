@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCStopCreator" Id="{2aa0840a-ea83-4839-96a4-e982629c2128}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCStopCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis: REFERENCE TO AXIS_REF;
+	_deceleration: MC_LREAL;
+	_jerk		: MC_LREAL;
+	_option : ST_MoveOptions;
+	_buffer_mode : MC_BufferMode;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{cde46ba2-2def-45b1-8a5c-0125d157852f}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD create_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future name*)
+	future_name	: STRING;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCStop;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FutureMCStop);
+_p_future^.future_name := future_name;
+_p_future^.set_parameters(_axis, _deceleration, _jerk);
+_p_future^.set_options(_option);
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{701772d1-8e6f-4e4f-9c7c-933fa6c3ea4e}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD destroy_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future instance whtat you want to delete.*)
+	future	: jobmgmt.InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCStop;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_options" Id="{ca47d14d-5f66-4c9c-a4cc-9949f1d4f8de}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	option : ST_MoveOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_option := option;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{02982528-c91a-4c66-b968-8b28ea9a4815}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+	deceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	jerk			: MC_LREAL;		// Set jerk in case let moving axis halt.
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_deceleration := deceleration;
+_jerk := jerk;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCStopCreator">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStopCreator.create_future">
+      <LineId Id="11" Count="2" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStopCreator.destroy_future">
+      <LineId Id="9" Count="4" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStopCreator.set_options">
+      <LineId Id="19" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStopCreator.set_parameters">
+      <LineId Id="40" Count="2" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

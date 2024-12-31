@@ -1,0 +1,240 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCMoveAbsolute" Id="{79bb57a1-f47d-4bcf-938a-520a06e0174a}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureMCMoveAbsolute EXTENDS FB_AbstructFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_fb_move_abs	: MC_MoveAbsolute;
+	_mc_reset	: MC_Reset;
+	_abort_executor		: FB_Executor;
+	_axis: REFERENCE TO AXIS_REF;
+	_position : MC_LREAL;
+	_velocity : MC_LREAL;
+	_acceleration: MC_LREAL;
+	_deceleration: MC_LREAL;
+	_jerk		: MC_LREAL;
+	_option : ST_MoveOptions;
+	_buffer_mode : MC_BufferMode ;
+	_error_id :UDINT;
+	_exec_state : UDINT;
+	_abort_state : UINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="abort" Id="{d55adceb-96cc-4338-86fc-114b02148736}">
+      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
+VAR_INST
+	future_halt : FutureMcHalt;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE _abort_state OF
+	0:
+		_exec_state := 0;
+		future_halt.set_parameters(_axis, _deceleration, _jerk);
+		future_halt.future_name := 'HALT MOVE_RELATIVE';
+		_abort_executor.future := future_halt;
+		_abort_state := 1;
+	1:
+		IF _abort_executor.execute() AND _abort_executor.nErrorID = 0 THEN
+			_abort_state := 2;
+		END_IF
+		
+		IF _abort_executor.current_state = E_FutureExecutionState.wait_for_process THEN
+			_abort_executor.start();
+		END_IF
+	2:
+		abort := TRUE;
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="error_reset" Id="{2e87a2b8-ae09-485e-9d92-a78e80212601}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _error_id <> 0 THEN
+	CASE _exec_state OF
+		0:
+			_mc_reset(Axis := _axis, Execute := FALSE);
+			_mc_reset(Axis:= _axis, Execute := TRUE );
+			_exec_state := 1;
+		1:
+			IF _mc_reset.Busy THEN
+				_mc_reset(Axis:= _axis,Execute := FALSE);
+			END_IF
+	END_CASE
+	
+	_error_id := _mc_reset.ErrorID;
+	error_reset := _mc_reset.Done;
+ELSE
+	error_reset := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="execute" Id="{04bb725d-9f81-4860-b243-c8cff20c19f8}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+CASE _exec_state OF
+	0:
+		_abort_state := 0;
+		_fb_move_abs(Axis := _axis,Execute := FALSE);
+		_fb_move_abs(
+			Execute := TRUE,
+			Axis := _axis,
+			Position := _position,
+			Velocity := _velocity,
+			Acceleration := _acceleration,
+			Deceleration := _deceleration,
+			Jerk := _jerk,
+			BufferMode := _buffer_mode,
+			Options := _option
+		);
+		_exec_state := 1;
+	1:
+		IF _fb_move_abs.Busy THEN
+			_fb_move_abs(Axis := _axis,Execute := FALSE);
+		END_IF
+END_CASE
+
+_error_id := _fb_move_abs.ErrorID;
+execute := _fb_move_abs.Done OR _fb_move_abs.Error;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{69b400a8-eed4-45f3-ae8d-2adfc6cc9d75}">
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
+
+VAR
+	axis: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_exec_state := 0;
+_abort_state := 0;
+_error_id := _fb_move_abs.ErrorID;
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nErrorID" Id="{dcbea886-840a-4451-a8f6-dbc15161fed0}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{ec03a1e5-2940-42ad-8905-125646af9c0f}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5583237f-05f5-42b5-a279-dc47e285a901}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="set_options" Id="{f1d5c719-e65a-4eae-bbe5-a4bda3562ddf}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	option : ST_MoveOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_option := option;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{d0fa521f-94a0-4187-b05e-77f37bff19ee}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+	position : MC_LREAL;
+	velocity : MC_LREAL;
+	acceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	deceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	jerk			: MC_LREAL;		// Set jerk in case let moving axis halt.
+	buffer_mode : MC_BufferMode;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_position := position;
+_velocity := velocity;
+_acceleration := acceleration;
+_deceleration := deceleration;
+_jerk := jerk;
+_buffer_mode := buffer_mode;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCMoveAbsolute">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveAbsolute.abort">
+      <LineId Id="9" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="18" Count="8" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveAbsolute.error_reset">
+      <LineId Id="4" Count="12" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="17" Count="2" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveAbsolute.execute">
+      <LineId Id="111" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="150" Count="1" />
+      <LineId Id="143" Count="1" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="128" Count="1" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveAbsolute.init">
+      <LineId Id="6" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveAbsolute.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveAbsolute.nErrorID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveAbsolute.set_options">
+      <LineId Id="19" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveAbsolute.set_parameters">
+      <LineId Id="80" Count="5" />
+      <LineId Id="56" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

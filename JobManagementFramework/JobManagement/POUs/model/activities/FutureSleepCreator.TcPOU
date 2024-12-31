@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureSleepCreator" Id="{e51ff537-6a6c-441a-9c50-d053b3ef0e7c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureSleepCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_sleep_time: TIME;
+	_p_future : POINTER TO FutureSleep;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{68dc0f33-3150-469d-afb6-499fce7ee32e}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD create_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future name*)
+	future_name	: STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FutureSleep);
+_p_future^.future_name := future_name;
+_p_future^.sleep_time := _sleep_time;
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{19ea5f74-a9a0-47e9-8242-8d8c60f039bb}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD destroy_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future instance whtat you want to delete.*)
+	future	: jobmgmt.InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureSleep;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="sleep_time" Id="{3b9f8465-bfc4-48b1-b1f6-04a38356af9e}">
+      <Declaration><![CDATA[PROPERTY sleep_time : TIME]]></Declaration>
+      <Get Name="Get" Id="{7c4f2e26-1b81-47c4-9ae9-abf10506c853}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[sleep_time := _p_future^.sleep_time;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{5915549c-f74d-45fa-9f29-3ca00808afbd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_sleep_time := sleep_time;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="FutureSleepCreator">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureSleepCreator.create_future">
+      <LineId Id="11" Count="2" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureSleepCreator.destroy_future">
+      <LineId Id="9" Count="4" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureSleepCreator.sleep_time.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureSleepCreator.sleep_time.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

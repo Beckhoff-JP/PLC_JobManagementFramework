@@ -1,0 +1,190 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCGearOut" Id="{b10cbfcd-3f21-4d41-b1d5-2cbad711776c}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureMCGearOut EXTENDS FB_AbstructFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_fb_gear_out	: MC_GearOut;
+	_mc_reset	: MC_Reset;
+	_axis_sub: REFERENCE TO AXIS_REF;
+	_ratio_numerator	: MC_LREAL := 1;
+	_ratio_denominator	: UINT := 1;
+	_option : ST_GearOutOptions;
+	_error_id :UDINT;
+	_exec_state : UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="error_reset" Id="{52e60225-068f-4e49-a10a-be6c8142996b}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _error_id <> 0 THEN
+	CASE _exec_state OF
+		0:
+			_mc_reset(Axis := _axis_sub, Execute := FALSE);
+			_mc_reset(Axis:= _axis_sub, Execute := TRUE );
+			_exec_state := 1;
+		1:
+			IF _mc_reset.Busy THEN
+				_mc_reset(Axis:= _axis_sub,Execute := FALSE);
+			END_IF
+	END_CASE
+	
+	_error_id := _mc_reset.ErrorID;
+	error_reset := _mc_reset.Done;
+ELSE
+	error_reset := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="execute" Id="{10b8fb9d-57b5-428e-b814-1bfc496da251}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[execute := FALSE;
+CASE _exec_state OF
+	0:
+		_fb_gear_out(Slave := _axis_sub,Execute := FALSE);
+		_fb_gear_out(
+			Execute := TRUE,
+			Slave := _axis_sub,
+			Options := _option
+		);
+		_exec_state := 1;
+	1:
+		IF _fb_gear_out.Busy THEN
+			_fb_gear_out(Slave := _axis_sub,Execute := FALSE);
+		END_IF
+		IF NOT _fb_gear_out.Execute AND NOT _fb_gear_out.Busy THEN
+			_exec_state := 2;
+		END_IF
+	2:
+		IF _fb_gear_out.Done OR _fb_gear_out.Error THEN
+			_exec_state := 3;
+		END_IF
+	3:
+		execute := TRUE;
+		
+END_CASE
+
+_error_id := _fb_gear_out.ErrorID;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{7dc29fac-86ad-4c32-8e88-fd323e0c0da2}">
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
+
+VAR
+	axis: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_exec_state := 0;
+_error_id := _fb_gear_out.ErrorID;
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nErrorID" Id="{c7ba103c-81cf-4b3f-83df-e6c1e7846eb9}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{71af881f-7335-458d-a52b-3bf08345a0cc}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{00e1a2d2-86de-4ef0-806d-26a546c23421}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="set_options" Id="{22525b5f-688d-4193-806d-a7ceed51892e}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	option : ST_GearOutOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_option := option;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{9e93cc8f-23ba-4f40-9f9d-19dd7cdae208}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis_sub : REFERENCE TO AXIS_REF;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis_sub REF= axis_sub;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCGearOut">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearOut.error_reset">
+      <LineId Id="4" Count="12" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="17" Count="2" />
+    </LineIds>
+    <LineIds Name="FutureMCGearOut.execute">
+      <LineId Id="111" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="148" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="154" Count="0" />
+      <LineId Id="160" Count="2" />
+      <LineId Id="152" Count="0" />
+      <LineId Id="155" Count="4" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearOut.init">
+      <LineId Id="6" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearOut.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearOut.nErrorID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearOut.set_options">
+      <LineId Id="19" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearOut.set_parameters">
+      <LineId Id="51" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

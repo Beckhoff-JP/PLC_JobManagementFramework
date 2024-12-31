@@ -1,0 +1,108 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCSetPositionCreator" Id="{293e97ce-3a12-4515-9239-8cf3983d688e}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCSetPositionCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis: REFERENCE TO AXIS_REF;
+	_position	: MC_LREAL;
+	_mode		: BOOL;
+	_option 	: ST_SetPositionOptions;
+	_error_id :UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{0f731815-c09f-4a7d-a2aa-84ddc0096e42}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD create_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future name*)
+	future_name	: STRING;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCSetPosition;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FutureMCSetPosition);
+_p_future^.future_name := future_name;
+_p_future^.set_parameters(_axis, _position);
+_p_future^.set_options(_mode, _option);
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{d7f6d590-731b-46b0-9c94-43523208ac96}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD destroy_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future instance whtat you want to delete.*)
+	future	: jobmgmt.InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCSetPosition;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_options" Id="{c9ebcb01-df3f-4a2f-bbb7-ab2453c9dd29}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	mode		: BOOL;
+	option 	: ST_SetPositionOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mode := mode;
+_option := option;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{30243bcd-4b24-4548-9612-359c1e0c45d0}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis: REFERENCE TO AXIS_REF;
+	position	: MC_LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_position := position;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCSetPositionCreator">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPositionCreator.create_future">
+      <LineId Id="11" Count="2" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPositionCreator.destroy_future">
+      <LineId Id="9" Count="4" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPositionCreator.set_options">
+      <LineId Id="5" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPositionCreator.set_parameters">
+      <LineId Id="26" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

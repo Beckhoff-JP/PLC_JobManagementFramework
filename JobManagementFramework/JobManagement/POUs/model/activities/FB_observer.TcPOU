@@ -53,10 +53,20 @@ END_VAR
 VAR
 	last_state : STRING;
 	current_state : STRING;
+	container : InterfaceContainer;
+	num_of_jobs : UINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[last_state := TO_STRING(old_state);
 current_state := TO_STRING(new_state);
+
+IF __QUERYINTERFACE(executor.future, container) THEN
+	num_of_jobs := container.num_of_jobs;
+ELSE
+	num_of_jobs := 1;
+END_IF
+
+
 IF __ISVALIDREF(executor) THEN
 	fb_timezone_info();
 	text := FILETIME64_TO_ISO8601(fileTime := record_time, nBias := DINT_TO_INT(fb_timezone_info.tzInfo.bias), bUTC := TRUE,nPrecision := 6);
@@ -70,6 +80,8 @@ IF __ISVALIDREF(executor) THEN
 	text := CONCAT(text, executor.future.future_name);
 	text := CONCAT(text, '		');
 	text := CONCAT(text, executor.uid);
+	text := CONCAT(text, '		');
+	text := CONCAT(text, TO_STRING(num_of_jobs));
 	
 	
 	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG,
@@ -97,8 +109,18 @@ subscribe_job_event := TRUE;]]></ST>
       <LineId Id="33" Count="0" />
     </LineIds>
     <LineIds Name="FB_observer.subscribe_job_event">
-      <LineId Id="120" Count="2" />
-      <LineId Id="183" Count="14" />
+      <LineId Id="120" Count="1" />
+      <LineId Id="231" Count="0" />
+      <LineId Id="229" Count="0" />
+      <LineId Id="233" Count="0" />
+      <LineId Id="236" Count="1" />
+      <LineId Id="234" Count="0" />
+      <LineId Id="230" Count="0" />
+      <LineId Id="228" Count="0" />
+      <LineId Id="122" Count="0" />
+      <LineId Id="183" Count="11" />
+      <LineId Id="238" Count="1" />
+      <LineId Id="195" Count="2" />
       <LineId Id="212" Count="1" />
       <LineId Id="182" Count="0" />
       <LineId Id="134" Count="0" />

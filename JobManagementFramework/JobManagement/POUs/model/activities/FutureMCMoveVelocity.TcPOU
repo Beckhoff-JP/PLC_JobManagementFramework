@@ -1,0 +1,243 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCMoveVelocity" Id="{29148965-5e10-4a14-94be-705867904fbe}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureMCMoveVelocity EXTENDS FB_AbstructFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_fb_move_velo	: MC_MoveVelocity;
+	_mc_reset	: MC_Reset;
+	_abort_executor		: FB_Executor;
+	_axis: REFERENCE TO AXIS_REF;
+	_velocity : MC_LREAL;
+	_direction : MC_DIRECTION;
+	_acceleration: MC_LREAL;
+	_deceleration: MC_LREAL;
+	_jerk		: MC_LREAL;
+	_option : ST_MoveOptions;
+	_buffer_mode : MC_BufferMode ;
+	_error_id :UDINT;
+	_exec_state : UDINT;
+	_abort_state : UINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="abort" Id="{72fcad41-759f-41d6-bfdc-0ea86e66e7a3}">
+      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
+VAR_INST
+	future_halt : FutureMcHalt;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE _abort_state OF
+	0:
+		_exec_state := 0;
+		future_halt.set_parameters(_axis, _deceleration, _jerk);
+		future_halt.future_name := 'HALT MOVE_RELATIVE';
+		_abort_executor.future := future_halt;
+		_abort_state := 1;
+	1:
+		IF _abort_executor.execute() AND _abort_executor.nErrorID = 0 THEN
+			_abort_state := 2;
+		END_IF
+		
+		IF _abort_executor.current_state = E_FutureExecutionState.wait_for_process THEN
+			_abort_executor.start();
+		END_IF
+	2:
+		abort := TRUE;
+END_CASE
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="error_reset" Id="{c938e1e3-6f69-4ea8-89b8-cbef16dfaf98}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _error_id <> 0 THEN
+	CASE _exec_state OF
+		0:
+			_mc_reset(Axis := _axis, Execute := FALSE);
+			_mc_reset(Axis:= _axis, Execute := TRUE );
+			_exec_state := 1;
+		1:
+			IF _mc_reset.Busy THEN
+				_mc_reset(Axis:= _axis,Execute := FALSE);
+			END_IF
+	END_CASE
+	
+	_error_id := _mc_reset.ErrorID;
+	error_reset := _mc_reset.Done;
+ELSE
+	error_reset := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="execute" Id="{199850b7-b50d-4a98-900c-cfddcfc3c30c}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+CASE _exec_state OF
+	0:
+		_abort_state := 0;
+		_fb_move_velo(Axis := _axis,Execute := FALSE);
+		_fb_move_velo(
+			Execute := TRUE,
+			Axis := _axis,
+			Direction := _direction,
+			Velocity := _velocity,
+			Acceleration := _acceleration,
+			Deceleration := _deceleration,
+			Jerk := _jerk,
+			BufferMode := _buffer_mode,
+			Options := _option
+		);
+		_exec_state := 1;
+	1:
+		IF _fb_move_velo.Busy THEN
+			_fb_move_velo(Axis := _axis,Execute := FALSE);
+		END_IF
+END_CASE
+
+_error_id := _fb_move_velo.ErrorID;
+execute := _fb_move_velo.InVelocity OR _fb_move_velo.Error;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{95bb8aca-b748-477b-ae1d-3c5d6d817a51}">
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
+
+VAR
+	axis: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_exec_state := 0;
+_abort_state := 0;
+_error_id := _fb_move_velo.ErrorID;
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nErrorID" Id="{d0c28b4c-d1ff-4af5-bd15-853506ce923b}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{c772ce53-a26d-4703-bf4d-5dec352edf66}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{507adb7d-f7fc-426b-a973-6b7526503bdd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="set_options" Id="{bf17cdaf-530f-4c56-93b8-8584092489c0}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	option : ST_MoveOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_option := option;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{49a5db17-1b30-4653-ab84-e6b95faefca6}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+	direction : MC_DIRECTION;
+	velocity : MC_LREAL;
+	acceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	deceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	jerk			: MC_LREAL;		// Set jerk in case let moving axis halt.
+	buffer_mode : MC_BufferMode;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_velocity := velocity;
+_direction := direction;
+_acceleration := acceleration;
+_deceleration := deceleration;
+_jerk := jerk;
+_buffer_mode := buffer_mode;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCMoveVelocity">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocity.abort">
+      <LineId Id="9" Count="0" />
+      <LineId Id="12" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="14" Count="1" />
+      <LineId Id="18" Count="8" />
+      <LineId Id="11" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocity.error_reset">
+      <LineId Id="4" Count="12" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="17" Count="2" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocity.execute">
+      <LineId Id="111" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="153" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="123" Count="0" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="147" Count="0" />
+      <LineId Id="150" Count="1" />
+      <LineId Id="143" Count="1" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="128" Count="1" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocity.init">
+      <LineId Id="6" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocity.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocity.nErrorID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocity.set_options">
+      <LineId Id="19" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocity.set_parameters">
+      <LineId Id="80" Count="0" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="83" Count="2" />
+      <LineId Id="56" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

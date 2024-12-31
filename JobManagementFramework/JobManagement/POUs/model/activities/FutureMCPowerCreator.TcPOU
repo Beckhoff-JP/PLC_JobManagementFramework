@@ -1,0 +1,112 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCPowerCreator" Id="{e49d35f1-eac8-4a7a-ac81-58af9d64cecc}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCPowerCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis: REFERENCE TO AXIS_REF;
+	_override: LREAL := 100.0;
+	_enable_positive:	BOOL := TRUE; 
+	_enable_negative:	BOOL := TRUE;
+	_option : ST_PowerOptions;
+	_buffer_mode : MC_BufferMode;
+	_status : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{a300494e-4c4b-4b5a-b968-720d096df000}">
+      <Declaration><![CDATA[METHOD create_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future name*)
+	future_name	: STRING;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCPower;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FutureMCPower);
+_p_future^.future_name := future_name;
+_p_future^.set_parameters(_axis, _status);
+_p_future^.set_options(_enable_positive, _enable_negative, _override, _buffer_mode, _option);
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{9fd6631a-522f-4043-a177-993b0c9aa8fc}">
+      <Declaration><![CDATA[METHOD destroy_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future instance whtat you want to delete.*)
+	future	: jobmgmt.InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCPower;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_options" Id="{c98fe1a0-d780-444c-a3d7-5a90b0bbc16b}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	Enable_Positive:	BOOL; 
+	Enable_Negative:	BOOL;
+	Override:			LREAL := 100;
+	buffer_mode : MC_BufferMode;
+	option : ST_PowerOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_override := Override;
+_enable_positive := Enable_Positive;
+_enable_negative := Enable_Negative;
+_buffer_mode := buffer_mode;
+_option := option;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{f89aafbd-4c5a-459e-b519-0fa9196fc7ba}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+	status : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_status := status;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCPowerCreator">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPowerCreator.create_future">
+      <LineId Id="11" Count="2" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPowerCreator.destroy_future">
+      <LineId Id="9" Count="4" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPowerCreator.set_options">
+      <LineId Id="17" Count="1" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPowerCreator.set_parameters">
+      <LineId Id="27" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

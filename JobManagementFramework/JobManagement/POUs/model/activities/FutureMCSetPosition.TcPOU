@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCSetPosition" Id="{d61bff14-9e58-4f9b-b583-353e0d0667c2}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureMCSetPosition EXTENDS FB_AbstructFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_fb_set_position	: MC_SetPosition;
+	_mc_reset	: MC_Reset;
+	_axis: REFERENCE TO AXIS_REF;
+	_position	: MC_LREAL;
+	_mode		: BOOL;
+	_option 	: ST_SetPositionOptions;
+	_error_id :UDINT;
+	_exec_state : UDINT;
+	_reset_state : UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="abort" Id="{e6c82ab6-3275-49eb-8d56-5c988eed9a96}">
+      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="error_reset" Id="{77846a94-685e-459c-8b27-d7ec9118c6c4}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+VAR_INST
+	watch_delay  : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_error_id := _fb_set_position.ErrorID;
+IF _error_id <> 0 THEN
+	CASE _reset_state OF
+		0:
+			_mc_reset(Axis := _axis, Execute := FALSE);
+			_mc_reset(Axis:= _axis, Execute := TRUE );
+			watch_delay(IN := FALSE);
+			_reset_state := 1;
+		1:
+			IF _mc_reset.Done THEN
+				_mc_reset(Axis:= _axis,Execute := FALSE);
+				_reset_state := 2;
+			END_IF
+		2:
+			error_reset := TRUE;
+			watch_delay(IN := TRUE, PT := T#1S);
+			IF watch_delay.Q THEN
+				_reset_state := 0;
+			END_IF
+	END_CASE
+	
+	IF _error_id = 0 THEN
+		_reset_state := 0;
+	END_IF
+ELSE
+	error_reset := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="execute" Id="{6e6f1e42-98ad-4c1b-b340-999b8148b2fe}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+CASE _exec_state OF
+	0:
+		_fb_set_position( Axis:= _axis, Execute := FALSE);
+		_fb_set_position(
+				Axis := _axis,
+				Execute := TRUE, 
+				Position := _position,
+				Mode := _mode,
+				Options := _option
+		);
+		_exec_state := 1;
+	1:
+		IF _fb_set_position.Busy THEN
+			_fb_set_position( Axis:= _axis, Execute := FALSE);
+		END_IF
+END_CASE
+
+_error_id := _fb_set_position.ErrorID;
+execute := _fb_set_position.Done OR _fb_set_position.Error;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{20b0fd3a-f8ec-456d-a95d-c961ca55e36b}">
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_exec_state := 0;
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nErrorID" Id="{fef29eb0-8ad6-4992-85bd-77e274eb424f}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{0dff01db-06ac-495c-b6df-d8ea0fdd89b7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{4464918e-fa0d-4365-85fa-d4a5a40de5ec}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="set_options" Id="{b7b03d5a-6cb0-4d9b-9472-cf91ae3da253}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	mode		: BOOL;
+	option 	: ST_SetPositionOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_mode := mode;
+_option := option;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{fa949765-5486-4de3-b42b-76d600f91797}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis: REFERENCE TO AXIS_REF;
+	position	: MC_LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_position := position;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCSetPosition">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPosition.abort">
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPosition.error_reset">
+      <LineId Id="32" Count="0" />
+      <LineId Id="4" Count="4" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="9" Count="3" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="38" Count="2" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="17" Count="2" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPosition.execute">
+      <LineId Id="109" Count="2" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="60" Count="1" />
+      <LineId Id="106" Count="0" />
+      <LineId Id="104" Count="1" />
+      <LineId Id="107" Count="1" />
+      <LineId Id="115" Count="0" />
+      <LineId Id="113" Count="1" />
+      <LineId Id="116" Count="1" />
+      <LineId Id="112" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="100" Count="0" />
+      <LineId Id="98" Count="0" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPosition.init">
+      <LineId Id="3" Count="1" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPosition.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPosition.nErrorID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPosition.set_options">
+      <LineId Id="5" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCSetPosition.set_parameters">
+      <LineId Id="26" Count="0" />
+      <LineId Id="29" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

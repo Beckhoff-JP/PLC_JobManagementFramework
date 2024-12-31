@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCInchingCreator" Id="{582e37c1-13a2-42c6-a3c0-ed5154ec732a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCInchingCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis: REFERENCE TO AXIS_REF;
+	_direction : BOOL;
+	_position : MC_LREAL;
+	_velocity : MC_LREAL;
+	_acceleration: MC_LREAL;
+	_deceleration: MC_LREAL;
+	_jerk		: MC_LREAL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{136a92c4-cde3-4914-bbf5-6f1ac6a03ce3}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD create_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future name*)
+	future_name	: STRING;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCInching;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FutureMCInching);
+_p_future^.future_name := future_name;
+_p_future^.set_parameters(_axis, _direction, _position, _velocity);
+_p_future^.set_options(_acceleration, _deceleration,_jerk );
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{08a85139-a567-492a-8bc3-42c0851750f5}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD destroy_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future instance whtat you want to delete.*)
+	future	: jobmgmt.InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCInching;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_options" Id="{7b340cd0-1281-4d78-931c-99c96d0a2d7a}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	acceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	deceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	jerk			: MC_LREAL;		// Set jerk in case let moving axis halt.
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_acceleration := acceleration;
+_deceleration := deceleration;
+_jerk := jerk;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{8b279f28-6f76-4d27-84c6-2f88d9ad13b2}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+	direction : BOOL;
+	position : MC_LREAL;
+	velocity : MC_LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_direction := direction;
+_position := position;
+_velocity := velocity;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCInchingCreator">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInchingCreator.create_future">
+      <LineId Id="11" Count="2" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInchingCreator.destroy_future">
+      <LineId Id="9" Count="4" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInchingCreator.set_options">
+      <LineId Id="24" Count="1" />
+      <LineId Id="19" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInchingCreator.set_parameters">
+      <LineId Id="80" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="81" Count="1" />
+      <LineId Id="56" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

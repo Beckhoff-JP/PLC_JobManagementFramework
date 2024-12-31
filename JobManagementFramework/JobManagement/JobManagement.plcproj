@@ -110,6 +110,78 @@
     <Compile Include="POUs\model\activities\FutureCounterBlinkCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\activities\FutureMCGearIn.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCGearInCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCGearOut.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCGearOutCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCHalt.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCHaltCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCInching.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCInchingCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCMoveAbsolute.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCMoveAbsoluteCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCMoveRelative.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCMoveRelativeCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCMoveVelocity.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCMoveVelocityCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCPower.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCPowerCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCReset.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCResetCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCSetPosition.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCSetPositionCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCStop.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureMCStopCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureSleep.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FutureSleepCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\activities\FutureTimerBlink.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -230,6 +302,9 @@
       <Namespace>VisuNativeControl</Namespace>
       <SystemLibrary>true</SystemLibrary>
       <ResolverGuid>2717eb6a-dd07-4c66-8d8d-cacebd7b18ae</ResolverGuid>
+    </PlaceholderReference>
+    <PlaceholderReference Include="Tc2_MC2">
+      <DefaultResolution>Tc2_MC2, * (Beckhoff Automation GmbH)</DefaultResolution>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Standard">
       <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>

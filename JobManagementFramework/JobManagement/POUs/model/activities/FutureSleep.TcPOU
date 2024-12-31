@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureSleep" Id="{8bbe7517-0dc1-4100-a111-c3897157da4f}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureSleep EXTENDS FB_AbstructFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_sleep_timer : TON;
+	_sleep_time: TIME;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="execute" Id="{4b6e240c-c380-4850-b7b5-8246072f3874}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_sleep_timer(IN := TRUE, PT := _sleep_time);
+execute := _sleep_timer.Q;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{831745f4-91e6-4abd-9355-99a8e99d9e4c}">
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_sleep_timer(IN := FALSE);
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="sleep_time" Id="{71da21e7-f780-46a0-ad0f-fb4e16fd8fdd}">
+      <Declaration><![CDATA[PROPERTY sleep_time : TIME]]></Declaration>
+      <Get Name="Get" Id="{91ade5c2-e189-47d3-93a8-6aae32042fdd}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[sleep_time := _sleep_timer.ET;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{d982e31a-7825-4a5f-8b8d-0f1de0afd6b4}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_sleep_time := sleep_time;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="FutureSleep">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureSleep.execute">
+      <LineId Id="3" Count="1" />
+    </LineIds>
+    <LineIds Name="FutureSleep.init">
+      <LineId Id="3" Count="1" />
+    </LineIds>
+    <LineIds Name="FutureSleep.sleep_time.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureSleep.sleep_time.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

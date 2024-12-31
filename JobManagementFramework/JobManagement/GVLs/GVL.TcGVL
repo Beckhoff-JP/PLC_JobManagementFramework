@@ -7,6 +7,7 @@ VAR_GLOBAL
 	parallel_job_container_creator : FB_ParallelJobContainerCreator;
 	queue_job_container_creator : FB_QueueJobContainerCreator;
 	parallel_queue_job_container_creator : FB_ParallelQueueJobContainerCreator;
+	axes	: ARRAY [1..1] OF AXIS_REF;
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

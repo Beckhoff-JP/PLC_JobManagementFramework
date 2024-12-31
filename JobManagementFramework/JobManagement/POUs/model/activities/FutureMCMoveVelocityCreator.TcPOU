@@ -1,0 +1,115 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCMoveVelocityCreator" Id="{0226b6a5-9c40-45b1-9ab7-aa62cfa21d1f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCMoveVelocityCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis: REFERENCE TO AXIS_REF;
+	_velocity : MC_LREAL;
+	_direction : MC_DIRECTION;
+	_acceleration: MC_LREAL;
+	_deceleration: MC_LREAL;
+	_jerk		: MC_LREAL;
+	_option : ST_MoveOptions;
+	_buffer_mode : MC_BufferMode ;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{0751c4b9-03f9-41bd-94c7-47223d65e5df}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD create_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future name*)
+	future_name	: STRING;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCMoveVelocity;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FutureMCMoveVelocity);
+_p_future^.future_name := future_name;
+_p_future^.set_parameters(_axis, _direction, _velocity, _acceleration, _deceleration,_jerk ,_buffer_mode);
+_p_future^.set_options( _option);
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{2ed67d94-ab07-41da-b34d-76a5fc1863aa}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD destroy_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future instance whtat you want to delete.*)
+	future	: jobmgmt.InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCMoveVelocity;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_options" Id="{8d3c894a-d134-433c-898c-4d0e2c3dfd12}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	option : ST_MoveOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_option := option;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{fa8a2bdb-5977-4ec1-9ce2-06e24b390f78}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+	direction : MC_DIRECTION;
+	velocity : MC_LREAL;
+	acceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	deceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	jerk			: MC_LREAL;		// Set jerk in case let moving axis halt.
+	buffer_mode : MC_BufferMode;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_velocity := velocity;
+_direction := direction;
+_acceleration := acceleration;
+_deceleration := deceleration;
+_jerk := jerk;
+_buffer_mode := buffer_mode;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCMoveVelocityCreator">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocityCreator.create_future">
+      <LineId Id="11" Count="2" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocityCreator.destroy_future">
+      <LineId Id="9" Count="4" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocityCreator.set_options">
+      <LineId Id="19" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCMoveVelocityCreator.set_parameters">
+      <LineId Id="80" Count="0" />
+      <LineId Id="82" Count="0" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="83" Count="2" />
+      <LineId Id="56" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

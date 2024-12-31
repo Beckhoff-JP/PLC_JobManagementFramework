@@ -1,0 +1,242 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCInching" Id="{2d0d01ce-3012-43a6-9be6-fc6a356527f7}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureMCInching EXTENDS FB_AbstructFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_mc_jog	: MC_Jog;
+	_mc_reset	: MC_Reset;
+	_abort_executor		: FB_Executor;
+	_axis: REFERENCE TO AXIS_REF;
+	_direction : BOOL;
+	_position : MC_LREAL;
+	_velocity : MC_LREAL;
+	_acceleration: MC_LREAL;
+	_deceleration: MC_LREAL;
+	_jerk		: MC_LREAL;
+	_mode : E_JogMode ;
+	_error_id :UDINT;
+	_reset_state : UINT;
+	step : UINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="abort" Id="{23a43b24-bc41-446f-ba48-860846a4109b}">
+      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
+VAR_INST
+	future_halt : FutureMcHalt;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[abort := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="error_reset" Id="{ba0c1137-f841-47ad-a273-1d21c49fdbdd}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+VAR_INST
+	watch_delay  : TON;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_error_id := _mc_jog.ErrorID;
+IF _error_id <> 0 THEN
+	CASE _reset_state OF
+		0:
+			_mc_reset(Axis := _axis, Execute := FALSE);
+			_mc_reset(Axis:= _axis, Execute := TRUE );
+			watch_delay(IN := FALSE);
+			_reset_state := 1;
+		1:
+			IF _mc_reset.Busy THEN
+				_mc_reset(Axis:= _axis,Execute := FALSE);
+				_reset_state := 2;
+			END_IF
+		2:
+			IF _error_id = 0 THEN
+				error_reset := TRUE;
+				_reset_state := 0;
+			ELSE
+				watch_delay(IN := TRUE, PT := T#1S);
+				IF watch_delay.Q THEN
+					error_reset := TRUE;
+					_reset_state := 0;
+				END_IF
+			END_IF
+	END_CASE
+	
+	IF _error_id = 0 THEN
+		_reset_state := 0;
+	END_IF
+ELSE
+	error_reset := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="execute" Id="{5af710ba-7d2f-4925-b8ea-ddc87569205a}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[CASE step OF
+	0:
+		_mc_jog(
+			JogForward := _direction,
+			JogBackwards := NOT _direction,
+			Axis := _axis,
+			Position := _position,
+			Velocity := _velocity,
+			Acceleration := _acceleration,
+			Deceleration := _deceleration,
+			Jerk := _jerk,
+			Mode := E_JogMode.MC_JOGMODE_INCHING
+		);
+		IF _mc_jog.Done OR _mc_jog.Error THEN
+			step := 1;
+		END_IF
+
+	1:
+		_mc_jog(JogForward := FALSE, JogBackwards := FALSE, Axis := _axis);
+		execute := TRUE;
+		_error_id := _mc_jog.ErrorID;		
+END_CASE
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{631c5c17-d70c-4519-a09b-d32b82adcea0}">
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
+
+VAR
+	axis: INT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_reset_state := 0;
+_error_id := _mc_jog.ErrorID;
+step := 0;
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nErrorID" Id="{b433b11e-449b-410e-af2f-363681da691e}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{c626f03a-dd6a-4e73-9760-b26289a6edf3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{1e02bef9-7ff3-4433-ac1a-74e3b19fc7f9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="set_options" Id="{4df2ee6c-677d-4f34-a6c1-e171e6cf333e}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	acceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	deceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	jerk			: MC_LREAL;		// Set jerk in case let moving axis halt.
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_acceleration := acceleration;
+_deceleration := deceleration;
+_jerk := jerk;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{e9984d08-137c-4257-88d6-0495598af661}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+	direction : BOOL;
+	position : MC_LREAL;
+	velocity : MC_LREAL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_direction := direction;
+_position := position;
+_velocity := velocity;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCInching">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.abort">
+      <LineId Id="26" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.error_reset">
+      <LineId Id="32" Count="0" />
+      <LineId Id="4" Count="4" />
+      <LineId Id="30" Count="0" />
+      <LineId Id="9" Count="3" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="45" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="25" Count="0" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="39" Count="1" />
+      <LineId Id="44" Count="0" />
+      <LineId Id="14" Count="2" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="34" Count="0" />
+      <LineId Id="17" Count="2" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.execute">
+      <LineId Id="160" Count="0" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="165" Count="10" />
+      <LineId Id="183" Count="0" />
+      <LineId Id="185" Count="0" />
+      <LineId Id="184" Count="0" />
+      <LineId Id="180" Count="0" />
+      <LineId Id="176" Count="0" />
+      <LineId Id="188" Count="0" />
+      <LineId Id="186" Count="0" />
+      <LineId Id="178" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.init">
+      <LineId Id="6" Count="0" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.nErrorID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.set_options">
+      <LineId Id="24" Count="1" />
+      <LineId Id="19" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.set_parameters">
+      <LineId Id="80" Count="0" />
+      <LineId Id="90" Count="0" />
+      <LineId Id="81" Count="1" />
+      <LineId Id="56" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

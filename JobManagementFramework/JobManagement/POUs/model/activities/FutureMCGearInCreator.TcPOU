@@ -1,0 +1,128 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCGearInCreator" Id="{ec12e6f7-31fe-4ebb-8daa-92249b22cc18}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCGearInCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis_main: REFERENCE TO AXIS_REF;
+	_axis_sub: REFERENCE TO AXIS_REF;
+	_ratio_numerator	: MC_LREAL := 1;
+	_ratio_denominator	: UINT := 1;
+	_acceleration: MC_LREAL;
+	_deceleration: MC_LREAL;
+	_jerk		: MC_LREAL;
+	_option : ST_GearInOptions;
+	_buffer_mode : MC_BufferMode;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{9a1595ce-10e6-46af-8b57-9d1092945d8c}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD create_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future name*)
+	future_name	: STRING;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCGearIn;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FutureMCGearIn);
+_p_future^.future_name := future_name;
+_p_future^.set_parameters(_axis_main, _axis_sub);
+_p_future^.set_options(_ratio_numerator, _ratio_denominator, _acceleration, _deceleration,_jerk ,_buffer_mode, _option);
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{2dfe107b-321e-4399-ae3e-b1c546cb96c7}">
+      <Declaration><![CDATA[{warning 'add method implementation '}
+METHOD destroy_future : jobmgmt.InterfaceFuture
+VAR_INPUT
+	(* Specify future instance whtat you want to delete.*)
+	future	: jobmgmt.InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureMCGearIn;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_options" Id="{ca819ce9-3b4a-4c83-96d0-708fbd6aa2c8}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	ratio_numerator	: MC_LREAL;
+	ratio_denominator	: UINT;
+	acceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	deceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	jerk			: MC_LREAL;		// Set jerk in case let moving axis halt.
+	buffer_mode : MC_BufferMode;
+	option : ST_GearInOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_ratio_numerator	:= ratio_numerator;
+_ratio_denominator	:= ratio_denominator;
+_acceleration := acceleration;
+_deceleration := deceleration;
+_jerk := jerk;
+_buffer_mode := buffer_mode;
+_option := option;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{7b80fb0d-393b-47eb-9bff-809dc7f3afb7}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis_main : REFERENCE TO AXIS_REF;
+	axis_sub : REFERENCE TO AXIS_REF;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis_main REF= axis_main;
+_axis_sub REF= axis_sub;
+
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCGearInCreator">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearInCreator.create_future">
+      <LineId Id="11" Count="2" />
+      <LineId Id="22" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearInCreator.destroy_future">
+      <LineId Id="9" Count="4" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearInCreator.set_options">
+      <LineId Id="36" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="38" Count="1" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="27" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCGearInCreator.set_parameters">
+      <LineId Id="40" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

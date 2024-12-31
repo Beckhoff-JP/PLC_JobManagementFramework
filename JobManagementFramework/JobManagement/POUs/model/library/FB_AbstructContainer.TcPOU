@@ -14,7 +14,7 @@ VAR
 	_auto_start : BOOL := TRUE;
 	_start :BOOL;
 	_abort : BOOL;
-	_total_futures: UINT;
+	_num_of_jobs: UINT;
 	current_executing_future_id : UINT;
 	current_executing_future : InterfaceFuture;
 	_continuous_mode : BOOL;
@@ -45,7 +45,7 @@ VAR_INST
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_index := _index + 1;
-IF _index > _total_futures THEN
+IF _index > _num_of_jobs THEN
 	_index := 0;
 END_IF
 _index_generator_ := _index;
@@ -136,7 +136,7 @@ VAR
 	future : InterfaceFuture;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
+        <ST><![CDATA[IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	future := creator.create_future(future_name);
 	create_job REF= THIS^.spawn_job(future);
 	IF __ISVALIDREF(create_job) THEN
@@ -283,14 +283,14 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Property Name="num_of_future" Id="{67188b4f-1a89-4b9f-b67d-5081688517b7}">
-      <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
+    <Property Name="num_of_jobs" Id="{67188b4f-1a89-4b9f-b67d-5081688517b7}">
+      <Declaration><![CDATA[PROPERTY num_of_jobs : UINT]]></Declaration>
       <Get Name="Get" Id="{ab866391-1024-4dc6-8119-247b033456f6}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[num_of_future := _total_futures;]]></ST>
+          <ST><![CDATA[num_of_jobs := _num_of_jobs;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -315,7 +315,7 @@ END_VAR]]></Declaration>
         <ST><![CDATA[_delete_counter := 0;
 REPEAT
 	i := _index_generator_();
-	IF _total_futures >= i AND i > 0 THEN
+	IF _num_of_jobs >= i AND i > 0 THEN
 		IF _executors[i] <> 0 THEN
 			IF _executors[i]^.reset(deep) THEN
 				__DELETE(_executors[i]);
@@ -326,8 +326,8 @@ REPEAT
 UNTIL
 	i = 0
 END_REPEAT
-_total_futures := _total_futures - _delete_counter;
-reset := _total_futures = 0;
+_num_of_jobs := _num_of_jobs - _delete_counter;
+reset := _num_of_jobs = 0;
 ]]></ST>
       </Implementation>
     </Method>
@@ -491,7 +491,7 @@ END_VAR
     <LineIds Name="FB_AbstructContainer.nErrorID.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <LineIds Name="FB_AbstructContainer.num_of_future.Get">
+    <LineIds Name="FB_AbstructContainer.num_of_jobs.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_AbstructContainer.quit">

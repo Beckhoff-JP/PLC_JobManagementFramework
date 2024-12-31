@@ -1,0 +1,172 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCStop" Id="{26698a42-81bf-4866-be85-711032f5993e}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureMCStop EXTENDS FB_AbstructFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis: REFERENCE TO AXIS_REF;
+	_mc_stop	: MC_Stop;
+	_mc_reset	: MC_Reset;
+	_deceleration: MC_LREAL;
+	_jerk		: MC_LREAL;
+	_option : ST_MoveOptions;
+	_error_id :UDINT;
+	_exec_state : UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="error_reset" Id="{b90342f2-8d7c-4ca3-8a9b-2fde84fe5763}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _error_id <> 0 THEN
+	CASE _exec_state OF
+		0:
+			_mc_reset(Axis := _axis, Execute := FALSE);
+			_mc_reset(Axis:= _axis, Execute := TRUE );
+			_exec_state := 1;
+		1:
+			IF _mc_reset.Busy THEN
+				_mc_reset(Axis:= _axis,Execute := FALSE);
+			END_IF
+	END_CASE
+	
+	_error_id := _mc_reset.ErrorID;
+	error_reset := _mc_reset.Done;
+ELSE
+	error_reset := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="execute" Id="{5489d85d-357c-45ed-aba8-a7ed50652b80}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+CASE _exec_state OF
+	0:
+		_mc_stop(axis := _axis, Execute := FALSE);
+		_mc_stop(
+			Axis:= _axis,
+			Execute := TRUE,
+			Jerk := _jerk,
+			Options := _option
+		);
+		_exec_state := 1;
+	1:
+		IF _mc_stop.Busy THEN
+			_mc_stop(Axis:= _axis,Execute := FALSE);
+		END_IF
+END_CASE
+
+_error_id := _mc_stop.ErrorID;
+execute := _mc_stop.Done OR _mc_stop.Error;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="init" Id="{195059ec-0713-4e59-80cc-d37c784c8773}">
+      <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_exec_state := 0;
+init := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nErrorID" Id="{c1a5a770-b4f2-4aa4-877b-4c6151f02bed}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{70263807-e80d-4f08-8fdf-cead688ef504}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{45d2374b-3748-46e9-970a-3c6220bcf56b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="set_options" Id="{d5b82e0f-9855-4e24-94e5-fe17a38beff1}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	option : ST_MoveOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_option := option;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{c2ef947b-5f79-4104-ada4-d1f1274db3dd}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+	deceleration	: MC_LREAL;		// Set deceleration in case let moving axis halt.
+	jerk			: MC_LREAL;		// Set jerk in case let moving axis halt.
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_deceleration := deceleration;
+_jerk := jerk;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCStop">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStop.error_reset">
+      <LineId Id="4" Count="12" />
+      <LineId Id="3" Count="0" />
+      <LineId Id="17" Count="2" />
+    </LineIds>
+    <LineIds Name="FutureMCStop.execute">
+      <LineId Id="111" Count="0" />
+      <LineId Id="107" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="127" Count="0" />
+      <LineId Id="126" Count="0" />
+      <LineId Id="129" Count="0" />
+      <LineId Id="125" Count="0" />
+      <LineId Id="131" Count="0" />
+      <LineId Id="130" Count="0" />
+      <LineId Id="132" Count="0" />
+      <LineId Id="137" Count="0" />
+      <LineId Id="135" Count="0" />
+      <LineId Id="121" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStop.init">
+      <LineId Id="6" Count="0" />
+      <LineId Id="4" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStop.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStop.nErrorID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStop.set_options">
+      <LineId Id="19" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCStop.set_parameters">
+      <LineId Id="40" Count="2" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

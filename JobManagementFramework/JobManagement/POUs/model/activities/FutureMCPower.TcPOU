@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="FutureMCPower" Id="{53bbc5ad-8cba-4d76-9354-ff6510473cd2}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FutureMCPower EXTENDS FB_AbstructFuture
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis: REFERENCE TO AXIS_REF;
+	_override: LREAL := 100.0;
+	_enable_positive:	BOOL := TRUE; 
+	_enable_negative:	BOOL := TRUE;
+	_fb_power	: MC_Power;
+	_mc_reset	: MC_Reset;
+	_option : ST_PowerOptions;
+	_buffer_mode : MC_BufferMode;
+	_error_id :UDINT;
+	_status : BOOL;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="error_reset" Id="{fbfcfc82-515e-4f7c-ae99-279462150b8a}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
+VAR_INST
+	_exec_state : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _error_id <> 0 THEN
+	CASE _exec_state OF
+		0:
+			_mc_reset(Axis := _axis, Execute := FALSE);
+			_mc_reset(Axis:= _axis, Execute := TRUE );
+			_exec_state := 1;
+		1:
+			IF _mc_reset.Busy THEN
+				_mc_reset(Axis:= _axis,Execute := FALSE);
+				error_reset := TRUE;
+			END_IF
+	END_CASE	
+	_error_id := _fb_power.ErrorID;
+ELSE
+	error_reset := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="execute" Id="{f127afa9-edb6-44ee-8a9c-b074dfb931e5}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_fb_power(
+	Axis:= _axis, 
+	Enable:= _status, 
+	Enable_Positive:= _enable_positive, 
+	Enable_Negative:= _enable_negative, 
+	Override:= _override, 
+	BufferMode:= _buffer_mode, 
+	Options:= _option, 
+);
+_error_id := _fb_power.ErrorID;
+execute := _status = _fb_Power.Status;
+	
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="nErrorID" Id="{c3c180c4-d69e-4a51-9c5f-b279b0d62fc4}">
+      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Get Name="Get" Id="{8d5bdd1d-5bd8-4346-a4c9-03a10b43c4fe}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{9e9054ff-5773-4183-aecd-61fc3fb4858d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="set_options" Id="{93406fea-fe89-4d4b-b9dc-dafbd821cdd6}">
+      <Declaration><![CDATA[METHOD set_options : BOOL
+VAR_INPUT
+	Enable_Positive:	BOOL; 
+	Enable_Negative:	BOOL;
+	Override:			LREAL := 100;
+	buffer_mode : MC_BufferMode;
+	option : ST_PowerOptions;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_override := Override;
+_enable_positive := Enable_Positive;
+_enable_negative := Enable_Negative;
+_buffer_mode := buffer_mode;
+_option := option;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="set_parameters" Id="{c4fee9f1-f0d8-457c-bc4c-46597f9f2a6d}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+	axis : REFERENCE TO AXIS_REF;
+	status : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_axis REF= axis;
+_status := status;
+]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FutureMCPower">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.error_reset">
+      <LineId Id="4" Count="8" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="13" Count="1" />
+      <LineId Id="16" Count="3" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.execute">
+      <LineId Id="60" Count="0" />
+      <LineId Id="105" Count="5" />
+      <LineId Id="67" Count="0" />
+      <LineId Id="83" Count="0" />
+      <LineId Id="116" Count="1" />
+      <LineId Id="96" Count="0" />
+      <LineId Id="3" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.nErrorID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.set_options">
+      <LineId Id="17" Count="1" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.set_parameters">
+      <LineId Id="27" Count="0" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="17" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

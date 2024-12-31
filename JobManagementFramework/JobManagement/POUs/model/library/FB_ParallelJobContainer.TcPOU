@@ -23,16 +23,16 @@ VAR
 	_parent_future_id :STRING;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF __ISVALIDREF(executor) AND _total_futures < ParamFuturesLib.MAX_TASK_NUM THEN
+        <ST><![CDATA[IF __ISVALIDREF(executor) AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	executor.init();
-	_total_futures := _total_futures + 1;
-	executor.id := UINT_TO_STRING(_total_futures);
-	_executors[_total_futures] := ADR(executor);
+	_num_of_jobs := _num_of_jobs + 1;
+	executor.id := UINT_TO_STRING(_num_of_jobs);
+	_executors[_num_of_jobs] := ADR(executor);
 	IF  __ISVALIDREF(_executor) THEN
 		// Propergate task creator object
-		_executors[_total_futures]^.job_event_reporter := _executor.job_event_reporter;
-		_executors[_total_futures]^.parent_executor REF= _executor;
-		_executors[_total_futures]^.upstream_aborting := _executor.upstream_aborting;
+		_executors[_num_of_jobs]^.job_event_reporter := _executor.job_event_reporter;
+		_executors[_num_of_jobs]^.parent_executor REF= _executor;
+		_executors[_num_of_jobs]^.upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
 	END_IF
 END_IF
@@ -46,7 +46,7 @@ VAR_INST
 	_index : UINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF _index > _total_futures THEN
+        <ST><![CDATA[IF _index > _num_of_jobs THEN
 	_index := 0;
 ELSE
 	_index := _index + 1;
@@ -88,12 +88,12 @@ VAR_INST
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF _total_futures = 0 THEN
+        <ST><![CDATA[IF _num_of_jobs = 0 THEN
 	RETURN;
 END_IF
 
 complete_all_task := TRUE;
-FOR i := 1 TO _total_futures DO
+FOR i := 1 TO _num_of_jobs DO
 	// Execute all methods
 	IF _executors[i]^.current_state < E_FutureExecutionState.finish THEN
 		IF NOT _executors[i]^.execute() THEN
@@ -114,7 +114,7 @@ FOR i := 1 TO _total_futures DO
 	END_IF
 END_FOR
 
-current_executing_future := _executors[_total_futures]^.future;
+current_executing_future := _executors[_num_of_jobs]^.future;
 
 execute := complete_all_task;
 ]]></ST>
@@ -154,7 +154,7 @@ VAR_INST
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[complete_all_task := TRUE;
-FOR i := 1 TO _total_futures DO
+FOR i := 1 TO _num_of_jobs DO
 	IF NOT FAILED(_executors[i]^.nErrorID) THEN
 		_executors[i]^.execute();
 	ELSE

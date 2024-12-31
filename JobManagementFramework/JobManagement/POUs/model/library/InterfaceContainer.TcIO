@@ -51,9 +51,9 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Property Name="num_of_future" Id="{f8eb50f2-28cd-44d4-9501-560037cfcc71}">
-      <Declaration><![CDATA[PROPERTY num_of_future : UINT]]></Declaration>
-      <Get Name="Get" Id="{9e329e0b-c0dd-4e74-8ae7-beef2f01ea63}">
+    <Property Name="num_of_jobs" Id="{d2ea81f8-5b50-4206-8ac4-a659b005d749}">
+      <Declaration><![CDATA[PROPERTY num_of_jobs : UINT]]></Declaration>
+      <Get Name="Get" Id="{d6c36387-8265-4426-b60b-3980556d0e1c}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
