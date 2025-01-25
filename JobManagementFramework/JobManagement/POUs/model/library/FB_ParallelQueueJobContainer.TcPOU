@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
   <POU Name="FB_ParallelQueueJobContainer" Id="{d5fc8dd4-0f17-45e0-b0bb-86aca529f22f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_ParallelQueueJobContainer EXTENDS FB_AbstructContainer
@@ -185,7 +185,7 @@ END_VAR
 REPEAT
 	_executor REF= THIS^.each_executor;
 	IF __ISVALIDREF(_executor) THEN
-		_executor.job_event_reporter := _executor.job_event_reporter;
+		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF

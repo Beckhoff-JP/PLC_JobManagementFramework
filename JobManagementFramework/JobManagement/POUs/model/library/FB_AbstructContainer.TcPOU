@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
   <POU Name="FB_AbstructContainer" Id="{46d2dd9f-d184-4cfa-9aff-69a59f15f058}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
 VAR_INPUT
@@ -257,7 +257,7 @@ END_VAR]]></Declaration>
 REPEAT
 	_executor REF= THIS^.each_executor;
 	IF __ISVALIDREF(_executor) THEN
-		_executor.job_event_reporter := _executor.job_event_reporter;
+		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF
