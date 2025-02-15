@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
   <POU Name="FB_AbstructContainer" Id="{46d2dd9f-d184-4cfa-9aff-69a59f15f058}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
 VAR_INPUT
@@ -318,7 +318,9 @@ REPEAT
 	IF _num_of_jobs >= i AND i > 0 THEN
 		IF _executors[i] <> 0 THEN
 			IF _executors[i]^.reset(deep) THEN
-				__DELETE(_executors[i]);
+				IF NOT _executors[i]^.persistent_job THEN
+					__DELETE(_executors[i]);
+				END_IF
 				_delete_counter := _delete_counter + 1;
 			END_IF
 		END_IF
@@ -502,7 +504,10 @@ END_VAR
       <LineId Id="49" Count="0" />
       <LineId Id="94" Count="0" />
       <LineId Id="87" Count="0" />
-      <LineId Id="51" Count="2" />
+      <LineId Id="51" Count="1" />
+      <LineId Id="103" Count="0" />
+      <LineId Id="53" Count="0" />
+      <LineId Id="104" Count="0" />
       <LineId Id="71" Count="0" />
       <LineId Id="55" Count="0" />
       <LineId Id="88" Count="0" />
