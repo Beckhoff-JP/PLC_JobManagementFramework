@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
   <POU Name="FB_Executor" Id="{09518444-1d1d-452e-9e8f-647b2f8c5e33}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_Executor
@@ -48,14 +48,15 @@ END_VAR
    	_start := FALSE;
 	_passive_abort := TRUE;	
 	THIS^.execute();
-END_IF
-
-IF 	_passive_abort AND _state = E_FutureExecutionState.abort THEN
-	abort := NOT _aborting;
+	abort := FALSE;
 ELSE
-	abort := TRUE;
-END_IF
-]]></ST>
+	IF _state = E_FutureExecutionState.abort THEN
+		THIS^.execute();
+		abort := NOT _aborting;
+	ELSE
+		abort := TRUE;
+	END_IF
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="busy" Id="{4599679c-a89e-4edf-a42c-abccebfc0bd6}">
@@ -696,12 +697,9 @@ END_VAR
       <LineId Id="87" Count="0" />
       <LineId Id="17" Count="0" />
       <LineId Id="119" Count="0" />
-      <LineId Id="10" Count="0" />
-      <LineId Id="19" Count="0" />
-      <LineId Id="18" Count="0" />
-      <LineId Id="21" Count="0" />
-      <LineId Id="20" Count="0" />
-      <LineId Id="22" Count="1" />
+      <LineId Id="150" Count="3" />
+      <LineId Id="164" Count="0" />
+      <LineId Id="154" Count="2" />
       <LineId Id="111" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.busy.Get">
