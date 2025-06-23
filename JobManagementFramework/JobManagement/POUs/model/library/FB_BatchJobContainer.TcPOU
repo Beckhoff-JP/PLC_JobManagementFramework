@@ -21,6 +21,7 @@ VAR_INPUT
 END_VAR
 VAR
 	_parent_future_id: STRING;	
+	i : UINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF __ISVALIDREF(executor) AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
@@ -30,7 +31,11 @@ END_VAR]]></Declaration>
 	_executors[_num_of_jobs] := ADR(executor);
 	IF  __ISVALIDREF(_executor) THEN
 		// Propergate task creator object
-		_executors[_num_of_jobs]^.job_event_reporter := _executor.job_event_reporter;
+		FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming 10 is the max number of event reporters
+		    IF executor._job_event_reporters[i] <> 0 THEN // Source observers from the 'executor' argument
+		        _executors[_num_of_jobs]^.Subscribe(executor._job_event_reporters[i]);
+		    END_IF
+		END_FOR
 		_executors[_num_of_jobs]^.parent_executor REF= _executor;
 		_executors[_num_of_jobs]^.upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
@@ -117,13 +122,18 @@ current_executing_future := _executors[current_executing_future_id]^.future;
 VAR
 	_executor : REFERENCE TO FB_Executor;
 	_init_done : BOOL;
+	i : UINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_init_done := TRUE;
 REPEAT
 	_executor REF= THIS^.each_executor;
 	IF __ISVALIDREF(_executor) THEN
-		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
+		FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming 10 is the max number of event reporters
+		    IF THIS^._executor._job_event_reporters[i] <> 0 THEN
+		        _executor.Subscribe(THIS^._executor._job_event_reporters[i]);
+		    END_IF
+		END_FOR
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF

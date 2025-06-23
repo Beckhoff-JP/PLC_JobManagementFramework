@@ -35,7 +35,11 @@ IF __ISVALIDREF(executor) AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 
 	// Get parent tssk id
 	IF  __ISVALIDREF(_executor) THEN
-		_executors[nWriteIndex]^.job_event_reporter := _executor.job_event_reporter;
+		FOR obs_loop_idx := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
+            IF executor._job_event_reporters[obs_loop_idx] <> 0 THEN
+                _executors[nWriteIndex]^.Subscribe(executor._job_event_reporters[obs_loop_idx]);
+            END_IF
+        END_FOR
 		_executors[nWriteIndex]^.parent_executor REF= _executor;
 		_executors[nWriteIndex]^.upstream_aborting := _executor.upstream_aborting;
 	END_IF
@@ -238,7 +242,11 @@ END_VAR
 REPEAT
 	_executor REF= THIS^.each_executor;
 	IF __ISVALIDREF(_executor) THEN
-		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
+		FOR init_loop_idx := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
+            IF THIS^._executor._job_event_reporters[init_loop_idx] <> 0 THEN
+                _executor.Subscribe(THIS^._executor._job_event_reporters[init_loop_idx]);
+            END_IF
+        END_FOR
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF

@@ -65,7 +65,7 @@ END_VAR
 	executor.upstream_aborting := FALSE;
 	executor.create_container(ContainerType.PARALLEL_QUEUE,'BASE');
 	executor.continuous_mode := TRUE;
-	executor.job_event_reporter := fbObserver;
+	executor.Subscribe(fbObserver);
 	//actual_job REF= executor.children.create_container(ContainerType.QUEUE, 'Batch Container');
 	//actual_job.continuous_mode := TRUE;
 END_IF

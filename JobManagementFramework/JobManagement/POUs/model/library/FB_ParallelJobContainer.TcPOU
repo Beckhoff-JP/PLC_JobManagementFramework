@@ -30,7 +30,11 @@ END_VAR]]></Declaration>
 	_executors[_num_of_jobs] := ADR(executor);
 	IF  __ISVALIDREF(_executor) THEN
 		// Propergate task creator object
-		_executors[_num_of_jobs]^.job_event_reporter := _executor.job_event_reporter;
+		FOR obs_loop_idx := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
+            IF executor._job_event_reporters[obs_loop_idx] <> 0 THEN
+                _executors[_num_of_jobs]^.Subscribe(executor._job_event_reporters[obs_loop_idx]);
+            END_IF
+        END_FOR
 		_executors[_num_of_jobs]^.parent_executor REF= _executor;
 		_executors[_num_of_jobs]^.upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
@@ -132,7 +136,11 @@ END_VAR
 REPEAT
 	_executor REF= THIS^.each_executor;
 	IF __ISVALIDREF(_executor) THEN
-		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
+		FOR init_loop_idx := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
+            IF THIS^._executor._job_event_reporters[init_loop_idx] <> 0 THEN
+                _executor.Subscribe(THIS^._executor._job_event_reporters[init_loop_idx]);
+            END_IF
+        END_FOR
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF

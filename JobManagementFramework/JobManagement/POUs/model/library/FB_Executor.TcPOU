@@ -23,7 +23,7 @@ VAR
 	_aborting :BOOL;
 	_quitting :BOOL;
 	_interface_container : InterfaceContainer := 0;
-	_job_event_reporter: InterfaceObserver;
+	_job_event_reporters : ARRAY[1..ParamFuturesLib.MAX_JOB_EVENT_REPORTERS] OF InterfaceObserver;
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
 	_parent_executor : REFERENCE TO FB_Executor REF= 0;
@@ -189,20 +189,25 @@ END_VAR
       <Declaration><![CDATA[METHOD error_reset : BOOL
 VAR_INPUT
 END_VAR
+VAR
+	i_err_rst : INT;
+END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _future <> 0 THEN
 	IF _future.error_reset() THEN
 		error_reset := TRUE;
-		IF _job_event_reporter <> 0 THEN
-			_job_event_reporter.subscribe_job_event(
-						subject := 'ERROR_RESET',
-						old_state := _last_state,
-						new_state := _state,
-						record_time := F_GetSystemTime(),
-						executor := THIS^
-				);
-		END_IF
+		FOR i_err_rst := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
+			IF _job_event_reporters[i_err_rst] <> 0 THEN
+				_job_event_reporters[i_err_rst].subscribe_job_event(
+							subject := 'ERROR_RESET',
+							old_state := _last_state,
+							new_state := _state,
+							record_time := F_GetSystemTime(),
+							executor := THIS^
+					);
+			END_IF
+		END_FOR
 	ELSE
 		error_reset := FALSE;
 	END_IF
@@ -226,6 +231,9 @@ VAR
 	_executor : REFERENCE TO FB_Executor;
 	start_all_children : BOOL;
 	exe: INT;
+	i_check : INT;
+	i_call : INT;
+	bAllReportedSuccessfully : BOOL;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _future = 0 THEN
@@ -332,24 +340,39 @@ IF _state <> _state_mem THEN
 		_quitting := TRUE;
 	END_IF
 		
-	IF _job_event_reporter <> 0 AND _state >= E_FutureExecutionState.idle AND _state <= E_FutureExecutionState.finish THEN
-		// reporter
-		_logging := TRUE;
+	// Check if any reporter is assigned and if the state is reportable
+	IF _state >= E_FutureExecutionState.idle AND _state <= E_FutureExecutionState.finish THEN
+		FOR i_check := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
+			IF _job_event_reporters[i_check] <> 0 THEN
+				_logging := TRUE;
+				EXIT; // Found a reporter, set logging and exit loop
+			END_IF
+		END_FOR
 	END_IF
 END_IF
 
 _state_mem := _state;
 
 IF _logging THEN
-	IF _job_event_reporter.subscribe_job_event(
-			subject := 'TRANSITION',
-			old_state := _last_state,
-			new_state := _state,
-			record_time := F_GetSystemTime(),
-			executor := THIS^
-	) THEN
-		_logging := FALSE;
-	END_IF
+    bAllReportedSuccessfully := TRUE; // Initialize before the loop
+
+    FOR i_call := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
+        IF _job_event_reporters[i_call] <> 0 THEN
+            IF NOT _job_event_reporters[i_call].subscribe_job_event(
+                    subject := 'TRANSITION',
+                    old_state := _last_state,
+                    new_state := _state,
+                    record_time := F_GetSystemTime(),
+                    executor := THIS^
+            ) THEN
+                bAllReportedSuccessfully := FALSE; // If any reporter is "busy" or fails, keep _logging for next cycle potentially
+            END_IF
+        END_IF
+    END_FOR
+
+    IF bAllReportedSuccessfully THEN
+        _logging := FALSE; // All *active* reporters were successful
+    END_IF
 END_IF
 
 IF _future <> 0 THEN
@@ -431,37 +454,6 @@ INIT := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="job_event_reporter" Id="{7070112e-2fb6-433d-85f5-f36a183c0a1e}">
-      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceObserver]]></Declaration>
-      <Get Name="Get" Id="{150bf335-b5f5-4890-8f09-a0bd37e70e48}">
-        <Declaration><![CDATA[
-VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[job_event_reporter := _job_event_reporter;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{4cb4a4bf-e492-4795-8469-65c6601636a4}">
-        <Declaration><![CDATA[VAR
-	executor :REFERENCE TO FB_Executor;
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_job_event_reporter := job_event_reporter;
-IF THIS^.children <> 0 THEN
-	REPEAT
-		executor REF= THIS^.children.each_executor;
-		IF __ISVALIDREF(executor) THEN
-			executor.job_event_reporter := job_event_reporter;
-		END_IF
-	UNTIL
-		NOT __ISVALIDREF(executor)
-	END_REPEAT
-END_IF]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <Property Name="last_state" Id="{02f59fbb-3554-446d-b45f-63f705bf0087}">
       <Declaration><![CDATA[PROPERTY last_state : E_FutureExecutionState]]></Declaration>
       <Get Name="Get" Id="{68fa5637-46a2-41df-8fb4-fd6bb35fe1de}">
@@ -992,5 +984,77 @@ END_VAR
     <LineIds Name="FB_Executor.upstream_aborting.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
+    <Method Name="Subscribe" Id="{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEE0001}">
+      <Declaration><![CDATA[METHOD Subscribe : BOOL
+VAR_INPUT
+    observer : InterfaceObserver;
+END_VAR
+VAR
+    i: INT;
+    bSubscribed: BOOL := FALSE; // Flag to check if already subscribed
+    idxEmpty: INT := 0; // Index of first empty slot
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF observer = 0 THEN
+    Subscribe := FALSE;
+    RETURN;
+END_IF
+
+// Check if already subscribed or find an empty slot
+FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming array size is 10
+    IF _job_event_reporters[i] = observer THEN
+        bSubscribed := TRUE;
+        EXIT;
+    END_IF
+    IF idxEmpty = 0 AND _job_event_reporters[i] = 0 THEN
+        idxEmpty := i;
+    END_IF
+END_FOR
+
+IF bSubscribed THEN
+    Subscribe := TRUE; // Already subscribed, consider it a success
+    RETURN;
+END_IF
+
+IF idxEmpty <> 0 THEN
+    _job_event_reporters[idxEmpty] := observer;
+    Subscribe := TRUE;
+ELSE
+    Subscribe := FALSE; // Array is full
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Unsubscribe" Id="{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEE0002}">
+      <Declaration><![CDATA[METHOD Unsubscribe : BOOL
+VAR_INPUT
+    observer : InterfaceObserver;
+END_VAR
+VAR
+    i: INT;
+    bFound: BOOL := FALSE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF observer = 0 THEN
+    Unsubscribe := FALSE;
+    RETURN;
+END_IF
+
+FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming array size is 10
+    IF _job_event_reporters[i] = observer THEN
+        _job_event_reporters[i] := 0; // Remove observer
+        bFound := TRUE;
+        EXIT; // Exit after finding and removing
+    END_IF
+END_FOR
+
+Unsubscribe := bFound;
+]]></ST>
+      </Implementation>
+    </Method>
   </POU>
 </TcPlcObject>

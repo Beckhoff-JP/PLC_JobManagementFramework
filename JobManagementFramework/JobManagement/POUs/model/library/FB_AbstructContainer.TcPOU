@@ -251,13 +251,18 @@ END_VAR
 VAR
 	_executor : REFERENCE TO FB_Executor;
 	_init_done : BOOL;
+	init_loop_idx : UINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_init_done := TRUE;
 REPEAT
 	_executor REF= THIS^.each_executor;
 	IF __ISVALIDREF(_executor) THEN
-		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
+		FOR init_loop_idx := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming 10 is the max number of event reporters
+		    IF THIS^._executor._job_event_reporters[init_loop_idx] <> 0 THEN
+		        _executor.Subscribe(THIS^._executor._job_event_reporters[init_loop_idx]);
+		    END_IF
+		END_FOR
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF

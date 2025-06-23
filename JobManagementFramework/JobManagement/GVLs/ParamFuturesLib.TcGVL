@@ -5,6 +5,7 @@
 VAR_GLOBAL CONSTANT
 	MAX_TASK_NUM : UINT := 1000; // Number of max jobs in job container object.
 	MAX_STRING_LENGTH : UDINT := 255; // Max string length of task name.
+	MAX_JOB_EVENT_REPORTERS : UINT := 10; // Max number of job event reporters for an executor.
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>
