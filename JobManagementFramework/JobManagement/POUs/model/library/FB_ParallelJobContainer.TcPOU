@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_ParallelJobContainer" Id="{6f1bfb39-c90d-44cd-a726-24b4c87f95f3}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_ParallelJobContainer EXTENDS FB_AbstructContainer
@@ -20,6 +20,7 @@ VAR_INPUT
 	executor	: REFERENCE TO FB_Executor;
 END_VAR
 VAR
+	i : UINT;
 	_parent_future_id :STRING;
 END_VAR]]></Declaration>
       <Implementation>
@@ -30,9 +31,9 @@ END_VAR]]></Declaration>
 	_executors[_num_of_jobs] := ADR(executor);
 	IF  __ISVALIDREF(_executor) THEN
 		// Propergate task creator object
-		FOR obs_loop_idx := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
-            IF executor._job_event_reporters[obs_loop_idx] <> 0 THEN
-                _executors[_num_of_jobs]^.Subscribe(executor._job_event_reporters[obs_loop_idx]);
+		FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
+            IF executor._job_event_reporters[i] <> 0 THEN
+                _executors[_num_of_jobs]^.Subscribe(executor._job_event_reporters[i]);
             END_IF
         END_FOR
 		_executors[_num_of_jobs]^.parent_executor REF= _executor;
@@ -129,6 +130,7 @@ execute := complete_all_task;
 VAR
 	_executor : REFERENCE TO FB_Executor;
 	_init_done : BOOL;
+	init_loop_idx : UINT;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -216,6 +218,8 @@ start := _all_done;]]></ST>
       <LineId Id="31" Count="1" />
       <LineId Id="35" Count="0" />
       <LineId Id="7" Count="0" />
+      <LineId Id="17" Count="2" />
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer._index_generator_">
       <LineId Id="50" Count="0" />
@@ -238,6 +242,8 @@ start := _all_done;]]></ST>
       <LineId Id="233" Count="0" />
       <LineId Id="216" Count="0" />
       <LineId Id="62" Count="0" />
+      <LineId Id="19" Count="2" />
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelJobContainer.quit">
       <LineId Id="13" Count="1" />

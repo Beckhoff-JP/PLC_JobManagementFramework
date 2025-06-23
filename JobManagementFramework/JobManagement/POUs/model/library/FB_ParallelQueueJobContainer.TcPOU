@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_ParallelQueueJobContainer" Id="{d5fc8dd4-0f17-45e0-b0bb-86aca529f22f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_ParallelQueueJobContainer EXTENDS FB_AbstructContainer
@@ -24,7 +24,6 @@ VAR
 	future_order_number: INT;
 	_parent_future_id: STRING;
 	i: 	UINT := 1;
-	obs_loop_idx : UINT;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -41,11 +40,7 @@ IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	
 	// Get parent task id
 	IF  __ISVALIDREF(_executor) THEN
-		FOR obs_loop_idx := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
-            IF executor._job_event_reporters[obs_loop_idx] <> 0 THEN
-                _executors[i]^.Subscribe(executor._job_event_reporters[obs_loop_idx]);
-            END_IF
-        END_FOR
+		_executors[i]^.job_event_reporters := _executor.job_event_reporters;
 		_executors[i]^.parent_executor REF= _executor;
 		_executors[i]^.upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
@@ -190,11 +185,7 @@ END_VAR
 REPEAT
 	_executor REF= THIS^.each_executor;
 	IF __ISVALIDREF(_executor) THEN
-		FOR init_loop_idx := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
-            IF THIS^._executor._job_event_reporters[init_loop_idx] <> 0 THEN
-                _executor.Subscribe(THIS^._executor._job_event_reporters[init_loop_idx]);
-            END_IF
-        END_FOR
+		_executor.job_event_reporters := THIS^._executor.job_event_reporters;
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF

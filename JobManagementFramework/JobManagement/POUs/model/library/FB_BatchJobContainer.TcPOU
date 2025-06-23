@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_BatchJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_BatchJobContainer EXTENDS FB_AbstructContainer
@@ -21,7 +21,6 @@ VAR_INPUT
 END_VAR
 VAR
 	_parent_future_id: STRING;	
-	i : UINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF __ISVALIDREF(executor) AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
@@ -31,11 +30,7 @@ END_VAR]]></Declaration>
 	_executors[_num_of_jobs] := ADR(executor);
 	IF  __ISVALIDREF(_executor) THEN
 		// Propergate task creator object
-		FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming 10 is the max number of event reporters
-		    IF executor._job_event_reporters[i] <> 0 THEN // Source observers from the 'executor' argument
-		        _executors[_num_of_jobs]^.Subscribe(executor._job_event_reporters[i]);
-		    END_IF
-		END_FOR
+		_executors[_num_of_jobs]^.job_event_reporters := _executor.job_event_reporters;
 		_executors[_num_of_jobs]^.parent_executor REF= _executor;
 		_executors[_num_of_jobs]^.upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
@@ -122,18 +117,13 @@ current_executing_future := _executors[current_executing_future_id]^.future;
 VAR
 	_executor : REFERENCE TO FB_Executor;
 	_init_done : BOOL;
-	i : UINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_init_done := TRUE;
 REPEAT
 	_executor REF= THIS^.each_executor;
 	IF __ISVALIDREF(_executor) THEN
-		FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming 10 is the max number of event reporters
-		    IF THIS^._executor._job_event_reporters[i] <> 0 THEN
-		        _executor.Subscribe(THIS^._executor._job_event_reporters[i]);
-		    END_IF
-		END_FOR
+		_executor.job_event_reporters := THIS^._executor.job_event_reporters;
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF
