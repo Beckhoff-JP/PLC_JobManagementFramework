@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_Executor" Id="{09518444-1d1d-452e-9e8f-647b2f8c5e33}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_Executor
@@ -634,6 +634,15 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Method Name="Subscribe" Id="{0d55b3c7-3914-4c13-b72b-5e95f63637a3}">
+      <Declaration><![CDATA[METHOD Subscribe : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="uid" Id="{564a3395-593c-4073-b553-e3a86e6b9914}">
       <Declaration><![CDATA[PROPERTY uid : T_MaxString]]></Declaration>
       <Get Name="Get" Id="{c15a7ab7-b8a0-43cc-8050-a48bb688e753}">
@@ -660,6 +669,35 @@ uid := _uid;
         </Implementation>
       </Get>
     </Property>
+    <Method Name="Unsubscribe" Id="{a02c318a-800d-49a9-8290-315c977e874f}">
+      <Declaration><![CDATA[METHOD Unsubscribe : BOOL
+VAR_INPUT
+    observer : InterfaceObserver;
+END_VAR
+VAR
+    i: UINT;
+    bFound: BOOL := FALSE;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[
+IF observer = 0 THEN
+    Unsubscribe := FALSE;
+    RETURN;
+END_IF
+
+FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming array size is 10
+    IF _job_event_reporters[i] = observer THEN
+        _job_event_reporters[i] := 0; // Remove observer
+        bFound := TRUE;
+        EXIT; // Exit after finding and removing
+    END_IF
+END_FOR
+
+Unsubscribe := bFound;
+]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="upstream_aborting" Id="{005019ae-b53c-48e8-93f8-286c00c2c383}">
       <Declaration><![CDATA[PROPERTY upstream_aborting : BOOL]]></Declaration>
       <Get Name="Get" Id="{63c291b8-3195-41b6-aa40-ef7a1188cf41}">
@@ -758,6 +796,8 @@ END_VAR
       <LineId Id="35" Count="0" />
       <LineId Id="8" Count="0" />
       <LineId Id="40" Count="0" />
+      <LineId Id="43" Count="0" />
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.execute">
       <LineId Id="8" Count="2" />
@@ -853,6 +893,10 @@ END_VAR
       <LineId Id="257" Count="0" />
       <LineId Id="278" Count="1" />
       <LineId Id="243" Count="0" />
+      <LineId Id="131" Count="7" />
+      <LineId Id="475" Count="0" />
+      <LineId Id="140" Count="4" />
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.future.Get">
       <LineId Id="2" Count="0" />
@@ -882,14 +926,6 @@ END_VAR
       <LineId Id="44" Count="0" />
       <LineId Id="17" Count="0" />
       <LineId Id="26" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.job_event_reporter.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.job_event_reporter.Set">
-      <LineId Id="5" Count="0" />
-      <LineId Id="9" Count="8" />
-      <LineId Id="8" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.last_state.Get">
       <LineId Id="2" Count="0" />
@@ -962,6 +998,9 @@ END_VAR
       <LineId Id="131" Count="0" />
       <LineId Id="41" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor.Subscribe">
+      <LineId Id="5" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.uid.Get">
       <LineId Id="75" Count="0" />
       <LineId Id="66" Count="0" />
@@ -978,83 +1017,15 @@ END_VAR
       <LineId Id="15" Count="0" />
       <LineId Id="72" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor.Unsubscribe">
+      <LineId Id="3" Count="14" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.upstream_aborting.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.upstream_aborting.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <Method Name="Subscribe" Id="{1193E4C1-8F6F-4756-A09A-98F29D35A19B}">
-      <Declaration><![CDATA[METHOD Subscribe : BOOL
-VAR_INPUT
-    observer : InterfaceObserver;
-END_VAR
-VAR
-    i: UINT;
-    bSubscribed: BOOL := FALSE; // Flag to check if already subscribed
-    idxEmpty: INT := 0; // Index of first empty slot
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[
-IF observer = 0 THEN
-    Subscribe := FALSE;
-    RETURN;
-END_IF
-
-// Check if already subscribed or find an empty slot
-FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming array size is 10
-    IF _job_event_reporters[i] = observer THEN
-        bSubscribed := TRUE;
-        EXIT;
-    END_IF
-    IF idxEmpty = 0 AND _job_event_reporters[i] = 0 THEN
-        idxEmpty := i;
-    END_IF
-END_FOR
-
-IF bSubscribed THEN
-    Subscribe := TRUE; // Already subscribed, consider it a success
-    RETURN;
-END_IF
-
-IF idxEmpty <> 0 THEN
-    _job_event_reporters[idxEmpty] := observer;
-    Subscribe := TRUE;
-ELSE
-    Subscribe := FALSE; // Array is full
-END_IF
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="Unsubscribe" Id="{A02C318A-800D-49A9-8290-315C977E874F}">
-      <Declaration><![CDATA[METHOD Unsubscribe : BOOL
-VAR_INPUT
-    observer : InterfaceObserver;
-END_VAR
-VAR
-    i: UINT;
-    bFound: BOOL := FALSE;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[
-IF observer = 0 THEN
-    Unsubscribe := FALSE;
-    RETURN;
-END_IF
-
-FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming array size is 10
-    IF _job_event_reporters[i] = observer THEN
-        _job_event_reporters[i] := 0; // Remove observer
-        bFound := TRUE;
-        EXIT; // Exit after finding and removing
-    END_IF
-END_FOR
-
-Unsubscribe := bFound;
-]]></ST>
-      </Implementation>
-    </Method>
   </POU>
 </TcPlcObject>
