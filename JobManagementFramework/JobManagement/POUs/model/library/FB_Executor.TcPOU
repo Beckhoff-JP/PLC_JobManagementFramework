@@ -190,7 +190,7 @@ END_VAR
 VAR_INPUT
 END_VAR
 VAR
-	i_err_rst : INT;
+	i_err_rst : UINT;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -231,8 +231,8 @@ VAR
 	_executor : REFERENCE TO FB_Executor;
 	start_all_children : BOOL;
 	exe: INT;
-	i_check : INT;
-	i_call : INT;
+	i_check : UINT;
+	i_call : UINT;
 	bAllReportedSuccessfully : BOOL;
 END_VAR]]></Declaration>
       <Implementation>
@@ -990,7 +990,7 @@ VAR_INPUT
     observer : InterfaceObserver;
 END_VAR
 VAR
-    i: INT;
+    i: UINT;
     bSubscribed: BOOL := FALSE; // Flag to check if already subscribed
     idxEmpty: INT := 0; // Index of first empty slot
 END_VAR
@@ -1033,7 +1033,7 @@ VAR_INPUT
     observer : InterfaceObserver;
 END_VAR
 VAR
-    i: INT;
+    i: UINT;
     bFound: BOOL := FALSE;
 END_VAR
 ]]></Declaration>
