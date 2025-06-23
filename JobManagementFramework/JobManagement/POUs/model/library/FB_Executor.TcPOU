@@ -984,7 +984,7 @@ END_VAR
     <LineIds Name="FB_Executor.upstream_aborting.Set">
       <LineId Id="2" Count="0" />
     </LineIds>
-    <Method Name="Subscribe" Id="{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEE0001}">
+    <Method Name="Subscribe" Id="{1193E4C1-8F6F-4756-A09A-98F29D35A19B}">
       <Declaration><![CDATA[METHOD Subscribe : BOOL
 VAR_INPUT
     observer : InterfaceObserver;
@@ -1027,7 +1027,7 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="Unsubscribe" Id="{AAAAAAAA-BBBB-CCCC-DDDD-EEEEEEEE0002}">
+    <Method Name="Unsubscribe" Id="{A02C318A-800D-49A9-8290-315C977E874F}">
       <Declaration><![CDATA[METHOD Unsubscribe : BOOL
 VAR_INPUT
     observer : InterfaceObserver;
