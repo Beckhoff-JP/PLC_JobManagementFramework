@@ -107,6 +107,9 @@
     <Compile Include="POUs\model\activities\FB_observer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\activities\FB_observerCsv.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\activities\FutureCounterBlinkCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>

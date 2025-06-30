@@ -673,6 +673,7 @@ END_IF
         i: UINT;
         bSubscribed: BOOL := FALSE; // Flag to check if already subscribed
         idxEmpty: UINT := 0; // Index of first empty slot
+        executor: REFERENCE TO FB_Executor;
     END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF observer = 0 THEN
@@ -693,14 +694,23 @@ END_FOR
 
 IF bSubscribed THEN
     Subscribe := TRUE; // Already subscribed, consider it a success
-    RETURN;
-END_IF
-
-IF idxEmpty <> 0 THEN
+ELSIF idxEmpty <> 0 THEN
     _job_event_reporters[idxEmpty] := observer;
     Subscribe := TRUE;
 ELSE
     Subscribe := FALSE; // Array is full
+END_IF
+
+// Propagate subscribe to child executors
+IF Subscribe AND THIS^.children <> 0 THEN
+    REPEAT
+        executor REF= THIS^.children.each_executor;
+        IF __ISVALIDREF(executor) THEN
+            executor.Subscribe(observer);
+        END_IF
+    UNTIL
+        NOT __ISVALIDREF(executor)
+    END_REPEAT
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -738,6 +748,7 @@ END_VAR
 VAR
     i: UINT;
     bFound: BOOL := FALSE;
+    executor: REFERENCE TO FB_Executor;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -747,13 +758,25 @@ IF observer = 0 THEN
     RETURN;
 END_IF
 
-FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO // Assuming array size is 10
+FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
     IF _job_event_reporters[i] = observer THEN
         _job_event_reporters[i] := 0; // Remove observer
         bFound := TRUE;
         EXIT; // Exit after finding and removing
     END_IF
 END_FOR
+
+// Propagate unsubscribe to child executors
+IF THIS^.children <> 0 THEN
+    REPEAT
+        executor REF= THIS^.children.each_executor;
+        IF __ISVALIDREF(executor) THEN
+            executor.Unsubscribe(observer);
+        END_IF
+    UNTIL
+        NOT __ISVALIDREF(executor)
+    END_REPEAT
+END_IF
 
 Unsubscribe := bFound;
 ]]></ST>
