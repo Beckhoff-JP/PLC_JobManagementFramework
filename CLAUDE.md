@@ -242,3 +242,34 @@ Set Name="Set"
 #### UUID Generation Commands
 - **Linux/WSL**: `uuidgen | tr '[:upper:]' '[:lower:]'`
 - **PowerShell**: `[System.Guid]::NewGuid().ToString().ToLower()`
+
+## TwinCAT PLC 実装制約（Observable パターン開発で判明）
+
+### 1. 構文制約
+- **インターフェース実装**: `FUNCTION_BLOCK ClassName : Interface` ではなく `FUNCTION_BLOCK ClassName IMPLEMENTS Interface` を使用
+- **インライン構造体禁止**: VAR セクション内での `STRUCT...END_STRUCT` 定義は不可、別途 DUT ファイルが必要
+- **プロジェクトファイル同期**: 新規 DUT ファイルは `.plcproj` に手動追加が必要、XAE の自動認識は限定的
+
+### 2. ADSLOGSTR 関数制約
+- **パラメータ数固定**: 正確に3つのパラメータ（`msgCtrlMask`, `msgFmtStr`, `strArg`）が必要
+- **複数文字列引数不可**: `strArg` と `uintArg` の同時使用は不可、事前に `CONCAT()` で文字列結合が必要
+- **フォーマット文字列**: `%s`, `%d` 等のプレースホルダー使用時は `strArg` にデータを渡す
+
+### 3. 配列サイズ制約  
+- **定数化スコープ**: 
+  - 複数部品で共通使用 → ParamFuturesLib でのグローバル定数定義
+  - POU内限定使用 → 該当POU内での CONSTANT 変数定義
+- **マジックナンバー回避**: ハードコードされた配列サイズは適切なスコープでの定数化が必須
+
+### 4. インターフェース設計制約
+- **メソッド完全性**: FUNCTION_BLOCK が IMPLEMENTS するインターフェースの全メソッドが実装必須
+- **戻り値型一致**: インターフェースメソッドの戻り値型と実装の戻り値型は完全一致が必要
+- **型変換制約**: 具象クラス（FB_*）からインターフェース型への暗黙変換は文脈依存
+
+### 5. ジェネリクス非対応
+- **型パラメータ不可**: `Observable<T>` のようなジェネリック型は使用不可
+- **具象型実装**: 各データ型（JobEvent, Alarm等）ごとに専用インターフェース・実装が必要
+
+### 6. メソッドチェーン制約
+- **戻り値型**: チェーン可能にするには各メソッドで `THIS^` を返す必要
+- **インターフェース経由**: インターフェース型での戻り値は具象クラスへの適切なキャストが必要
