@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="E_JobEventType" Id="{65d87917-2beb-45b1-9bef-40225a76712f}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+TYPE E_JobEventType :
+(
+	TRANSITION := 0,
+	ERROR_OCCURRED := 1,
+	EXECUTION_START := 2,
+	EXECUTION_COMPLETE := 3,
+	TIMEOUT_WARNING := 4,
+	ALARM_CONDITION := 5,
+	INTERLOCK_ACTIVE := 6,
+	PERFORMANCE_METRIC := 7
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

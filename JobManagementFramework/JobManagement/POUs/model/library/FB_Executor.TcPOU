@@ -24,6 +24,7 @@ VAR
 	_quitting :BOOL;
 	_interface_container : InterfaceContainer := 0;
 	_job_event_reporters : ARRAY[1..ParamFuturesLib.MAX_JOB_EVENT_REPORTERS] OF InterfaceObserver;
+	_event_stream : FB_JobEventStream; // 新しいObservableイベントストリーム
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
 	_parent_executor : REFERENCE TO FB_Executor REF= 0;
@@ -32,6 +33,56 @@ END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="_emit_job_event" Id="{5f4e3d2c-1b0a-4968-a7c6-4b3a29180f7e}">
+      <Declaration><![CDATA[METHOD PRIVATE _emit_job_event : BOOL
+VAR_INPUT
+	event_type : E_JobEventType;
+END_VAR
+VAR
+	job_event : ST_JobEvent;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// JobEventの構築
+job_event.event_type := event_type;
+job_event.executor_id := _id;
+job_event.executor_uid := THIS^.uid;
+job_event.state_old := _last_state;
+job_event.state_new := _state;
+job_event.timestamp := F_GetSystemTime();
+job_event.error_id := _error_id;
+job_event.duration_ms := 0; // TODO: 実装時間計測
+
+// イベントストリームに発行
+_event_stream.emit_event(job_event);
+
+// 子Executorにもイベントストリームを伝播
+THIS^._propagate_event_stream();
+
+_emit_job_event := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_propagate_event_stream" Id="{d2c1b0a9-8f7e-6d5c-4b3a-392817f6e5d4}">
+      <Declaration><![CDATA[METHOD PRIVATE _propagate_event_stream : BOOL
+VAR
+	executor : REFERENCE TO FB_Executor;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// 子Executorへのイベントストリーム伝播（Subscribe状態の同期）
+IF THIS^.children <> 0 THEN
+	REPEAT
+		executor REF= THIS^.children.each_executor;
+		IF __ISVALIDREF(executor) THEN
+			// 親のObserverを子にも同期
+			// 注意: これは簡易実装、実際にはより洗練された同期が必要
+		END_IF
+	UNTIL
+		NOT __ISVALIDREF(executor)
+	END_REPEAT
+END_IF
+
+_propagate_event_stream := TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="abort" Id="{4a5ac73d-0cc9-4d9e-84fc-915012ed9ab4}">
       <Declaration><![CDATA[(*abort method
 
@@ -219,6 +270,16 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="events" Id="{c4d3e2f1-a0b9-4c68-b7d6-5e4f3d2c1b0a}">
+      <Declaration><![CDATA[PROPERTY events : InterfaceJobEventObservable]]></Declaration>
+      <Get Name="Get" Id="{60237d76-0e31-47ab-9c14-1ae95f9db972}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[events := _event_stream;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="execute" Id="{12a00ca6-fc73-4fe5-8b5c-2a7a9dcde6d1}">
       <Declaration><![CDATA[METHOD execute : BOOL // Execute future process and return TRUE if all task are finished.
 VAR_INST
@@ -340,6 +401,9 @@ IF _state <> _state_mem THEN
 		_quitting := TRUE;
 	END_IF
 		
+	// 新しいObservableイベントストリームにイベント発行
+	THIS^._emit_job_event(E_JobEventType.TRANSITION);
+	
 	// Check if any reporter is assigned and if the state is reportable
 	IF _state >= E_FutureExecutionState.idle AND _state <= E_FutureExecutionState.finish THEN
 		FOR i_check := 1 TO ParamFuturesLib.MAX_JOB_EVENT_REPORTERS DO
@@ -805,6 +869,14 @@ END_VAR
     <LineIds Name="FB_Executor">
       <LineId Id="32" Count="0" />
     </LineIds>
+    <LineIds Name="FB_Executor._emit_job_event">
+      <LineId Id="3" Count="15" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor._propagate_event_stream">
+      <LineId Id="3" Count="12" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
     <LineIds Name="FB_Executor.abort">
       <LineId Id="12" Count="0" />
       <LineId Id="14" Count="1" />
@@ -881,6 +953,9 @@ END_VAR
       <LineId Id="8" Count="0" />
       <LineId Id="40" Count="0" />
       <LineId Id="43" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_Executor.events.Get">
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.execute">
@@ -981,6 +1056,8 @@ END_VAR
       <LineId Id="475" Count="0" />
       <LineId Id="140" Count="4" />
       <LineId Id="2" Count="0" />
+      <LineId Id="146" Count="1" />
+      <LineId Id="476" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.future.Get">
       <LineId Id="2" Count="0" />
@@ -1095,6 +1172,7 @@ END_VAR
       <LineId Id="29" Count="0" />
       <LineId Id="6" Count="22" />
       <LineId Id="2" Count="0" />
+      <LineId Id="30" Count="8" />
     </LineIds>
     <LineIds Name="FB_Executor.uid.Get">
       <LineId Id="75" Count="0" />
@@ -1115,6 +1193,7 @@ END_VAR
     <LineIds Name="FB_Executor.Unsubscribe">
       <LineId Id="3" Count="14" />
       <LineId Id="2" Count="0" />
+      <LineId Id="19" Count="11" />
     </LineIds>
     <LineIds Name="FB_Executor.upstream_aborting.Get">
       <LineId Id="2" Count="0" />

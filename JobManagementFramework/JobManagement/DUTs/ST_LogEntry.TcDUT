@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_LogEntry" Id="{b2c1a9e8-f7d6-5c4b-a39e-2d1c0b9a8f7d}">
+    <Declaration><![CDATA[TYPE ST_LogEntry :
+STRUCT
+	timestamp : FILETIME;
+	event_type : E_JobEventType;
+	executor_id : T_MaxString;
+	state_info : STRING;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

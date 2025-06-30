@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_FilterStates" Id="{f4e3d2c1-b0a9-4968-a7c6-5b3a29180f7e}">
+    <Declaration><![CDATA[TYPE ST_FilterStates :
+STRUCT
+	state : BOOL := FALSE;
+	event_type : BOOL := FALSE;
+	executor_id : BOOL := FALSE;
+	error_range : BOOL := FALSE;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

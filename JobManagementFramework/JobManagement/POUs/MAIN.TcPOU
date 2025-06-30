@@ -43,6 +43,11 @@ VAR
 	fbObserverCsv : FB_observerCsv;
 	fbJobTreeSearch : FB_ExecutorTreeSearch;
 	
+	// 新しいObservable Observer
+	fbTestJobEventObserver : FB_TestJobEventObserver;
+	fbAlarmObserver : FB_AlarmObserver;
+	fbInterlockObserver : FB_InterlockObserver;
+	
 	end_of_manual: BOOL;
 	init :BOOL;
 	test_executor : POINTER TO FB_BatchJobContainer;
@@ -71,6 +76,18 @@ END_VAR
 	executor.Subscribe(fbObserver);
 	// test for multiple observer.
 	executor.Subscribe(fbObserverCsv);
+	
+	// 新しいObservable Observer のテスト
+	executor.events.Subscribe(fbTestJobEventObserver);
+	executor.events.Subscribe(fbAlarmObserver);
+	
+	// インターロック監視の設定
+	fbInterlockObserver.AddMonitoredZone('SAFETY_ZONE_1');
+	fbInterlockObserver.AddMonitoredZone('CRITICAL_PROCESS');
+	executor.events
+		.WhereEventType(E_JobEventType.TRANSITION)
+		.Subscribe(fbInterlockObserver);
+		
 	//actual_job REF= executor.children.create_container(ContainerType.QUEUE, 'Batch Container');
 	//actual_job.continuous_mode := TRUE;
 END_IF

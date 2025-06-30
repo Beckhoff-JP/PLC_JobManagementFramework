@@ -6,6 +6,10 @@ VAR_GLOBAL CONSTANT
 	MAX_TASK_NUM : UINT := 1000; // Number of max jobs in job container object.
 	MAX_STRING_LENGTH : UDINT := 255; // Max string length of task name.
 	MAX_JOB_EVENT_REPORTERS : UINT := 10; // Max number of job event reporters for an executor.
+	MAX_JOB_EVENT_OBSERVERS : UINT := 10; // Max number of job event observers in JobEventStream.
+	MAX_ALARM_ENTRIES : UINT := 10; // Max number of active alarm entries in AlarmObserver.
+	MAX_INTERLOCK_ZONES : UINT := 5; // Max number of monitored zones in InterlockObserver.
+	MAX_LOG_ENTRIES : UINT := 10; // Max number of log entries in TestJobEventObserver.
 END_VAR]]></Declaration>
   </GVL>
 </TcPlcObject>

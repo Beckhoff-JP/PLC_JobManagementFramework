@@ -1,0 +1,63 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <Itf Name="InterfaceJobEventObservable" Id="{b4aa8289-2044-4729-bd41-687ce534c94c}">
+    <Declaration><![CDATA[INTERFACE InterfaceJobEventObservable EXTENDS InterfaceObservableBase
+]]></Declaration>
+    <Method Name="ClearFilters" Id="{025343e3-8c95-47e7-b0c9-ddd0ac75ed64}">
+      <Declaration><![CDATA[METHOD ClearFilters : InterfaceJobEventObservable
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="emit_event" Id="{e4e4868d-0a02-48b0-85e8-7ade570b613c}">
+      <Declaration><![CDATA[METHOD emit_event : BOOL
+VAR_INPUT
+	event : ST_JobEvent;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Subscribe" Id="{bd92fd8b-c296-42e6-92ce-2a8a0731eae8}">
+      <Declaration><![CDATA[METHOD Subscribe : BOOL
+VAR_INPUT
+	observer : InterfaceJobEventObserver;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="Unsubscribe" Id="{191b3e4c-47e6-4870-ade1-839b3b89f4dd}">
+      <Declaration><![CDATA[METHOD Unsubscribe : BOOL
+VAR_INPUT
+	observer : InterfaceJobEventObserver;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="WhereErrorRange" Id="{9b602a71-084d-4d2c-8a79-59d864707ad4}">
+      <Declaration><![CDATA[METHOD WhereErrorRange : InterfaceJobEventObservable
+VAR_INPUT
+	min_error : UDINT;
+	max_error : UDINT;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="WhereEventType" Id="{01ed4da7-9dba-44b1-a968-9530f51b2db5}">
+      <Declaration><![CDATA[METHOD WhereEventType : InterfaceJobEventObservable
+VAR_INPUT
+	event_type : E_JobEventType;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="WhereExecutorId" Id="{2720fb94-0803-44ca-ad90-a342baa658ed}">
+      <Declaration><![CDATA[METHOD WhereExecutorId : InterfaceJobEventObservable
+VAR_INPUT
+	executor_id : STRING;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="WhereState" Id="{e77f3f0c-a15a-4dcf-bcf6-1ed21d66b55f}">
+      <Declaration><![CDATA[METHOD WhereState : InterfaceJobEventObservable
+VAR_INPUT
+	target_state : E_FutureExecutionState;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

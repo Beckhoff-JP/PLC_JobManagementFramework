@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <Itf Name="InterfaceObserverBase" Id="{57ec505c-9aba-4a5b-af23-bb18b464f7a4}">
+    <Declaration><![CDATA[INTERFACE InterfaceObserverBase
+]]></Declaration>
+  </Itf>
+</TcPlcObject>

@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <Itf Name="InterfaceJobEventObserver" Id="{0ed931c1-423b-444d-b9d0-b8337c73de90}">
+    <Declaration><![CDATA[INTERFACE InterfaceJobEventObserver EXTENDS InterfaceObserverBase
+]]></Declaration>
+    <Method Name="OnError" Id="{99f8d7a2-4e81-4c8b-9a1c-2e8a4c7b8f64}">
+      <Declaration><![CDATA[METHOD OnError : BOOL
+VAR_INPUT
+	error_id : UDINT;
+	message : STRING;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="OnJobEvent" Id="{a8e6f3b4-7d52-4e9a-8c1b-5f2e9d8c7b6a}">
+      <Declaration><![CDATA[METHOD OnJobEvent : BOOL
+VAR_INPUT
+	event : ST_JobEvent;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

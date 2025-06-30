@@ -84,7 +84,25 @@
     <Compile Include="DUTs\E_FutureExecutionState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="DUTs\E_JobEventType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ST_JobEvent.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="DUTs\ST_MotionData.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ST_AlarmEntry.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ST_FilterStates.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ST_LogEntry.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ST_ZoneState.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GlobalTextList.TcGTLO">
@@ -108,6 +126,15 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\activities\FB_observerCsv.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FB_AlarmObserver.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FB_InterlockObserver.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FB_TestJobEventObserver.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\activities\FutureCounterBlinkCreator.TcPOU">
@@ -221,6 +248,9 @@
     <Compile Include="POUs\model\library\FB_Executor.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\FB_JobEventStream.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\FB_ParallelJobContainer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -240,6 +270,18 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\InterfaceObserver.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\InterfaceObservableBase.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\InterfaceObserverBase.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\InterfaceJobEventObservable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\InterfaceJobEventObserver.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Visualization Manager.TcVMO">

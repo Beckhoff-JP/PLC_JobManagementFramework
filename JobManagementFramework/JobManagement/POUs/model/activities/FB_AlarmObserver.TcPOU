@@ -1,0 +1,142 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_AlarmObserver" Id="{879d9c4f-f8b5-45e8-83b9-d434058bfffe}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FB_AlarmObserver IMPLEMENTS InterfaceJobEventObserver
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_alarm_threshold : UDINT := E_ErrorId.PASSIVE_ABORT;
+	_last_alarm_time : FILETIME;
+	_alarm_count : UDINT := 0;
+	_active_alarms : ARRAY[1..ParamFuturesLib.MAX_ALARM_ENTRIES] OF ST_AlarmEntry;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="OnError" Id="{8f7e6d5c-4b3a-4928-b7d6-3c2b1a9e8f7d}">
+      <Declaration><![CDATA[METHOD OnError : BOOL
+VAR_INPUT
+	error_id : UDINT;
+	message : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// エラー処理のログ出力
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_ERROR, 
+          msgFmtStr := CONCAT('AlarmObserver Error: ', CONCAT(message, CONCAT(' (ID: ', CONCAT(UDINT_TO_STRING(error_id), ')')))), 
+          strArg := '');
+
+OnError := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnJobEvent" Id="{2a1b9c8d-7e6f-4528-d9a8-5f4e3d2c1b0a}">
+      <Declaration><![CDATA[METHOD OnJobEvent : BOOL
+VAR_INPUT
+	event : ST_JobEvent;
+END_VAR
+VAR
+	i : UINT;
+	alarm_slot : UINT := 0;
+	alarm_message : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// エラーイベントのアラーム処理
+IF event.event_type = E_JobEventType.ERROR_OCCURRED AND
+   event.error_id >= _alarm_threshold THEN
+   
+   // アラーム情報を保存するスロットを検索
+   FOR i := 1 TO ParamFuturesLib.MAX_ALARM_ENTRIES DO
+       IF NOT _active_alarms[i].active THEN
+           alarm_slot := i;
+           EXIT;
+       END_IF
+   END_FOR
+   
+   // アラーム情報を記録
+   IF alarm_slot <> 0 THEN
+       _active_alarms[alarm_slot].executor_uid := event.executor_uid;
+       _active_alarms[alarm_slot].error_id := event.error_id;
+       _active_alarms[alarm_slot].timestamp := event.timestamp;
+       _active_alarms[alarm_slot].active := TRUE;
+       
+       _alarm_count := _alarm_count + 1;
+       _last_alarm_time := event.timestamp;
+       
+       // アラームメッセージの生成と出力
+       alarm_message := CONCAT('ALARM: Executor [', event.executor_uid);
+       alarm_message := CONCAT(alarm_message, '] Error ID: ');
+       alarm_message := CONCAT(alarm_message, UDINT_TO_STRING(event.error_id));
+       
+       ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_WARN, 
+                msgFmtStr := '%s', 
+                strArg := alarm_message);
+   END_IF
+END_IF
+
+// 正常完了イベントでアラームクリア
+IF event.event_type = E_JobEventType.TRANSITION AND
+   event.state_new = E_FutureExecutionState.finish THEN
+   
+   FOR i := 1 TO ParamFuturesLib.MAX_ALARM_ENTRIES DO
+       IF _active_alarms[i].active AND 
+          _active_alarms[i].executor_uid = event.executor_uid THEN
+           _active_alarms[i].active := FALSE;
+           EXIT;
+       END_IF
+   END_FOR
+END_IF
+
+OnJobEvent := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="alarm_count" Id="{f5e4d3c2-a9b8-4e17-c6d5-8f7e6d5c4b3a}">
+      <Declaration><![CDATA[PROPERTY alarm_count : UDINT]]></Declaration>
+      <Get Name="Get" Id="{b4c3a291-8e7f-4d6c-5b5a-3e2d1c0b9a8f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[alarm_count := _alarm_count;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="alarm_threshold" Id="{3c2b1a9e-8f7d-6c5b-4a39-2e1d0c9b8a7f}">
+      <Declaration><![CDATA[PROPERTY alarm_threshold : UDINT]]></Declaration>
+      <Get Name="Get" Id="{9e8f7d6c-5b4a-4829-b7d6-4e3d2c1b0a9f}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[alarm_threshold := _alarm_threshold;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{7d6c5b4a-3928-4f17-a6d5-3c2b1a9e8f7d}">
+        <Declaration><![CDATA[VAR
+END_VAR]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_alarm_threshold := alarm_threshold;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <LineIds Name="FB_AlarmObserver">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AlarmObserver.OnError">
+      <LineId Id="6" Count="6" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AlarmObserver.OnJobEvent">
+      <LineId Id="6" Count="40" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AlarmObserver.alarm_count.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AlarmObserver.alarm_threshold.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AlarmObserver.alarm_threshold.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

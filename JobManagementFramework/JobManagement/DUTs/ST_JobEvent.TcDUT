@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_JobEvent" Id="{7a54a1f8-0ddb-4a68-9488-16d0ed108ca1}">
+    <Declaration><![CDATA[TYPE ST_JobEvent :
+STRUCT
+	event_type : E_JobEventType;
+	executor_id : T_MaxString;
+	executor_uid : T_MaxString;  // 階層パス
+	state_old : E_FutureExecutionState;
+	state_new : E_FutureExecutionState;
+	timestamp : FILETIME;
+	error_id : UDINT;
+	duration_ms : UDINT;  // 状態継続時間
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

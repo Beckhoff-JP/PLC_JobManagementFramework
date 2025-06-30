@@ -1,0 +1,206 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_InterlockObserver" Id="{74ab99dd-2087-49c8-bc20-9e6cb8709634}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FB_InterlockObserver IMPLEMENTS InterfaceJobEventObserver
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+	interlock_active : BOOL := FALSE;
+	protected_zones : ARRAY[1..ParamFuturesLib.MAX_INTERLOCK_ZONES] OF STRING;
+	zone_count : UINT := 0;
+END_VAR
+VAR
+	_monitored_zones : ARRAY[1..ParamFuturesLib.MAX_INTERLOCK_ZONES] OF T_MaxString;
+	_zone_states : ARRAY[1..ParamFuturesLib.MAX_INTERLOCK_ZONES] OF ST_ZoneState;
+	_max_zones : UINT := ParamFuturesLib.MAX_INTERLOCK_ZONES;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[// インターロック状態の更新
+_update_interlock_status();]]></ST>
+    </Implementation>
+    <Method Name="_update_interlock_status" Id="{4c3b2a19-8e7f-4d6c-5b4a-39281f6e5d4c}">
+      <Declaration><![CDATA[METHOD PRIVATE _update_interlock_status : BOOL
+VAR
+	i : UINT;
+	active_count : UINT := 0;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// アクティブなゾーンをカウント・出力配列更新
+zone_count := 0;
+
+FOR i := 1 TO _max_zones DO
+	IF _zone_states[i].active THEN
+		active_count := active_count + 1;
+		IF zone_count < ParamFuturesLib.MAX_INTERLOCK_ZONES THEN
+			zone_count := zone_count + 1;
+			protected_zones[zone_count] := _zone_states[i].zone_id;
+		END_IF
+	END_IF
+END_FOR
+
+// 残りの配列をクリア
+FOR i := zone_count + 1 TO ParamFuturesLib.MAX_INTERLOCK_ZONES DO
+	protected_zones[i] := '';
+END_FOR
+
+interlock_active := (active_count > 0);
+_update_interlock_status := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="AddMonitoredZone" Id="{6d5c4b3a-2918-4f07-a5d4-2c1b0a9e8f7d}">
+      <Declaration><![CDATA[METHOD AddMonitoredZone : BOOL
+VAR_INPUT
+	zone_id : STRING;
+END_VAR
+VAR
+	i : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// 監視ゾーンの追加
+FOR i := 1 TO _max_zones DO
+	IF _monitored_zones[i] = '' THEN
+		_monitored_zones[i] := zone_id;
+		AddMonitoredZone := TRUE;
+		RETURN;
+	END_IF
+END_FOR
+
+AddMonitoredZone := FALSE; // 満杯]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{5a4b3928-1e7f-4d6c-5a49-3e2d1c0b9a8f}">
+      <Declaration><![CDATA[METHOD OnError : BOOL
+VAR_INPUT
+	error_id : UDINT;
+	message : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// エラー処理のログ出力
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_ERROR, 
+          msgFmtStr := CONCAT('InterlockObserver Error: ', CONCAT(message, CONCAT(' (ID: ', CONCAT(UDINT_TO_STRING(error_id), ')')))), 
+          strArg := '');
+
+OnError := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnJobEvent" Id="{f3989af6-009a-4414-bf86-ce5e7ff2597d}">
+      <Declaration><![CDATA[METHOD OnJobEvent : BOOL
+VAR_INPUT
+	event : ST_JobEvent;
+END_VAR
+VAR
+	i : UINT;
+	j : UINT;
+	is_monitored_zone : BOOL := FALSE;
+	zone_slot : UINT := 0;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// 監視対象ゾーンかチェック
+FOR i := 1 TO _max_zones DO
+	IF _monitored_zones[i] <> '' AND 
+	   event.executor_id = _monitored_zones[i] THEN
+		is_monitored_zone := TRUE;
+		EXIT;
+	END_IF
+END_FOR
+
+IF NOT is_monitored_zone THEN
+	OnJobEvent := TRUE;
+	RETURN;
+END_IF
+
+// 状態遷移イベントの処理
+IF event.event_type = E_JobEventType.TRANSITION THEN
+	
+	// 処理開始時のインターロック有効化
+	IF event.state_new = E_FutureExecutionState.process THEN
+		
+		// 空きスロットを検索
+		FOR j := 1 TO _max_zones DO
+			IF NOT _zone_states[j].active THEN
+				zone_slot := j;
+				EXIT;
+			END_IF
+		END_FOR
+		
+		IF zone_slot <> 0 THEN
+			_zone_states[zone_slot].zone_id := event.executor_id;
+			_zone_states[zone_slot].active := TRUE;
+			_zone_states[zone_slot].start_time := event.timestamp;
+			_zone_states[zone_slot].executor_uid := event.executor_uid;
+			
+			ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_HINT, 
+			         msgFmtStr := CONCAT('INTERLOCK ACTIVE: Zone [', CONCAT(event.executor_id, CONCAT('] protected by [', CONCAT(event.executor_uid, ']')))), 
+			         strArg := '');
+		END_IF
+		
+	// 処理完了時のインターロック解除
+	ELSIF event.state_new = E_FutureExecutionState.finish OR
+	      event.state_new = E_FutureExecutionState.abort THEN
+		
+		FOR j := 1 TO _max_zones DO
+			IF _zone_states[j].active AND 
+			   _zone_states[j].zone_id = event.executor_id THEN
+				_zone_states[j].active := FALSE;
+				
+				ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_HINT, 
+				         msgFmtStr := CONCAT('INTERLOCK RELEASED: Zone [', CONCAT(event.executor_id, CONCAT('] by [', CONCAT(event.executor_uid, ']')))), 
+				         strArg := '');
+				EXIT;
+			END_IF
+		END_FOR
+	END_IF
+END_IF
+
+OnJobEvent := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="RemoveMonitoredZone" Id="{2e1d0c9b-8a7f-4e6d-5c4b-392817f6e5d4}">
+      <Declaration><![CDATA[METHOD RemoveMonitoredZone : BOOL
+VAR_INPUT
+	zone_id : STRING;
+END_VAR
+VAR
+	i : UINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// 監視ゾーンの削除
+FOR i := 1 TO _max_zones DO
+	IF _monitored_zones[i] = zone_id THEN
+		_monitored_zones[i] := '';
+		// 対応するゾーン状態もクリア
+		IF _zone_states[i].zone_id = zone_id THEN
+			_zone_states[i].active := FALSE;
+			_zone_states[i].zone_id := '';
+		END_IF
+		RemoveMonitoredZone := TRUE;
+		RETURN;
+	END_IF
+END_FOR
+
+RemoveMonitoredZone := FALSE; // 見つからない]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_InterlockObserver">
+      <LineId Id="6" Count="1" />
+    </LineIds>
+    <LineIds Name="FB_InterlockObserver._update_interlock_status">
+      <LineId Id="6" Count="19" />
+    </LineIds>
+    <LineIds Name="FB_InterlockObserver.AddMonitoredZone">
+      <LineId Id="6" Count="9" />
+    </LineIds>
+    <LineIds Name="FB_InterlockObserver.OnError">
+      <LineId Id="6" Count="6" />
+    </LineIds>
+    <LineIds Name="FB_InterlockObserver.OnJobEvent">
+      <LineId Id="6" Count="57" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_InterlockObserver.RemoveMonitoredZone">
+      <LineId Id="6" Count="14" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,212 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_JobEventStream" Id="{b3b0b56f-92ef-4af1-8453-d6abd560995d}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FB_JobEventStream IMPLEMENTS InterfaceJobEventObservable
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_observers : ARRAY[1..ParamFuturesLib.MAX_JOB_EVENT_OBSERVERS] OF InterfaceJobEventObserver;
+	_filter_state : E_FutureExecutionState := E_FutureExecutionState.idle;
+	_filter_event_type : E_JobEventType := E_JobEventType.TRANSITION;
+	_filter_executor_id : T_MaxString := '';
+	_filter_error_min : UDINT := 0;
+	_filter_error_max : UDINT := 16#FFFFFFFF;
+	_filter_enabled : ST_FilterStates;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="ClearFilters" Id="{a7c8f4d3-2e9b-4f8a-b6c5-8d7e6f5a4b3c}">
+      <Declaration><![CDATA[METHOD ClearFilters : InterfaceJobEventObservable
+VAR_INPUT
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_filter_enabled.state := FALSE;
+_filter_enabled.event_type := FALSE;
+_filter_enabled.executor_id := FALSE;
+_filter_enabled.error_range := FALSE;
+ClearFilters := THIS^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="emit_event" Id="{f2d1e8a7-3b4c-4529-a6d8-9e7f6d5c4b3a}">
+      <Declaration><![CDATA[METHOD emit_event : BOOL
+VAR_INPUT
+	event : ST_JobEvent;
+END_VAR
+VAR
+	i : UINT;
+	should_emit : BOOL := TRUE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// フィルター判定
+IF _filter_enabled.state AND event.state_new <> _filter_state THEN
+	should_emit := FALSE;
+END_IF
+IF _filter_enabled.event_type AND event.event_type <> _filter_event_type THEN
+	should_emit := FALSE;
+END_IF
+IF _filter_enabled.executor_id AND event.executor_id <> _filter_executor_id THEN
+	should_emit := FALSE;
+END_IF
+IF _filter_enabled.error_range AND (event.error_id < _filter_error_min OR event.error_id > _filter_error_max) THEN
+	should_emit := FALSE;
+END_IF
+
+// 配信実行
+IF should_emit THEN
+	FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_OBSERVERS DO
+		IF _observers[i] <> 0 THEN
+			_observers[i].OnJobEvent(event);
+		END_IF
+	END_FOR
+	emit_event := TRUE;
+ELSE
+	emit_event := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Subscribe" Id="{3c8f9e4a-5d6b-4728-a19c-8e7f6d5c4b3a}">
+      <Declaration><![CDATA[METHOD Subscribe : BOOL
+VAR_INPUT
+	observer : InterfaceJobEventObserver;
+END_VAR
+VAR
+	i : UINT;
+	bSubscribed : BOOL := FALSE;
+	idxEmpty : UINT := 0;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF observer = 0 THEN
+	Subscribe := FALSE;
+	RETURN;
+END_IF
+
+// 既存購読確認と空きスロット検索
+FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_OBSERVERS DO
+	IF _observers[i] = observer THEN
+		bSubscribed := TRUE;
+		EXIT;
+	END_IF
+	IF idxEmpty = 0 AND _observers[i] = 0 THEN
+		idxEmpty := i;
+	END_IF
+END_FOR
+
+IF bSubscribed THEN
+	Subscribe := TRUE; // 既に購読済み
+ELSIF idxEmpty <> 0 THEN
+	_observers[idxEmpty] := observer;
+	Subscribe := TRUE;
+ELSE
+	Subscribe := FALSE; // 配列満杯
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="Unsubscribe" Id="{7b9a5e2c-8d4f-4618-b5a7-9c8b7e6d5f4e}">
+      <Declaration><![CDATA[METHOD Unsubscribe : BOOL
+VAR_INPUT
+	observer : InterfaceJobEventObserver;
+END_VAR
+VAR
+	i : UINT;
+	bFound : BOOL := FALSE;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF observer = 0 THEN
+	Unsubscribe := FALSE;
+	RETURN;
+END_IF
+
+FOR i := 1 TO ParamFuturesLib.MAX_JOB_EVENT_OBSERVERS DO
+	IF _observers[i] = observer THEN
+		_observers[i] := 0; // Observer削除
+		bFound := TRUE;
+		EXIT;
+	END_IF
+END_FOR
+
+Unsubscribe := bFound;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WhereErrorRange" Id="{8d7c6b5a-4928-4f17-a6d5-3c2b1a9e8f7d}">
+      <Declaration><![CDATA[METHOD WhereErrorRange : InterfaceJobEventObservable
+VAR_INPUT
+	min_error : UDINT;
+	max_error : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_filter_error_min := min_error;
+_filter_error_max := max_error;
+_filter_enabled.error_range := TRUE;
+WhereErrorRange := THIS^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WhereEventType" Id="{bb7112d7-3363-4ff5-a12e-469d07c34588}">
+      <Declaration><![CDATA[METHOD WhereEventType : InterfaceJobEventObservable
+VAR_INPUT
+	event_type : E_JobEventType;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_filter_event_type := event_type;
+_filter_enabled.event_type := TRUE;
+WhereEventType := THIS^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WhereExecutorId" Id="{57f7bab4-907d-45ad-b0c3-6453c49a2eca}">
+      <Declaration><![CDATA[METHOD WhereExecutorId : InterfaceJobEventObservable
+VAR_INPUT
+	executor_id : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_filter_executor_id := executor_id;
+_filter_enabled.executor_id := TRUE;
+WhereExecutorId := THIS^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="WhereState" Id="{7989d8ed-b967-4573-8591-9a78b4b7fe98}">
+      <Declaration><![CDATA[METHOD WhereState : InterfaceJobEventObservable
+VAR_INPUT
+	target_state : E_FutureExecutionState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_filter_state := target_state;
+_filter_enabled.state := TRUE;
+WhereState := THIS^;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_JobEventStream">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobEventStream.ClearFilters">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobEventStream.emit_event">
+      <LineId Id="6" Count="21" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="28" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobEventStream.Subscribe">
+      <LineId Id="6" Count="23" />
+    </LineIds>
+    <LineIds Name="FB_JobEventStream.Unsubscribe">
+      <LineId Id="6" Count="13" />
+    </LineIds>
+    <LineIds Name="FB_JobEventStream.WhereErrorRange">
+      <LineId Id="6" Count="3" />
+    </LineIds>
+    <LineIds Name="FB_JobEventStream.WhereEventType">
+      <LineId Id="6" Count="2" />
+    </LineIds>
+    <LineIds Name="FB_JobEventStream.WhereExecutorId">
+      <LineId Id="6" Count="2" />
+    </LineIds>
+    <LineIds Name="FB_JobEventStream.WhereState">
+      <LineId Id="6" Count="2" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <DUT Name="ST_AlarmEntry" Id="{a9e8f7d6-c5b4-829e-b7d6-4e3d2c1b0a9f}">
+    <Declaration><![CDATA[TYPE ST_AlarmEntry :
+STRUCT
+	executor_uid : T_MaxString;
+	error_id : UDINT;
+	timestamp : FILETIME;
+	active : BOOL;
+END_STRUCT
+END_TYPE]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,0 +1,141 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_TestJobEventObserver" Id="{7f67229d-0355-4085-8fcf-b2c15f77a912}" SpecialFunc="None">
+    <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
+FUNCTION_BLOCK FB_TestJobEventObserver IMPLEMENTS InterfaceJobEventObserver
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+	event_count : UDINT := 0;
+	last_event_type : E_JobEventType;
+	last_executor_id : T_MaxString;
+	last_state_transition : STRING;
+END_VAR
+VAR
+	_max_log_entries : UINT := ParamFuturesLib.MAX_LOG_ENTRIES;
+	_log_entries : ARRAY[1..ParamFuturesLib.MAX_LOG_ENTRIES] OF ST_LogEntry;
+	_log_index : UINT := 1;
+END_VAR]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="GetLogEntry" Id="{8477b4ff-9a39-4e4c-ae67-a11cafe0d491}">
+      <Declaration><![CDATA[METHOD GetLogEntry : STRING
+VAR_INPUT
+	index : UINT;
+END_VAR
+VAR
+	result : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF index >= 1 AND index <= ParamFuturesLib.MAX_LOG_ENTRIES THEN
+	result := CONCAT('[', _log_entries[index].executor_id);
+	result := CONCAT(result, '] ');
+	result := CONCAT(result, _log_entries[index].state_info);
+	GetLogEntry := result;
+ELSE
+	GetLogEntry := 'Invalid index';
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnError" Id="{c98c1e8c-76f8-4cb9-a258-1c383a08846c}">
+      <Declaration><![CDATA[METHOD OnError : BOOL
+VAR_INPUT
+	error_id : UDINT;
+	message : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// エラー処理のログ出力
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_ERROR, 
+          msgFmtStr := CONCAT('TestJobEventObserver Error: ', CONCAT(message, CONCAT(' (ID: ', CONCAT(UDINT_TO_STRING(error_id), ')')))), 
+          strArg := '');
+
+OnError := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="OnJobEvent" Id="{19c41c79-be2c-480b-86ef-9cb2798c6ddd}">
+      <Declaration><![CDATA[METHOD OnJobEvent : BOOL
+VAR_INPUT
+	event : ST_JobEvent;
+END_VAR
+VAR
+	state_text : STRING;
+	log_message : STRING;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[// イベントカウント更新
+event_count := event_count + 1;
+last_event_type := event.event_type;
+last_executor_id := event.executor_id;
+
+// 状態遷移情報の構築
+CASE event.state_old OF
+	E_FutureExecutionState.idle: state_text := 'idle';
+	E_FutureExecutionState.init: state_text := 'init';
+	E_FutureExecutionState.wait_for_process: state_text := 'wait';
+	E_FutureExecutionState.process: state_text := 'process';
+	E_FutureExecutionState.abort: state_text := 'abort';
+	E_FutureExecutionState.quit: state_text := 'quit';
+	E_FutureExecutionState.finish: state_text := 'finish';
+ELSE
+	state_text := 'unknown';
+END_CASE
+
+state_text := CONCAT(state_text, ' -> ');
+
+CASE event.state_new OF
+	E_FutureExecutionState.idle: state_text := CONCAT(state_text, 'idle');
+	E_FutureExecutionState.init: state_text := CONCAT(state_text, 'init');
+	E_FutureExecutionState.wait_for_process: state_text := CONCAT(state_text, 'wait');
+	E_FutureExecutionState.process: state_text := CONCAT(state_text, 'process');
+	E_FutureExecutionState.abort: state_text := CONCAT(state_text, 'abort');
+	E_FutureExecutionState.quit: state_text := CONCAT(state_text, 'quit');
+	E_FutureExecutionState.finish: state_text := CONCAT(state_text, 'finish');
+ELSE
+	state_text := CONCAT(state_text, 'unknown');
+END_CASE
+
+last_state_transition := state_text;
+
+// ログエントリーに記録
+_log_entries[_log_index].timestamp := event.timestamp;
+_log_entries[_log_index].event_type := event.event_type;
+_log_entries[_log_index].executor_id := event.executor_id;
+_log_entries[_log_index].state_info := state_text;
+
+_log_index := _log_index + 1;
+IF _log_index > _max_log_entries THEN
+	_log_index := 1; // 循環バッファ
+END_IF
+
+// ADSログ出力
+log_message := CONCAT('JobEvent [', event.executor_id);
+log_message := CONCAT(log_message, ']: ');
+log_message := CONCAT(log_message, state_text);
+
+IF event.error_id <> 0 THEN
+	log_message := CONCAT(log_message, ' Error: ');
+	log_message := CONCAT(log_message, UDINT_TO_STRING(event.error_id));
+END_IF
+
+ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_HINT, 
+          msgFmtStr := '%s', 
+          strArg := log_message);
+
+OnJobEvent := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="FB_TestJobEventObserver">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TestJobEventObserver.GetLogEntry">
+      <LineId Id="6" Count="7" />
+    </LineIds>
+    <LineIds Name="FB_TestJobEventObserver.OnError">
+      <LineId Id="6" Count="6" />
+    </LineIds>
+    <LineIds Name="FB_TestJobEventObserver.OnJobEvent">
+      <LineId Id="6" Count="59" />
+    </LineIds>
+  </POU>
+</TcPlcObject>
