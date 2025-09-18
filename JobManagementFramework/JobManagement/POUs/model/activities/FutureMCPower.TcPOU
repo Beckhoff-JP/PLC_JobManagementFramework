@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
   <POU Name="FutureMCPower" Id="{53bbc5ad-8cba-4d76-9354-ff6510473cd2}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCPower EXTENDS FB_AbstructFuture
@@ -14,6 +14,7 @@ VAR
 	_enable_negative:	BOOL := TRUE;
 	_fb_power	: MC_Power;
 	_mc_reset	: MC_Reset;
+	_mc_stop	: MC_Stop;
 	_option : ST_PowerOptions;
 	_buffer_mode : MC_BufferMode;
 	_error_id :UDINT;
@@ -49,20 +50,47 @@ END_IF]]></ST>
     </Method>
     <Method Name="execute" Id="{f127afa9-edb6-44ee-8a9c-b074dfb931e5}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
-]]></Declaration>
+VAR_INST
+	_exec_state: UINT;
+	_stoped : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_fb_power(
-	Axis:= _axis, 
-	Enable:= _status, 
-	Enable_Positive:= _enable_positive, 
-	Enable_Negative:= _enable_negative, 
-	Override:= _override, 
-	BufferMode:= _buffer_mode, 
-	Options:= _option, 
-);
-_error_id := _fb_power.ErrorID;
-execute := _status = _fb_Power.Status;
+        <ST><![CDATA[_axis.ReadStatus();
+IF _axis.Status.Moving THEN
+	_stoped := FALSE;
+	_exec_state := 0;
+END_IF
+
+IF NOT _stoped THEN
+	CASE _exec_state OF
+		0:
+			_mc_stop(axis := _axis, Execute := FALSE);
+			_mc_stop(
+				Axis:= _axis,
+				Execute := TRUE
+			);
+			_exec_state := 1;
+		1:
+			IF _mc_stop.Busy THEN
+				_mc_stop(Axis:= _axis,Execute := FALSE);
+				_stoped := TRUE;
+			END_IF
+	END_CASE
+END_IF
 	
+IF _axis.Status.NotMoving AND _stoped THEN
+	_fb_power(
+		Axis:= _axis, 
+		Enable:= _status, 
+		Enable_Positive:= _enable_positive, 
+		Enable_Negative:= _enable_negative, 
+		Override:= _override, 
+		BufferMode:= _buffer_mode, 
+		Options:= _option, 
+	);
+	_error_id := _fb_power.ErrorID;
+	execute := _status = _fb_Power.Status;
+END_IF	
 ]]></ST>
       </Implementation>
     </Method>
@@ -114,7 +142,8 @@ END_VAR
       <Implementation>
         <ST><![CDATA[_axis REF= axis;
 _status := status;
-]]></ST>
+_enable_positive := status;
+_enable_negative := status;]]></ST>
       </Implementation>
     </Method>
     <LineIds Name="FutureMCPower">
@@ -127,6 +156,19 @@ _status := status;
       <LineId Id="16" Count="3" />
     </LineIds>
     <LineIds Name="FutureMCPower.execute">
+      <LineId Id="118" Count="0" />
+      <LineId Id="120" Count="0" />
+      <LineId Id="139" Count="0" />
+      <LineId Id="144" Count="0" />
+      <LineId Id="140" Count="0" />
+      <LineId Id="142" Count="0" />
+      <LineId Id="141" Count="0" />
+      <LineId Id="125" Count="4" />
+      <LineId Id="132" Count="5" />
+      <LineId Id="143" Count="0" />
+      <LineId Id="138" Count="0" />
+      <LineId Id="123" Count="1" />
+      <LineId Id="121" Count="1" />
       <LineId Id="60" Count="0" />
       <LineId Id="105" Count="5" />
       <LineId Id="67" Count="0" />
@@ -152,6 +194,7 @@ _status := status;
       <LineId Id="27" Count="0" />
       <LineId Id="33" Count="0" />
       <LineId Id="17" Count="0" />
+      <LineId Id="39" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_ParallelQueueJobContainer" Id="{d5fc8dd4-0f17-45e0-b0bb-86aca529f22f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_ParallelQueueJobContainer EXTENDS FB_AbstructContainer
@@ -106,14 +106,16 @@ VAR
 END_VAR
 VAR_INST
 	_executor : REFERENCE TO FB_Executor;
+	await : BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[_all_done := TRUE;
 REPEAT
-	_executor REF= THIS^.each_executor;
+	_executor REF= each_executor;
 	IF __ISVALIDREF(_executor) THEN
-		IF NOT _executor.abort() THEN
+		await := _executor.abort();
+		IF _executor.busy OR NOT await THEN
 			_all_done := FALSE;
 		END_IF
 	END_IF
@@ -183,7 +185,7 @@ END_VAR
       <Implementation>
         <ST><![CDATA[_init_done := TRUE;
 REPEAT
-	_executor REF= THIS^.each_executor;
+	_executor REF= each_executor;
 	IF __ISVALIDREF(_executor) THEN
 		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
 		IF NOT _executor.init() THEN
@@ -210,7 +212,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_all_done := TRUE;
 REPEAT
-	_executor REF= THIS^.each_executor;
+	_executor REF= each_executor;
 	IF __ISVALIDREF(_executor) THEN
 		IF NOT _executor.start() AND _executor.ready THEN
 			_all_done := FALSE;
@@ -241,7 +243,12 @@ start := _all_done;]]></ST>
       <LineId Id="498" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelQueueJobContainer.abort">
-      <LineId Id="132" Count="10" />
+      <LineId Id="132" Count="2" />
+      <LineId Id="150" Count="1" />
+      <LineId Id="160" Count="0" />
+      <LineId Id="163" Count="0" />
+      <LineId Id="162" Count="0" />
+      <LineId Id="139" Count="3" />
       <LineId Id="124" Count="0" />
     </LineIds>
     <LineIds Name="FB_ParallelQueueJobContainer.execute">

@@ -3,8 +3,6 @@
 *.TCDUT diff=binary
 *.TCGVL diff=binary
 *.TCIO diff=binary
-*.TCTLO diff=binary
-*.TCGTLO diff=binary
 *.PLCPROJ diff=binary
 *.TCTTO diff=binary
 *.TCVMO diff=binary
@@ -15,10 +13,13 @@
 *.TCCD diff=binary
 *.TCTLEO diff=binary
 *.TCIPO diff=binary
+*.TCTLO diff=binary
+*.TCGTLO diff=binary
 *.TSPROJ diff=binary
 *.TSPPROJ diff=binary
 *.TSZIP diff=binary
 *.TNZIP diff=binary
+*.TPZIP diff=binary
 *.XTI diff=binary
 *.SPLCPROJ diff=binary
 *.SDS diff=binary
@@ -35,8 +36,6 @@
 *.TCDUT merge=binary
 *.TCGVL merge=binary
 *.TCIO merge=binary
-*.TCTLO merge=binary
-*.TCGTLO merge=binary
 *.PLCPROJ merge=binary
 *.TCTTO merge=binary
 *.TCVMO merge=binary
@@ -47,10 +46,13 @@
 *.TCCD merge=binary
 *.TCTLEO merge=binary
 *.TCIPO merge=binary
+*.TCTLO merge=binary
+*.TCGTLO merge=binary
 *.TSPROJ merge=binary
 *.TSPPROJ merge=binary
 *.TSZIP merge=binary
 *.TNZIP merge=binary
+*.TPZIP merge=binary
 *.XTI merge=binary
 *.SPLCPROJ merge=binary
 *.SDS merge=binary

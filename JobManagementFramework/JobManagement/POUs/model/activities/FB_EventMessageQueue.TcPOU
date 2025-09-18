@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_EventMessageQueue" Id="{a7278202-b575-4577-a458-ddcec29012ba}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_EventMessageQueue
+VAR CONSTANT
+	COMMAND_QUEUE_BUFFER_SIZE :UDINT := 50;
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_usage:	UDINT;
+	_write_index : UDINT := 1;
+	_read_index : UDINT := 1;
+	_queue_size:	UDINT := COMMAND_QUEUE_BUFFER_SIZE;
+	queue_buffer:	ARRAY [1..COMMAND_QUEUE_BUFFER_SIZE] OF ST_JobEventMessage;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="full" Id="{e3de9c67-ef8c-4885-b0d0-c9c6d8211ff9}">
+      <Declaration><![CDATA[PROPERTY full : BOOL]]></Declaration>
+      <Get Name="Get" Id="{f87d1f5c-efdd-40b1-a1b7-dd2f20e9ba27}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[full :=  _usage >= COMMAND_QUEUE_BUFFER_SIZE;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="get" Id="{04898b93-8bb3-4ba5-8551-03f4d77e5729}">
+      <Declaration><![CDATA[METHOD get : REFERENCE TO ST_JobEventMessage
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _usage = 0 THEN
+	get REF= 0;
+	RETURN;
+END_IF
+
+get REF= queue_buffer[_read_index];
+
+_usage := _usage - 1;
+
+IF COMMAND_QUEUE_BUFFER_SIZE > _read_index THEN
+	_read_index := _read_index + 1;
+ELSE
+	_read_index := 1;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="put" Id="{93203208-f677-42c4-9276-d0f7d8d17596}">
+      <Declaration><![CDATA[METHOD put : BOOL
+VAR_INPUT
+	fbEvent:	REFERENCE TO ST_JobEventMessage;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _usage >= COMMAND_QUEUE_BUFFER_SIZE THEN
+	put := FALSE;
+ELSE
+	queue_buffer[_write_index] := fbEvent;
+	_usage := _usage + 1;
+	IF COMMAND_QUEUE_BUFFER_SIZE > _write_index THEN
+		_write_index := _write_index + 1;
+	ELSE
+		_write_index := 1;
+	END_IF
+	put := TRUE;
+END_IF
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="usage" Id="{968b256f-6a05-45a5-bf92-8b94f3403299}">
+      <Declaration><![CDATA[PROPERTY usage : UDINT]]></Declaration>
+      <Get Name="Get" Id="{aed42d38-7947-47bf-86fe-81eeea8e9812}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[usage := _usage;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FB_EventMessageQueue">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EventMessageQueue.full.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EventMessageQueue.get">
+      <LineId Id="5" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="6" Count="1" />
+      <LineId Id="10" Count="0" />
+      <LineId Id="9" Count="0" />
+      <LineId Id="18" Count="1" />
+      <LineId Id="12" Count="5" />
+      <LineId Id="11" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EventMessageQueue.put">
+      <LineId Id="8" Count="1" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="72" Count="0" />
+      <LineId Id="79" Count="2" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="19" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_EventMessageQueue.usage.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

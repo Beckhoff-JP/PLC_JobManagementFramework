@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureMCInching" Id="{2d0d01ce-3012-43a6-9be6-fc6a356527f7}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCInching EXTENDS FB_AbstructFuture
@@ -27,17 +27,6 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="abort" Id="{23a43b24-bc41-446f-ba48-860846a4109b}">
-      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
-VAR_INST
-	future_halt : FutureMcHalt;
-END_VAR
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[abort := TRUE;
-]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="error_reset" Id="{ba0c1137-f841-47ad-a273-1d21c49fdbdd}">
       <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
 VAR_INST
@@ -173,10 +162,6 @@ _velocity := velocity;
     </Method>
     <LineIds Name="FutureMCInching">
       <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCInching.abort">
-      <LineId Id="26" Count="0" />
-      <LineId Id="8" Count="0" />
     </LineIds>
     <LineIds Name="FutureMCInching.error_reset">
       <LineId Id="32" Count="0" />

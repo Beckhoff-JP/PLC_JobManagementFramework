@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureMCMoveRelative" Id="{68392a9c-c48d-4da1-9d24-d5280f44f2c9}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCMoveRelative EXTENDS FB_AbstructFuture
@@ -9,6 +9,7 @@ VAR_OUTPUT
 END_VAR
 VAR
 	_fb_move_rel	: MC_MoveRelative;
+	_mc_stop		: MC_Stop;
 	_mc_reset	: MC_Reset;
 	_abort_executor		: FB_Executor;
 	_axis: REFERENCE TO AXIS_REF;
@@ -30,28 +31,30 @@ END_VAR
     <Method Name="abort" Id="{8d2f52e3-49e4-4662-be7f-97ff2c46b0a5}">
       <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
 VAR_INST
-	future_halt : FutureMcHalt;
+	future_stop : FutureMcStop;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[CASE _abort_state OF
 	0:
-		_exec_state := 0;
-		future_halt.set_parameters(_axis, _deceleration, _jerk);
-		future_halt.future_name := 'HALT MOVE_RELATIVE';
-		_abort_executor.future := future_halt;
-		_abort_state := 1;
+		_mc_stop(axis := _axis, Execute := FALSE);
+		_mc_stop(
+			Axis:= _axis,
+			Execute := TRUE,
+			Jerk := _jerk,
+			Options := _option
+		);
+		_exec_state := 1;
 	1:
-		IF _abort_executor.execute() AND _abort_executor.nErrorID = 0 THEN
-			_abort_state := 2;
+		IF _mc_stop.Busy THEN
+			_mc_stop(Axis:= _axis,Execute := FALSE);
 		END_IF
-		
-		IF _abort_executor.current_state = E_FutureExecutionState.wait_for_process THEN
-			_abort_executor.start();
+		IF _mc_stop.Done OR _mc_stop.Error THEN
+			abort := TRUE;		
 		END_IF
-	2:
-		abort := TRUE;
+		_error_id := _mc_stop.ErrorID;
 END_CASE
+
 ]]></ST>
       </Implementation>
     </Method>
@@ -177,16 +180,8 @@ _buffer_mode := buffer_mode;]]></ST>
       <LineId Id="9" Count="0" />
     </LineIds>
     <LineIds Name="FutureMCMoveRelative.abort">
-      <LineId Id="9" Count="0" />
-      <LineId Id="12" Count="0" />
-      <LineId Id="27" Count="0" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="17" Count="0" />
-      <LineId Id="16" Count="0" />
-      <LineId Id="14" Count="1" />
-      <LineId Id="18" Count="8" />
-      <LineId Id="11" Count="0" />
-      <LineId Id="8" Count="0" />
+      <LineId Id="156" Count="19" />
+      <LineId Id="103" Count="0" />
     </LineIds>
     <LineIds Name="FutureMCMoveRelative.error_reset">
       <LineId Id="4" Count="12" />

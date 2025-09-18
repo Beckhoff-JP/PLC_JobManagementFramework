@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_BatchJobContainerCreator" Id="{cc44dec9-caab-4c2a-8bde-99d401648394}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_BatchJobContainerCreator IMPLEMENTS InterfaceTaskCreator
 VAR_INPUT

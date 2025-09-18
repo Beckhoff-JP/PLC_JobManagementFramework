@@ -9,7 +9,7 @@
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>JobManagement</Name>
-    <ProgramVersion>3.1.4024.0</ProgramVersion>
+    <ProgramVersion>3.1.4026.18</ProgramVersion>
     <Application>{caeb601e-ddd9-492f-b3ff-a6d992f5797a}</Application>
     <TypeSystem>{56c66bb5-ad95-4fd1-aa91-a1b3c39295da}</TypeSystem>
     <Implicit_Task_Info>{6981dcc3-170d-42ba-b750-2cf25a048c19}</Implicit_Task_Info>
@@ -73,15 +73,22 @@
     <SelectedLibraryCategories>
       <Id xmlns="">{ebb42e0a-ab3e-4c49-880e-9e854060901d}</Id>
     </SelectedLibraryCategories>
+    <CompilerDefines>VISU_USEWSTRING, VISU_NO_EXCEPTION_HANDLING</CompilerDefines>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="DUTs\ContainerType.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ErrorTracking.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\E_ErrorId.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\E_FutureExecutionState.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="DUTs\ST_JobEventMessage.TcDUT">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="DUTs\ST_MotionData.TcDUT">
@@ -105,6 +112,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\activities\FB_observer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\activities\FB_EventMessageQueue.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\activities\FutureCounterBlinkCreator.TcPOU">
@@ -191,6 +201,15 @@
     <Compile Include="POUs\model\activities\FutureTimerBlinkCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\helper\FB_ExecutorTreeSearch.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\helper\InterfaceObserver.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\helper\seek_job.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\FB_AbstructFuture.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -201,9 +220,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_AbstructContainer.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\model\library\FB_ExecutorTreeSearch.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_ParallelJobContainerCreator.TcPOU">
@@ -227,16 +243,25 @@
     <Compile Include="POUs\model\library\FB_QueueJobContainerCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\FB_TaskRunner.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\InterfaceContainer.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\InterfaceFuture.TcIO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\InterfaceObservable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\InterfaceTaskCreator.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\library\InterfaceObserver.TcIO">
+    <Compile Include="POUs\test\FB_TaskRunner_Test.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\test\UnitTest.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Visualization Manager.TcVMO">
@@ -246,9 +271,8 @@
       <SubType>Code</SubType>
       <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
-    <Compile Include="VISUs\Visualization_1.TcVIS">
+    <Compile Include="VISU_TASK.TcTTO">
       <SubType>Code</SubType>
-      <DependentUpon>Visualization Manager.TcVMO</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -257,6 +281,8 @@
     <Folder Include="POUs\model" />
     <Folder Include="POUs\model\activities" />
     <Folder Include="POUs\model\library" />
+    <Folder Include="POUs\model\helper" />
+    <Folder Include="POUs\test" />
     <Folder Include="VISUs" />
     <Folder Include="POUs" />
   </ItemGroup>
@@ -305,6 +331,7 @@
     </PlaceholderReference>
     <PlaceholderReference Include="Tc2_MC2">
       <DefaultResolution>Tc2_MC2, * (Beckhoff Automation GmbH)</DefaultResolution>
+      <Namespace>Tc2_MC2</Namespace>
     </PlaceholderReference>
     <PlaceholderReference Include="Tc2_Standard">
       <DefaultResolution>Tc2_Standard, * (Beckhoff Automation GmbH)</DefaultResolution>
@@ -321,6 +348,10 @@
     <PlaceholderReference Include="Tc3_Module">
       <DefaultResolution>Tc3_Module, * (Beckhoff Automation GmbH)</DefaultResolution>
       <Namespace>Tc3_Module</Namespace>
+    </PlaceholderReference>
+    <PlaceholderReference Include="TcUnit">
+      <DefaultResolution>TcUnit, * (www.tcunit.org)</DefaultResolution>
+      <Namespace>TcUnit</Namespace>
     </PlaceholderReference>
   </ItemGroup>
   <ItemGroup>

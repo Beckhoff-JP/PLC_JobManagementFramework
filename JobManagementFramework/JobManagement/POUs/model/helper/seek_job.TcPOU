@@ -1,0 +1,83 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <POU Name="seek_job" Id="{b598f05a-2016-4544-8790-a7d2bd225b96}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK seek_job IMPLEMENTS InterfaceObserver
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_job_id :T_MaxString;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="job_id" Id="{05649e3c-eba0-445a-9db7-643ed3fa9cfc}">
+      <Declaration><![CDATA[PROPERTY job_id : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{96926441-094e-4daa-b23f-b66aa574423c}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[job_id := _job_id;
+]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{02620227-07c2-4cbc-b897-67a9d7a39822}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_job_id := job_id;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="subscribe_job_directory" Id="{03051384-5668-4dfd-b49d-b143652b5cb3}">
+      <Declaration><![CDATA[METHOD subscribe_job_directory : BOOL
+VAR_INPUT
+	(* Represent reference to subscribed job object*)
+	executor	: REFERENCE TO FB_Executor;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="subscribe_job_event" Id="{cec237c9-50f4-4c3a-8f34-72085c243386}">
+      <Declaration><![CDATA[METHOD subscribe_job_event : BOOL
+VAR_INPUT
+	(* Subject text of event*)
+	subject	: Tc2_System.T_MaxString;
+	(* Job state before transition.*)
+	old_state	: E_FutureExecutionState;
+	(* Job state after transition.*)
+	new_state	: E_FutureExecutionState;
+	(* File-time at the time of transition.*)
+	record_time	: Tc2_Utilities.T_FILETIME64;
+	(* Reference to job instance of which transition occurs.*)
+	executor	: REFERENCE TO FB_Executor;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <LineIds Name="seek_job">
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="seek_job.job_id.Get">
+      <LineId Id="2" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="seek_job.job_id.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="seek_job.subscribe_job_directory">
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="seek_job.subscribe_job_event">
+      <LineId Id="16" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

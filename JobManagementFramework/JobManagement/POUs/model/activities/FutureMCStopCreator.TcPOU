@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureMCStopCreator" Id="{2aa0840a-ea83-4839-96a4-e982629c2128}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FutureMCStopCreator IMPLEMENTS InterfaceTaskCreator
 VAR_INPUT
@@ -19,7 +19,7 @@ END_VAR
     </Implementation>
     <Method Name="create_future" Id="{cde46ba2-2def-45b1-8a5c-0125d157852f}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : jobmgmt.InterfaceFuture
+METHOD create_future : InterfaceFuture
 VAR_INPUT
 	(* Specify future name*)
 	future_name	: STRING;
@@ -37,10 +37,10 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{701772d1-8e6f-4e4f-9c7c-933fa6c3ea4e}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : jobmgmt.InterfaceFuture
+METHOD destroy_future : InterfaceFuture
 VAR_INPUT
 	(* Specify future instance whtat you want to delete.*)
-	future	: jobmgmt.InterfaceFuture;
+	future	: InterfaceFuture;
 END_VAR
 VAR
 	_p_future : POINTER TO FutureMCStop;

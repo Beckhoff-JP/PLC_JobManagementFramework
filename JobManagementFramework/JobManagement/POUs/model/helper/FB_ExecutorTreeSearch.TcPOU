@@ -13,6 +13,17 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Property Name="observer" Id="{cbd9a383-4bd6-4f9d-9073-4f772a89385d}">
+      <Declaration><![CDATA[PROPERTY observer : InterfaceObserver]]></Declaration>
+      <Set Name="Set" Id="{bc01bd66-0598-4f1e-9c20-0e70382077be}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_observer := observer;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Method Name="search" Id="{4aa60b52-b4c1-49ad-bcc1-ddd28e76b7fb}">
       <Declaration><![CDATA[METHOD search : BOOL
 VAR_INPUT
@@ -44,19 +55,11 @@ END_IF
 search := _all_done;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="subscriber" Id="{cbd9a383-4bd6-4f9d-9073-4f772a89385d}">
-      <Declaration><![CDATA[PROPERTY subscriber : InterfaceObserver]]></Declaration>
-      <Set Name="Set" Id="{bc01bd66-0598-4f1e-9c20-0e70382077be}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_observer := subscriber;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <LineIds Name="FB_ExecutorTreeSearch">
       <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_ExecutorTreeSearch.observer.Set">
+      <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_ExecutorTreeSearch.search">
       <LineId Id="56" Count="0" />
@@ -71,9 +74,6 @@ END_VAR
       <LineId Id="50" Count="3" />
       <LineId Id="42" Count="0" />
       <LineId Id="21" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ExecutorTreeSearch.subscriber.Set">
-      <LineId Id="2" Count="0" />
     </LineIds>
   </POU>
 </TcPlcObject>

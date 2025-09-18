@@ -1,18 +1,28 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_observer" Id="{ba91026f-1b14-496b-9bee-5db4c9acb690}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_observer IMPLEMENTS InterfaceObserver
 VAR_INPUT
+	current_time : REFERENCE TO T_FILETIME64;
 END_VAR
 VAR_OUTPUT
 	{attribute 'TcEncoding':='UTF-8'}
 	text : T_MAXSTRING;
+	error : BOOL;
+	event_message : ST_JobEventMessage;
 END_VAR
 VAR
+	queue : FB_EventMessageQueue;
+	cycle_counter : UINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[]]></ST>
+      <ST><![CDATA[IF queue.usage > 0 THEN
+	event_message := queue.get();
+END_IF
+
+
+]]></ST>
     </Implementation>
     <Method Name="subscribe_job_directory" Id="{cc4352ea-4318-48df-aee9-c6bfcea872ac}">
       <Declaration><![CDATA[METHOD subscribe_job_directory : BOOL
@@ -40,6 +50,9 @@ END_IF]]></ST>
     </Method>
     <Method Name="subscribe_job_event" Id="{e5fac08e-bd79-4abd-97a0-a76262921e4d}">
       <Declaration><![CDATA[METHOD subscribe_job_event : BOOL
+VAR CONSTANT
+	MAX_ALARM_TRACK_NUM : UDINT := 10;
+END_VAR
 VAR_INPUT
 	subject		: T_MaxString;
 	old_state	: E_FutureExecutionState;
@@ -55,6 +68,9 @@ VAR
 	current_state : STRING;
 	container : InterfaceContainer;
 	num_of_jobs : UINT;
+	error_message_pool : ARRAY [1..MAX_ALARM_TRACK_NUM] OF ErrorTracking;
+	i : UDINT;
+	_event_message : ST_JobEventMessage;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[last_state := TO_STRING(old_state);
@@ -63,9 +79,20 @@ current_state := TO_STRING(new_state);
 IF __QUERYINTERFACE(executor.future, container) THEN
 	num_of_jobs := container.num_of_jobs;
 ELSE
-	num_of_jobs := 1;
+	num_of_jobs := 0;
 END_IF
 
+_event_message.job_id := executor.uid;
+_event_message.num_of_job := num_of_jobs;
+_event_message.new_state := TO_STRING(new_state);
+_event_message.old_state := TO_STRING(old_state);
+IF __ISVALIDREF(current_time) THEN
+	_event_message.record_time := current_time;
+ELSE	
+	_event_message.record_time := record_time;
+END_IF
+_event_message.subject := executor.future.future_name;
+queue.put(_event_message);
 
 IF __ISVALIDREF(executor) THEN
 	fb_timezone_info();
@@ -83,6 +110,16 @@ IF __ISVALIDREF(executor) THEN
 	text := CONCAT(text, '		');
 	text := CONCAT(text, TO_STRING(num_of_jobs));
 	
+	IF executor.nErrorID <> 0 AND subject = 'TRANSITION' THEN
+		i := 1;
+		WHILE error_message_pool[i].error_id <> 0 AND i < MAX_ALARM_TRACK_NUM DO
+			i := i + 1;
+		END_WHILE
+		error_message_pool[i].job_id := executor.uid;
+		error_message_pool[i].error_id := executor.nErrorID;
+	
+	END_IF
+	
 	
 	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG,
  			 msgFmtStr := text, 
@@ -94,6 +131,10 @@ subscribe_job_event := TRUE;]]></ST>
     </Method>
     <LineIds Name="FB_observer">
       <LineId Id="9" Count="0" />
+      <LineId Id="23" Count="1" />
+      <LineId Id="33" Count="0" />
+      <LineId Id="31" Count="0" />
+      <LineId Id="30" Count="0" />
     </LineIds>
     <LineIds Name="FB_observer.subscribe_job_directory">
       <LineId Id="32" Count="0" />
@@ -115,12 +156,31 @@ subscribe_job_event := TRUE;]]></ST>
       <LineId Id="233" Count="0" />
       <LineId Id="236" Count="1" />
       <LineId Id="234" Count="0" />
+      <LineId Id="328" Count="0" />
+      <LineId Id="298" Count="1" />
       <LineId Id="230" Count="0" />
+      <LineId Id="300" Count="0" />
+      <LineId Id="330" Count="0" />
+      <LineId Id="336" Count="0" />
+      <LineId Id="331" Count="0" />
+      <LineId Id="335" Count="0" />
+      <LineId Id="332" Count="0" />
+      <LineId Id="302" Count="0" />
+      <LineId Id="329" Count="0" />
       <LineId Id="228" Count="0" />
       <LineId Id="122" Count="0" />
       <LineId Id="183" Count="11" />
       <LineId Id="238" Count="1" />
-      <LineId Id="195" Count="2" />
+      <LineId Id="195" Count="0" />
+      <LineId Id="265" Count="0" />
+      <LineId Id="274" Count="0" />
+      <LineId Id="268" Count="0" />
+      <LineId Id="273" Count="0" />
+      <LineId Id="270" Count="2" />
+      <LineId Id="275" Count="0" />
+      <LineId Id="267" Count="0" />
+      <LineId Id="261" Count="0" />
+      <LineId Id="196" Count="1" />
       <LineId Id="212" Count="1" />
       <LineId Id="182" Count="0" />
       <LineId Id="134" Count="0" />

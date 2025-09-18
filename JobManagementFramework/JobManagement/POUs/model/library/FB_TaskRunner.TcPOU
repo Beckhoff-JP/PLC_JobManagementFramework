@@ -1,0 +1,369 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
+  <POU Name="FB_TaskRunner" Id="{edfadf07-67d2-4234-8c66-349c9bc50ad5}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TaskRunner
+VAR_INPUT
+	error_reset : BOOL; // Error reset
+	root_job_id : STRING := '*';
+	root_job_name : STRING := 'ROOT';
+	upstream_aborting : BOOL := FALSE; // 
+	continuous_mode : BOOL := TRUE;
+END_VAR
+VAR_OUTPUT
+	job_empty : BOOL;
+	num_of_jobs : UINT;
+	fbObserver : FB_observer;
+END_VAR
+VAR
+	init : BOOL;
+	_executor: FB_Executor; // main Executor
+	last_job_number : UINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT init THEN
+	_executor.job_event_reporter := fbObserver;
+	init := TRUE;
+	_executor.id := root_job_id;
+	_executor.upstream_aborting := upstream_aborting;
+	_executor.create_container(ContainerType.PARALLEL_QUEUE, root_job_name);
+	_executor.continuous_mode := continuous_mode;
+END_IF
+
+
+_executor.execute();
+num_of_jobs := _executor.children.num_of_jobs;
+
+job_empty := last_job_number > 0 AND _executor.children.num_of_jobs = 0;
+last_job_number := _executor.children.num_of_jobs;
+
+
+IF _executor.ready THEN
+	_executor.start();
+END_IF
+]]></ST>
+    </Implementation>
+    <Method Name="abort" Id="{2ec2cfb5-6aac-4b5d-a579-c21b8f186b53}">
+      <Declaration><![CDATA[METHOD abort : BOOL
+VAR_INPUT
+	job : REFERENCE TO FB_Executor REF= 0;
+END_VAR
+VAR
+	_child_executor : REFERENCE TO FB_Executor;
+	all_aborted : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _executor.children = 0 THEN
+	RETURN;
+END_IF
+
+IF NOT __ISVALIDREF(job) OR num_of_jobs = 0 THEN
+	all_aborted := TRUE;
+END_IF
+REPEAT
+	_child_executor REF= _executor.children.each_executor;
+	IF __ISVALIDREF(_child_executor) THEN
+		IF __ISVALIDREF(job) THEN
+			IF ADR(job) = ADR(_child_executor) THEN
+				all_aborted := _child_executor.abort();
+			END_IF
+		ELSE
+			IF NOT _child_executor.abort() THEN
+				all_aborted := FALSE;
+			END_IF
+		END_IF
+
+	END_IF
+UNTIL
+	NOT __ISVALIDREF(_child_executor)
+END_REPEAT
+
+abort := all_aborted;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="append_future" Id="{c8cf10ac-651e-4b55-936b-7741712b04f9}">
+      <Declaration><![CDATA[METHOD append_future : REFERENCE TO FB_Executor
+VAR_INPUT
+	future : InterfaceFuture;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _executor.children = 0 THEN
+	RETURN;
+END_IF
+
+append_future REF= _executor.children.spawn_job(future);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="append_job" Id="{9478587e-18c8-434e-9e7a-ea7720add6db}">
+      <Declaration><![CDATA[METHOD append_job : BOOL
+VAR_INPUT
+	job : REFERENCE TO FB_Executor;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _executor.children = 0 THEN
+	RETURN;
+END_IF
+
+IF job.init() THEN
+	_executor.children.append_job(job);
+	append_job := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="create_job" Id="{a15036f3-9f48-47bc-9e23-41ed0b98d15a}">
+      <Declaration><![CDATA[METHOD create_job : REFERENCE TO FB_Executor
+VAR_INPUT
+	creator : InterfaceTaskCreator;
+	name : STRING;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _executor.children = 0 THEN
+	RETURN;
+END_IF
+
+create_job REF= _executor.children.create_job(creator, name);
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="error_reset" Id="{49e44ab9-6fa5-4b48-b4fc-2124df79f2ad}">
+      <Declaration><![CDATA[METHOD error_reset : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[error_reset := _executor.error_reset();
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="job_clear" Id="{a712ddb7-5b8d-43cd-9202-b9ce0095b19b}">
+      <Declaration><![CDATA[METHOD job_clear : BOOL
+VAR_INPUT
+	job : REFERENCE TO FB_Executor REF= 0;
+END_VAR
+VAR
+	_child_executor : REFERENCE TO FB_Executor;
+	all_clear : BOOL;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _executor.children = 0 THEN
+	job_clear := TRUE;
+	RETURN;
+END_IF
+
+job_clear := _executor.children.reset(FALSE);
+
+(*
+IF NOT __ISVALIDREF(job) OR num_of_jobs = 0 THEN
+	all_clear := TRUE;
+END_IF
+REPEAT
+	_child_executor REF= _executor.children.each_executor;
+	IF __ISVALIDREF(_child_executor) THEN
+		IF __ISVALIDREF(job) THEN
+			IF ADR(job) = ADR(_child_executor) THEN
+				all_clear := _child_executor.reset(FALSE);
+			END_IF
+		ELSE
+			IF NOT _child_executor.reset(FALSE) THEN
+				all_clear := FALSE;
+			END_IF
+		END_IF
+
+	END_IF
+UNTIL
+	NOT __ISVALIDREF(_child_executor)
+END_REPEAT
+
+job_clear := all_clear;
+*)]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="observer" Id="{947c7939-e057-4dfe-be01-9957111d99a8}">
+      <Declaration><![CDATA[PROPERTY observer : InterfaceObserver]]></Declaration>
+      <Get Name="Get" Id="{17c56140-6fb9-4d59-948b-42e2f681725d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[observer := _executor.job_event_reporter;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{f479983c-3a32-4080-975e-175a536cc1c1}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_executor.job_event_reporter := observer;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="quit" Id="{4ec2c2c1-9796-48ac-b58a-9925be5beab4}">
+      <Declaration><![CDATA[METHOD quit : BOOL
+VAR_INPUT
+	job : REFERENCE TO FB_Executor REF= 0;
+END_VAR
+VAR
+	_child_executor : REFERENCE TO FB_Executor;
+	all_quit: BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _executor.children = 0 THEN
+	RETURN;
+END_IF
+
+IF NOT __ISVALIDREF(job) OR num_of_jobs = 0 THEN
+	all_quit := TRUE;
+END_IF
+
+REPEAT
+	_child_executor REF= _executor.children.each_executor;
+	IF __ISVALIDREF(_child_executor) THEN
+		IF __ISVALIDREF(job) THEN
+			IF ADR(job) = ADR(_child_executor) THEN
+				all_quit := _child_executor.quit();
+			END_IF
+		ELSE
+			IF NOT _child_executor.quit() THEN
+				all_quit := FALSE;
+			END_IF
+		END_IF
+
+	END_IF
+UNTIL
+	NOT __ISVALIDREF(_child_executor)
+END_REPEAT
+
+quit := all_quit;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="restart" Id="{f5c869ca-d4d1-4b5b-bcf6-2f154bba62ac}">
+      <Declaration><![CDATA[METHOD restart : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _executor.error_reset() THEN
+	restart := _executor.resume();
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="root_executor" Id="{6593cc12-1f35-444c-8ca5-989cc3fd8171}">
+      <Declaration><![CDATA[PROPERTY root_executor : REFERENCE TO FB_Executor]]></Declaration>
+      <Get Name="Get" Id="{ef19ae3b-d43d-4c19-bc32-8310228e9dc7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[root_executor REF= _executor;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <LineIds Name="FB_TaskRunner">
+      <LineId Id="103" Count="10" />
+      <LineId Id="195" Count="0" />
+      <LineId Id="149" Count="0" />
+      <LineId Id="174" Count="0" />
+      <LineId Id="171" Count="0" />
+      <LineId Id="120" Count="4" />
+      <LineId Id="9" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.abort">
+      <LineId Id="56" Count="1" />
+      <LineId Id="55" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="52" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="61" Count="0" />
+      <LineId Id="16" Count="1" />
+      <LineId Id="36" Count="0" />
+      <LineId Id="40" Count="0" />
+      <LineId Id="37" Count="0" />
+      <LineId Id="43" Count="1" />
+      <LineId Id="38" Count="0" />
+      <LineId Id="23" Count="0" />
+      <LineId Id="25" Count="1" />
+      <LineId Id="42" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="24" Count="0" />
+      <LineId Id="19" Count="1" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="6" Count="0" />
+      <LineId Id="34" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.append_future">
+      <LineId Id="19" Count="1" />
+      <LineId Id="15" Count="0" />
+      <LineId Id="18" Count="0" />
+      <LineId Id="8" Count="0" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.append_job">
+      <LineId Id="15" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="7" Count="0" />
+      <LineId Id="5" Count="0" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.create_job">
+      <LineId Id="18" Count="1" />
+      <LineId Id="14" Count="0" />
+      <LineId Id="20" Count="0" />
+      <LineId Id="17" Count="0" />
+      <LineId Id="8" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.error_reset">
+      <LineId Id="5" Count="0" />
+      <LineId Id="10" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.job_clear">
+      <LineId Id="58" Count="0" />
+      <LineId Id="87" Count="0" />
+      <LineId Id="59" Count="0" />
+      <LineId Id="57" Count="0" />
+      <LineId Id="54" Count="0" />
+      <LineId Id="16" Count="0" />
+      <LineId Id="88" Count="0" />
+      <LineId Id="63" Count="0" />
+      <LineId Id="62" Count="0" />
+      <LineId Id="66" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="27" Count="16" />
+      <LineId Id="77" Count="0" />
+      <LineId Id="86" Count="0" />
+      <LineId Id="15" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.observer.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.observer.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.quit">
+      <LineId Id="75" Count="1" />
+      <LineId Id="69" Count="0" />
+      <LineId Id="79" Count="0" />
+      <LineId Id="78" Count="0" />
+      <LineId Id="41" Count="0" />
+      <LineId Id="80" Count="0" />
+      <LineId Id="42" Count="19" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.restart">
+      <LineId Id="6" Count="1" />
+      <LineId Id="5" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner.root_executor.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

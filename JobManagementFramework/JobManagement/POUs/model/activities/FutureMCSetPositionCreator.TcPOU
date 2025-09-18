@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureMCSetPositionCreator" Id="{293e97ce-3a12-4515-9239-8cf3983d688e}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FutureMCSetPositionCreator IMPLEMENTS InterfaceTaskCreator
 VAR_INPUT
@@ -19,7 +19,7 @@ END_VAR
     </Implementation>
     <Method Name="create_future" Id="{0f731815-c09f-4a7d-a2aa-84ddc0096e42}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : jobmgmt.InterfaceFuture
+METHOD create_future : InterfaceFuture
 VAR_INPUT
 	(* Specify future name*)
 	future_name	: STRING;
@@ -37,10 +37,10 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{d7f6d590-731b-46b0-9c94-43523208ac96}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : jobmgmt.InterfaceFuture
+METHOD destroy_future : InterfaceFuture
 VAR_INPUT
 	(* Specify future instance whtat you want to delete.*)
-	future	: jobmgmt.InterfaceFuture;
+	future	: InterfaceFuture;
 END_VAR
 VAR
 	_p_future : POINTER TO FutureMCSetPosition;

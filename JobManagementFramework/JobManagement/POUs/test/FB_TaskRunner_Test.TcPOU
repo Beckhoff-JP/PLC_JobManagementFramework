@@ -1,7 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
-  <POU Name="MAIN" Id="{0711fc19-ddf5-4c28-b96d-7cde88b1723f}" SpecialFunc="None">
-    <Declaration><![CDATA[PROGRAM MAIN
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+  <POU Name="FB_TaskRunner_Test" Id="{d3f43d38-44f6-4522-94b7-30859937d93c}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_TaskRunner_Test EXTENDS TcUnit.FB_TestSuite
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
 VAR
 	runner : FB_TaskRunner;
 	fbJobTreeSearch : FB_ExecutorTreeSearch;
@@ -29,85 +33,52 @@ VAR
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF NOT init THEN
+      <ST><![CDATA[_01_WhenTaskSpawned();]]></ST>
+    </Implementation>
+    <Method Name="_01_WhenTaskSpawned" Id="{6358bad8-d4a6-48f3-9345-71976b3725f0}">
+      <Declaration><![CDATA[METHOD PRIVATE _01_WhenTaskSpawned
+VAR_INST
+	SpecificNumOfJobs : UDINT := 32;
+	num_of_jobs : UDINT;
+END_VAR
+
+VAR
+	state_expect: E_FUTUREEXECUTIONSTATE;
+	state_actual: E_FutureExecutionState;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[TEST('_01_WhenTaskSpawned');
+
+IF NOT init THEN
 	JobCreateDemo(demo_job, axis1); // demo_job にメソッドを通してシーケンスジョブを組み立てる
 	mc_power.future_name := 'POWER_CTRL';
 	_poweron_job.future := mc_power;
 	observer REF= runner.fbObserver;
-
+	num_of_jobs := demo_job.children.num_of_jobs;
 	init := TRUE;	// RUN 後 1 サイクルだけ実行
 END_IF
 
+AssertEquals(
+	Expected := SpecificNumOfJobs, 
+	Actual := num_of_jobs, 
+	Message := 'Test $'Task Spawned$' failed at $'Num of jobs$''
+);
+
+state_expect := E_FutureExecutionState.init;
+state_actual := demo_job.current_state;
 
 
-// 現在時刻の取得
-localTime();
-tzinfo();
-getSystemtime(in := localTime.systemTime, tzInfo := tzinfo.tzInfo);
-current_time := SYSTEMTIME_TO_FILETIME64(getSystemtime.out);
-observer(current_time := current_time);
 
-// Axis
-axis1.ReadStatus();
-MEMCPY(ADR(motion_data), ADR(axis1.NcToPlc), SIZEOF(axis1.NcToPlc));
-motion_data.record_time := current_time;
+AssertEquals(
+	Expected := state_expect, 
+	Actual := state_actual, 
+	Message := 'Test $'Task Spawned$' failed at $'Num of jobs$''
+);
 
-CASE _state OF
-	0:
-		IF bPower THEN
-			mc_power.set_parameters(axis := axis1, status := TRUE); // Servo on
-			IF runner.append_job(_poweron_job) THEN
-				_state := 1;			
-			END_IF
-		END_IF
-	1:
-		IF _poweron_job.done THEN
-			_state := 2;
-		END_IF
-	2:
-		IF bStart THEN
-			IF runner.append_job(demo_job) THEN
-				_state := 3;
-			END_IF
-		END_IF
-	3:
-		IF demo_job.done THEN
-			_state := 2;
-			//bStart := FALSE;
-		END_IF
-		IF NOT bPower THEN
-			_state := 4;
-		END_IF
-	4:
-		IF NOT demo_job.done THEN
-			IF runner.abort(demo_job) THEN
-				IF runner.quit(demo_job) THEN
-					IF runner.job_clear(demo_job) THEN
-						_state := 5;
-					END_IF
-				END_IF
-			END_IF
-		END_IF
-	5:
-		mc_power.set_parameters(axis := axis1, status := FALSE); // Servo off
-		IF runner.append_job(_poweron_job) THEN
-			_state := 6;		
-		END_IF
-	6:
-		IF _poweron_job.done THEN
-			_state := 0;
-		END_IF
-END_CASE
-
-//IF _state > 0 AND NOT bPower THEN
-//END_IF
-
-runner(root_job_id := '#1', root_job_name := 'ROOT');
-
-
-]]></ST>
-    </Implementation>
-    <Method Name="JobCreateDemo" Id="{c6c18e30-8bba-4c6d-806d-02b28dd2a277}">
+TEST_FINISHED();]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="JobCreateDemo" Id="{b817d0e0-d403-4984-a997-8036c3f54022}">
       <Declaration><![CDATA[METHOD JobCreateDemo : BOOL
 VAR_INPUT
 	base_job : REFERENCE TO FB_Executor;
@@ -201,67 +172,28 @@ _job_temp REF= base_job.children.create_job(mc_move_abs_future_creator,'Back to 
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="MAIN">
-      <LineId Id="5860" Count="0" />
-      <LineId Id="6187" Count="0" />
-      <LineId Id="6362" Count="0" />
-      <LineId Id="6360" Count="0" />
-      <LineId Id="6690" Count="0" />
-      <LineId Id="6689" Count="0" />
-      <LineId Id="5899" Count="1" />
-      <LineId Id="6691" Count="0" />
-      <LineId Id="6702" Count="0" />
-      <LineId Id="6695" Count="6" />
-      <LineId Id="6706" Count="0" />
-      <LineId Id="6703" Count="0" />
-      <LineId Id="6705" Count="0" />
-      <LineId Id="6707" Count="0" />
-      <LineId Id="6711" Count="0" />
-      <LineId Id="6704" Count="0" />
-      <LineId Id="5902" Count="1" />
-      <LineId Id="6247" Count="0" />
-      <LineId Id="6363" Count="0" />
-      <LineId Id="6245" Count="0" />
-      <LineId Id="6645" Count="0" />
-      <LineId Id="6644" Count="0" />
-      <LineId Id="6293" Count="0" />
-      <LineId Id="6226" Count="0" />
-      <LineId Id="6639" Count="0" />
-      <LineId Id="6641" Count="1" />
-      <LineId Id="6640" Count="0" />
-      <LineId Id="6202" Count="0" />
-      <LineId Id="6649" Count="2" />
-      <LineId Id="5910" Count="0" />
-      <LineId Id="5914" Count="0" />
-      <LineId Id="6205" Count="0" />
-      <LineId Id="6257" Count="1" />
-      <LineId Id="6255" Count="0" />
-      <LineId Id="6612" Count="2" />
-      <LineId Id="6278" Count="0" />
-      <LineId Id="6285" Count="0" />
-      <LineId Id="6491" Count="0" />
-      <LineId Id="6552" Count="0" />
-      <LineId Id="6492" Count="0" />
-      <LineId Id="6593" Count="0" />
-      <LineId Id="6495" Count="0" />
-      <LineId Id="6553" Count="0" />
-      <LineId Id="6493" Count="0" />
-      <LineId Id="6573" Count="1" />
-      <LineId Id="6501" Count="1" />
-      <LineId Id="6648" Count="0" />
-      <LineId Id="6647" Count="0" />
-      <LineId Id="6635" Count="3" />
-      <LineId Id="6207" Count="0" />
-      <LineId Id="6250" Count="0" />
-      <LineId Id="6249" Count="0" />
-      <LineId Id="6252" Count="0" />
-      <LineId Id="6531" Count="0" />
-      <LineId Id="6634" Count="0" />
-      <LineId Id="6670" Count="0" />
-      <LineId Id="6532" Count="0" />
-      <LineId Id="6530" Count="0" />
+    <LineIds Name="FB_TaskRunner_Test">
+      <LineId Id="9" Count="0" />
     </LineIds>
-    <LineIds Name="MAIN.JobCreateDemo">
+    <LineIds Name="FB_TaskRunner_Test._01_WhenTaskSpawned">
+      <LineId Id="48" Count="0" />
+      <LineId Id="66" Count="5" />
+      <LineId Id="75" Count="0" />
+      <LineId Id="73" Count="0" />
+      <LineId Id="65" Count="0" />
+      <LineId Id="47" Count="0" />
+      <LineId Id="46" Count="0" />
+      <LineId Id="60" Count="3" />
+      <LineId Id="92" Count="1" />
+      <LineId Id="95" Count="0" />
+      <LineId Id="99" Count="0" />
+      <LineId Id="94" Count="0" />
+      <LineId Id="82" Count="4" />
+      <LineId Id="81" Count="0" />
+      <LineId Id="51" Count="0" />
+      <LineId Id="50" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner_Test.JobCreateDemo">
       <LineId Id="341" Count="0" />
       <LineId Id="243" Count="0" />
       <LineId Id="391" Count="0" />

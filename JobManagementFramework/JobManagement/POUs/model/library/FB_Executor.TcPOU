@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_Executor" Id="{09518444-1d1d-452e-9e8f-647b2f8c5e33}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_Executor
@@ -8,6 +8,7 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
+	
 	{attribute 'TcEncoding':='UTF-8'}
 	_id : T_MaxString;
 	_done : BOOL;
@@ -15,7 +16,7 @@ VAR
 	_resume : BOOL;
 	_passive_abort : BOOL;
 	_quit : BOOL;
-	_upstream_aborting : BOOL := TRUE;
+	_upstream_aborting : BOOL := FALSE;
 	 {attribute 'TcAnalytics'}
 	 _state :E_FutureExecutionState := E_FutureExecutionState.idle;
 	_last_state  :E_FutureExecutionState;
@@ -46,17 +47,16 @@ END_VAR
    _state = E_FutureExecutionState.process OR
    _state = E_FutureExecutionState.quit THEN
    	_start := FALSE;
-	_passive_abort := TRUE;	
-	THIS^.execute();
+	_passive_abort := TRUE;
 	abort := FALSE;
 ELSE
 	IF _state = E_FutureExecutionState.abort THEN
-		THIS^.execute();
 		abort := NOT _aborting;
 	ELSE
 		abort := TRUE;
 	END_IF
-END_IF]]></ST>
+END_IF
+THIS^.execute();]]></ST>
       </Implementation>
     </Method>
     <Property Name="busy" Id="{4599679c-a89e-4edf-a42c-abccebfc0bd6}">
@@ -92,10 +92,8 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[IF _future <> 0 THEN
-	IF __QUERYINTERFACE(_future, _interface_container) THEN
-		_interface_container.continuous_mode := continuous_mode;
-	END_IF	
+          <ST><![CDATA[IF _interface_container <> 0 THEN
+	_interface_container.continuous_mode := continuous_mode;
 END_IF
 ]]></ST>
         </Implementation>
@@ -221,6 +219,7 @@ VAR_INST
 	_logging :BOOL;
 	delay : TIME := T#3S;
 	sleep : TON;
+	await : BOOL;
 END_VAR
 VAR
 	_executor : REFERENCE TO FB_Executor;
@@ -237,9 +236,9 @@ END_IF
 
 IF _passive_abort THEN
 	_state := E_FutureExecutionState.abort;
-	IF _error_id = 0 THEN
-		_error_id := E_ErrorId.PASSIVE_ABORT;
-	END_IF
+	//IF _error_id = 0 THEN
+	//	_error_id := E_ErrorId.PASSIVE_ABORT;
+	//END_IF
 	_passive_abort := FALSE;
 END_IF
 
@@ -284,11 +283,12 @@ CASE _state OF
 		END_IF
 	E_FutureExecutionState.abort:
 		IF _aborting THEN
+			await := _future.abort();
 			_resume := FALSE;
 			IF _upstream_aborting AND __ISVALIDREF(_parent_executor) THEN
-				_parent_executor.abort();				
+				_parent_executor.abort();
 			END_IF
-			IF _future.abort() THEN
+			IF await THEN
 				_aborting := FALSE;
 			END_IF
 		ELSIF _resume THEN
@@ -332,7 +332,7 @@ IF _state <> _state_mem THEN
 		_quitting := TRUE;
 	END_IF
 		
-	IF _job_event_reporter <> 0 AND _state >= E_FutureExecutionState.idle AND _state <= E_FutureExecutionState.finish THEN
+	IF _job_event_reporter <> 0 THEN
 		// reporter
 		_logging := TRUE;
 	END_IF
@@ -696,11 +696,11 @@ END_VAR
       <LineId Id="14" Count="1" />
       <LineId Id="87" Count="0" />
       <LineId Id="17" Count="0" />
-      <LineId Id="119" Count="0" />
-      <LineId Id="150" Count="3" />
+      <LineId Id="150" Count="2" />
       <LineId Id="164" Count="0" />
       <LineId Id="154" Count="2" />
       <LineId Id="111" Count="0" />
+      <LineId Id="172" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.busy.Get">
       <LineId Id="5" Count="0" />
@@ -713,8 +713,8 @@ END_VAR
     </LineIds>
     <LineIds Name="FB_Executor.continuous_mode.Set">
       <LineId Id="9" Count="0" />
-      <LineId Id="12" Count="1" />
-      <LineId Id="10" Count="1" />
+      <LineId Id="13" Count="0" />
+      <LineId Id="11" Count="0" />
       <LineId Id="2" Count="0" />
     </LineIds>
     <LineIds Name="FB_Executor.create_container">
@@ -805,6 +805,7 @@ END_VAR
       <LineId Id="100" Count="0" />
       <LineId Id="34" Count="2" />
       <LineId Id="117" Count="0" />
+      <LineId Id="500" Count="0" />
       <LineId Id="426" Count="0" />
       <LineId Id="441" Count="0" />
       <LineId Id="444" Count="0" />

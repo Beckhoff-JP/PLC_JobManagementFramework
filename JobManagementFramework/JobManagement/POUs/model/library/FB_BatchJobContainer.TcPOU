@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_BatchJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_BatchJobContainer EXTENDS FB_AbstructContainer
@@ -56,9 +56,12 @@ _index_generator_ := _index;
     </Method>
     <Method Name="abort" Id="{df529d65-dccb-41d9-a15b-0d233c35e0bc}">
       <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
-]]></Declaration>
+VAR_INST
+	await : BOOL;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[abort := _executors[current_executing_future_id]^.abort();]]></ST>
+        <ST><![CDATA[await := _executors[current_executing_future_id]^.abort();
+abort := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="execute" Id="{3a50f198-985b-4ce4-97c9-3b4f8b04dcb5}">
@@ -121,7 +124,7 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_init_done := TRUE;
 REPEAT
-	_executor REF= THIS^.each_executor;
+	_executor REF= each_executor;
 	IF __ISVALIDREF(_executor) THEN
 		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
 		IF NOT _executor.init() THEN
@@ -199,6 +202,7 @@ END_IF
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.abort">
       <LineId Id="75" Count="0" />
+      <LineId Id="77" Count="0" />
     </LineIds>
     <LineIds Name="FB_BatchJobContainer.execute">
       <LineId Id="180" Count="0" />

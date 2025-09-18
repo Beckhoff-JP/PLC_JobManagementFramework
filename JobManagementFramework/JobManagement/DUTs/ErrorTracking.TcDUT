@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+  <DUT Name="ErrorTracking" Id="{c682b4d0-280c-4fc6-a687-17c27828c4c6}">
+    <Declaration><![CDATA[TYPE ErrorTracking :
+STRUCT
+	job_id : STRING;
+	error_id : UDINT;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

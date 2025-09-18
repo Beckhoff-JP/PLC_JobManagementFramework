@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureMCMoveRelativeCreator" Id="{d645c079-a4a6-4ee0-a81e-ead6131d7763}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FutureMCMoveRelativeCreator IMPLEMENTS InterfaceTaskCreator
 VAR_INPUT
@@ -22,7 +22,7 @@ END_VAR
     </Implementation>
     <Method Name="create_future" Id="{0a940ebe-841c-4322-b2c6-27b95a617183}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : jobmgmt.InterfaceFuture
+METHOD create_future : InterfaceFuture
 VAR_INPUT
 	(* Specify future name*)
 	future_name	: STRING;
@@ -40,10 +40,10 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{902a1d6e-d586-4236-8491-52e82d8711c1}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : jobmgmt.InterfaceFuture
+METHOD destroy_future : InterfaceFuture
 VAR_INPUT
 	(* Specify future instance whtat you want to delete.*)
-	future	: jobmgmt.InterfaceFuture;
+	future	: InterfaceFuture;
 END_VAR
 VAR
 	_p_future : POINTER TO FutureMCMoveRelative;

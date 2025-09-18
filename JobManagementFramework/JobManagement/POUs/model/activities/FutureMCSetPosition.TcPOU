@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureMCSetPosition" Id="{d61bff14-9e58-4f9b-b583-353e0d0667c2}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCSetPosition EXTENDS FB_AbstructFuture
@@ -22,13 +22,6 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="abort" Id="{e6c82ab6-3275-49eb-8d56-5c988eed9a96}">
-      <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="error_reset" Id="{77846a94-685e-459c-8b27-d7ec9118c6c4}">
       <Declaration><![CDATA[METHOD error_reset : BOOL // Must be overrided if future has any errors.
 VAR_INST
@@ -147,9 +140,6 @@ _position := position;
     </Method>
     <LineIds Name="FutureMCSetPosition">
       <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCSetPosition.abort">
-      <LineId Id="3" Count="0" />
     </LineIds>
     <LineIds Name="FutureMCSetPosition.error_reset">
       <LineId Id="32" Count="0" />
