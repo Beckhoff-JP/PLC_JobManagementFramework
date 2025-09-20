@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
   <POU Name="FutureMCMoveAbsolute" Id="{79bb57a1-f47d-4bcf-938a-520a06e0174a}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCMoveAbsolute EXTENDS FB_AbstructFuture
@@ -111,10 +111,7 @@ execute := _fb_move_abs.Done OR _fb_move_abs.Error;]]></ST>
     </Method>
     <Method Name="init" Id="{69b400a8-eed4-45f3-ae8d-2adfc6cc9d75}">
       <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
-
-VAR
-	axis: INT;
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
         <ST><![CDATA[_exec_state := 0;
 _abort_state := 0;
@@ -233,7 +230,7 @@ _buffer_mode := buffer_mode;]]></ST>
       <LineId Id="19" Count="0" />
     </LineIds>
     <LineIds Name="FutureMCMoveAbsolute.set_parameters">
-      <LineId Id="80" Count="5" />
+      <LineId Id="57" Count="5" />
       <LineId Id="56" Count="0" />
     </LineIds>
   </POU>

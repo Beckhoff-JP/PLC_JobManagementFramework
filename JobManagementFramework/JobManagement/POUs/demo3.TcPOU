@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
-  <POU Name="MAIN" Id="{0711fc19-ddf5-4c28-b96d-7cde88b1723f}" SpecialFunc="None">
-    <Declaration><![CDATA[PROGRAM MAIN
+  <POU Name="demo3" Id="{0711fc19-ddf5-4c28-b96d-7cde88b1723f}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM demo3
 VAR
 	runner : FB_TaskRunner;
 	fbJobTreeSearch : FB_ExecutorTreeSearch;
@@ -12,7 +12,6 @@ VAR
 	_poweron_job	: FB_Executor;
 	
 	demo_job	: FB_Executor;
-	axis1	: AXIS_REF;
 	bPower : BOOL;
 	bStart : BOOL;
 	
@@ -30,11 +29,10 @@ END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[IF NOT init THEN
-	JobCreateDemo(demo_job, axis1); // demo_job にメソッドを通してシーケンスジョブを組み立てる
+	JobCreateDemo(demo_job, GVL.axis1); // demo_job にメソッドを通してシーケンスジョブを組み立てる
 	mc_power.future_name := 'POWER_CTRL';
 	_poweron_job.future := mc_power;
 	observer REF= runner.fbObserver;
-
 	init := TRUE;	// RUN 後 1 サイクルだけ実行
 END_IF
 
@@ -48,14 +46,14 @@ current_time := SYSTEMTIME_TO_FILETIME64(getSystemtime.out);
 observer(current_time := current_time);
 
 // Axis
-axis1.ReadStatus();
-MEMCPY(ADR(motion_data), ADR(axis1.NcToPlc), SIZEOF(axis1.NcToPlc));
+GVL.axis1.ReadStatus();
+MEMCPY(ADR(motion_data), ADR(GVL.axis1.NcToPlc), SIZEOF(GVL.axis1.NcToPlc));
 motion_data.record_time := current_time;
 
 CASE _state OF
 	0:
 		IF bPower THEN
-			mc_power.set_parameters(axis := axis1, status := TRUE); // Servo on
+			mc_power.set_parameters(axis := GVL.axis1, status := TRUE); // Servo on
 			IF runner.append_job(_poweron_job) THEN
 				_state := 1;			
 			END_IF
@@ -89,7 +87,7 @@ CASE _state OF
 			END_IF
 		END_IF
 	5:
-		mc_power.set_parameters(axis := axis1, status := FALSE); // Servo off
+		mc_power.set_parameters(axis := GVL.axis1, status := FALSE); // Servo off
 		IF runner.append_job(_poweron_job) THEN
 			_state := 6;		
 		END_IF
@@ -119,13 +117,13 @@ VAR
 	sleep : POINTER TO FutureSleep;
 	sleep_creator : FutureSleepCreator;
 
-	mc_move_rel_future : POINTER TO FutureMCMoveRelative;
+	//mc_move_rel_future : POINTER TO FutureMCMoveRelative;
 	mc_move_rel_future_creator : FutureMCMoveRelativeCreator;
 
-	mc_move_abs_future : POINTER TO FutureMCMoveAbsolute;
+	//mc_move_abs_future : POINTER TO FutureMCMoveAbsolute;
 	mc_move_abs_future_creator : FutureMCMoveAbsoluteCreator;
 
-	mc_move_velocity_future: POINTER TO FutureMCMoveVelocity;
+	//mc_move_velocity_future: POINTER TO FutureMCMoveVelocity;
 	mc_move_velocity_future_creator: FutureMCMoveVelocityCreator;
 	
 	mc_stop_future_creator : FutureMcStopCreator;
@@ -201,13 +199,12 @@ _job_temp REF= base_job.children.create_job(mc_move_abs_future_creator,'Back to 
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="MAIN">
+    <LineIds Name="demo3">
       <LineId Id="5860" Count="0" />
       <LineId Id="6187" Count="0" />
       <LineId Id="6362" Count="0" />
       <LineId Id="6360" Count="0" />
       <LineId Id="6690" Count="0" />
-      <LineId Id="6689" Count="0" />
       <LineId Id="5899" Count="1" />
       <LineId Id="6691" Count="0" />
       <LineId Id="6702" Count="0" />
@@ -261,7 +258,7 @@ _job_temp REF= base_job.children.create_job(mc_move_abs_future_creator,'Back to 
       <LineId Id="6532" Count="0" />
       <LineId Id="6530" Count="0" />
     </LineIds>
-    <LineIds Name="MAIN.JobCreateDemo">
+    <LineIds Name="demo3.JobCreateDemo">
       <LineId Id="341" Count="0" />
       <LineId Id="243" Count="0" />
       <LineId Id="391" Count="0" />

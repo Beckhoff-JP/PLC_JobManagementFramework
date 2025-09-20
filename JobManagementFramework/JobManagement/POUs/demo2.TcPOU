@@ -1,0 +1,79 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
+  <POU Name="demo2" Id="{e7ab94f7-dd3b-4f54-9586-48d68da2f19d}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM demo2
+VAR
+    init        : BOOL;
+    demo_job    : FB_Executor;
+    recipro_moving  : ARRAY [1..2, 1..10] OF FutureMCMoveAbsolute;
+    _job_temp   : REFERENCE TO FB_Executor;				// Parallel jobコンテナのジョブへの参照変数
+	i : UDINT;
+	
+	state : UDINT;
+	fb_power : MC_Power;
+	runner : FB_TaskRunner;
+	option : ST_MoveOptions;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+IF NOT init THEN
+    demo_job.create_container(ContainerType.BATCH, 'DEMO_JOB');
+	
+    FOR i := 1 TO 10 DO
+		_job_temp REF= demo_job.children.create_container(ContainerType.PARALLEL,'Blending move container');
+        IF i mod 2 > 0 THEN
+            recipro_moving[1, i].set_parameters(GVL.axis1,500,600,0,0,0,MC_BufferMode.MC_Aborting);
+			recipro_moving[1, i].future_name := 'Move +500 deg, 600 deg/s';
+			recipro_moving[2, i].set_parameters(GVL.axis1,1000,50,0,0,0,MC_BufferMode.MC_BlendingNext);
+			recipro_moving[2, i].future_name := 'Move +1000 deg, 50 deg/s';
+        ELSE
+            recipro_moving[1, i].set_parameters(GVL.axis1,500,600,0,0,0,MC_BufferMode.MC_Aborting);
+			recipro_moving[1, i].future_name := 'Move +500 deg, 600 deg/s';
+			recipro_moving[2, i].set_parameters(GVL.axis1,0,50,0,0,0,MC_BufferMode.MC_BlendingNext);
+			recipro_moving[2, i].future_name := 'Move +0 deg, 50 deg/s';
+        END_IF
+        _job_temp.children.spawn_job(recipro_moving[1, i]);        
+        _job_temp.children.spawn_job(recipro_moving[2, i]);        
+		demo_job.children.append_job(_job_temp);
+    END_FOR
+    init := TRUE;
+END_IF
+
+
+CASE state OF
+	0:
+		fb_power(
+			Axis:= GVL.axis1, 
+			Enable:= TRUE, 
+			Enable_Positive:= TRUE, 
+			Enable_Negative:= TRUE, 
+			Override:= 100 
+		);
+		IF fb_power.Status = TRUE THEN
+			state := 1;
+		END_IF
+	1:
+		runner.append_job(demo_job);
+		state := 2;
+	2:
+		IF demo_job.done THEN
+			state := 3;
+		END_IF
+	3:
+		fb_power(
+			Axis:= GVL.axis1, 
+			Enable:= FALSE, 
+			Enable_Positive:= FALSE, 
+			Enable_Negative:= FALSE, 
+			Override:= 100 
+		);
+END_CASE
+
+runner();]]></ST>
+    </Implementation>
+    <LineIds Name="demo2">
+      <LineId Id="1" Count="54" />
+    </LineIds>
+  </POU>
+</TcPlcObject>

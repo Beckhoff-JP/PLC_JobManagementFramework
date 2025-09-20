@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
   <POU Name="FutureMCMoveAbsoluteCreator" Id="{c6c4289a-7217-4966-b462-57230d558786}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FutureMCMoveAbsoluteCreator IMPLEMENTS InterfaceTaskCreator
 VAR_INPUT
@@ -21,8 +21,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="create_future" Id="{21eef5d1-2501-4f7c-b086-fb969f968594}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : InterfaceFuture
+      <Declaration><![CDATA[METHOD create_future : InterfaceFuture
 VAR_INPUT
 	(* Specify future name*)
 	future_name	: STRING;
