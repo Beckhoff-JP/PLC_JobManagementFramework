@@ -41,7 +41,7 @@ END_VAR
 			Jerk := _jerk,
 			Options := _option
 		);
-		_exec_state := 1;
+		_abort_state := 1;
 	1:
 		IF _mc_stop.Busy THEN
 			_mc_stop(Axis:= _axis,Execute := FALSE);

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <VisuManager Name="Visualization Manager" Id="{d9c19d6f-fb34-4f1c-8455-00bb5d30d254}">
     <XmlArchive>
       <Data>
@@ -607,7 +607,7 @@
               <v n="ForceWebVisuClient">false</v>
               <v n="Antialiasing">true</v>
               <v n="ClientOperationType" t="eDefaultInputSetting">Touchscreen</v>
-              <v n="ScaleTypeIsotropic">false</v>
+              <v n="ScaleTypeIsotropic">true</v>
               <v n="UseScalingOptionsForDialogs">true</v>
               <v n="HandleTouchEvents">true</v>
               <v n="LoginVisu">""</v>

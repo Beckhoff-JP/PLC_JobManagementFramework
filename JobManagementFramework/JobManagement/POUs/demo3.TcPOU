@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="demo3" Id="{0711fc19-ddf5-4c28-b96d-7cde88b1723f}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM demo3
 VAR
@@ -170,23 +170,23 @@ _job_temp REF= base_job.children.create_job(sleep_creator,'Wait 100ms');
 
 // 1000deg/s -> 500deg/s
 
-mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,1000,0,0,0,0);
+mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,10,0,0,0,0);
 _job_temp REF= base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
 
 sleep_creator.sleep_time := T#5S;
-_job_temp REF= base_job.children.create_job(sleep_creator,'1000 deg/s 5 seconds');
-
-mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,500,0,0,0,0);
-_job_temp REF= base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
-
-sleep_creator.sleep_time := T#5S;
-_job_temp REF= base_job.children.create_job(sleep_creator,'500 deg/s 5 seconds');
+_job_temp REF= base_job.children.create_job(sleep_creator,'10 deg/s 5 seconds');
 
 mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,250,0,0,0,0);
 _job_temp REF= base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
 
-sleep_creator.sleep_time := T#5S;
+sleep_creator.sleep_time := T#3S;
 _job_temp REF= base_job.children.create_job(sleep_creator,'250 deg/s 5 seconds');
+
+mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,500,0,0,0,0);
+_job_temp REF= base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
+
+sleep_creator.sleep_time := T#2S;
+_job_temp REF= base_job.children.create_job(sleep_creator,'500 deg/s 5 seconds');
 
 
 mc_stop_future_creator.set_parameters(stAxis1,0,0);
@@ -199,106 +199,5 @@ _job_temp REF= base_job.children.create_job(mc_move_abs_future_creator,'Back to 
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="demo3">
-      <LineId Id="5860" Count="0" />
-      <LineId Id="6187" Count="0" />
-      <LineId Id="6362" Count="0" />
-      <LineId Id="6360" Count="0" />
-      <LineId Id="6690" Count="0" />
-      <LineId Id="5899" Count="1" />
-      <LineId Id="6691" Count="0" />
-      <LineId Id="6702" Count="0" />
-      <LineId Id="6695" Count="6" />
-      <LineId Id="6706" Count="0" />
-      <LineId Id="6703" Count="0" />
-      <LineId Id="6705" Count="0" />
-      <LineId Id="6707" Count="0" />
-      <LineId Id="6711" Count="0" />
-      <LineId Id="6704" Count="0" />
-      <LineId Id="5902" Count="1" />
-      <LineId Id="6247" Count="0" />
-      <LineId Id="6363" Count="0" />
-      <LineId Id="6245" Count="0" />
-      <LineId Id="6645" Count="0" />
-      <LineId Id="6644" Count="0" />
-      <LineId Id="6293" Count="0" />
-      <LineId Id="6226" Count="0" />
-      <LineId Id="6639" Count="0" />
-      <LineId Id="6641" Count="1" />
-      <LineId Id="6640" Count="0" />
-      <LineId Id="6202" Count="0" />
-      <LineId Id="6649" Count="2" />
-      <LineId Id="5910" Count="0" />
-      <LineId Id="5914" Count="0" />
-      <LineId Id="6205" Count="0" />
-      <LineId Id="6257" Count="1" />
-      <LineId Id="6255" Count="0" />
-      <LineId Id="6612" Count="2" />
-      <LineId Id="6278" Count="0" />
-      <LineId Id="6285" Count="0" />
-      <LineId Id="6491" Count="0" />
-      <LineId Id="6552" Count="0" />
-      <LineId Id="6492" Count="0" />
-      <LineId Id="6593" Count="0" />
-      <LineId Id="6495" Count="0" />
-      <LineId Id="6553" Count="0" />
-      <LineId Id="6493" Count="0" />
-      <LineId Id="6573" Count="1" />
-      <LineId Id="6501" Count="1" />
-      <LineId Id="6648" Count="0" />
-      <LineId Id="6647" Count="0" />
-      <LineId Id="6635" Count="3" />
-      <LineId Id="6207" Count="0" />
-      <LineId Id="6250" Count="0" />
-      <LineId Id="6249" Count="0" />
-      <LineId Id="6252" Count="0" />
-      <LineId Id="6531" Count="0" />
-      <LineId Id="6634" Count="0" />
-      <LineId Id="6670" Count="0" />
-      <LineId Id="6532" Count="0" />
-      <LineId Id="6530" Count="0" />
-    </LineIds>
-    <LineIds Name="demo3.JobCreateDemo">
-      <LineId Id="341" Count="0" />
-      <LineId Id="243" Count="0" />
-      <LineId Id="391" Count="0" />
-      <LineId Id="244" Count="0" />
-      <LineId Id="360" Count="0" />
-      <LineId Id="245" Count="1" />
-      <LineId Id="361" Count="0" />
-      <LineId Id="250" Count="1" />
-      <LineId Id="255" Count="3" />
-      <LineId Id="362" Count="0" />
-      <LineId Id="259" Count="1" />
-      <LineId Id="264" Count="1" />
-      <LineId Id="363" Count="0" />
-      <LineId Id="266" Count="1" />
-      <LineId Id="364" Count="0" />
-      <LineId Id="271" Count="1" />
-      <LineId Id="276" Count="3" />
-      <LineId Id="365" Count="0" />
-      <LineId Id="280" Count="1" />
-      <LineId Id="366" Count="0" />
-      <LineId Id="285" Count="1" />
-      <LineId Id="290" Count="1" />
-      <LineId Id="367" Count="0" />
-      <LineId Id="292" Count="1" />
-      <LineId Id="297" Count="0" />
-      <LineId Id="368" Count="0" />
-      <LineId Id="298" Count="0" />
-      <LineId Id="369" Count="0" />
-      <LineId Id="302" Count="1" />
-      <LineId Id="370" Count="0" />
-      <LineId Id="307" Count="1" />
-      <LineId Id="393" Count="0" />
-      <LineId Id="395" Count="4" />
-      <LineId Id="394" Count="0" />
-      <LineId Id="371" Count="0" />
-      <LineId Id="312" Count="1" />
-      <LineId Id="317" Count="1" />
-      <LineId Id="372" Count="0" />
-      <LineId Id="319" Count="1" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

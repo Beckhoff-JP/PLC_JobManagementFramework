@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
   <POU Name="FutureMCMoveRelative" Id="{68392a9c-c48d-4da1-9d24-d5280f44f2c9}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCMoveRelative EXTENDS FB_AbstructFuture
@@ -44,7 +44,7 @@ END_VAR
 			Jerk := _jerk,
 			Options := _option
 		);
-		_exec_state := 1;
+		_abort_state := 1;
 	1:
 		IF _mc_stop.Busy THEN
 			_mc_stop(Axis:= _axis,Execute := FALSE);
