@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <GVL Name="GVL" Id="{28486044-a7c6-49b3-93e4-15a4115f2942}">
     <Declaration><![CDATA[{attribute 'qualified_only'}
 VAR_GLOBAL
@@ -8,6 +8,7 @@ VAR_GLOBAL
 	queue_job_container_creator : FB_QueueJobContainerCreator;
 	parallel_queue_job_container_creator : FB_ParallelQueueJobContainerCreator;
 	axis1	: AXIS_REF;
+	motion_command : MotionCommand;
 END_VAR
 ]]></Declaration>
   </GVL>

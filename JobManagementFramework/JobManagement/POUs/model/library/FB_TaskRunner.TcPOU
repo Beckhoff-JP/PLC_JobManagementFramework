@@ -46,10 +46,10 @@ END_IF
     <Method Name="abort" Id="{2ec2cfb5-6aac-4b5d-a579-c21b8f186b53}">
       <Declaration><![CDATA[METHOD abort : BOOL
 VAR_INPUT
-	job : REFERENCE TO FB_Executor REF= 0;
+	job : I_Job := 0;
 END_VAR
 VAR
-	_child_executor : REFERENCE TO FB_Executor;
+	_child_executor : I_Job;
 	all_aborted : BOOL;
 END_VAR]]></Declaration>
       <Implementation>
@@ -57,14 +57,14 @@ END_VAR]]></Declaration>
 	RETURN;
 END_IF
 
-IF NOT __ISVALIDREF(job) OR num_of_jobs = 0 THEN
+IF job = 0 OR num_of_jobs = 0 THEN
 	all_aborted := TRUE;
 END_IF
 REPEAT
-	_child_executor REF= _executor.children.each_executor;
-	IF __ISVALIDREF(_child_executor) THEN
-		IF __ISVALIDREF(job) THEN
-			IF ADR(job) = ADR(_child_executor) THEN
+	_child_executor := _executor.children.each_executor;
+	IF _child_executor <> 0 THEN
+		IF job <> 0 THEN
+			IF job = _child_executor THEN
 				all_aborted := _child_executor.abort();
 			END_IF
 		ELSE
@@ -75,7 +75,7 @@ REPEAT
 
 	END_IF
 UNTIL
-	NOT __ISVALIDREF(_child_executor)
+	_child_executor = 0
 END_REPEAT
 
 abort := all_aborted;
@@ -83,7 +83,7 @@ abort := all_aborted;
       </Implementation>
     </Method>
     <Method Name="append_future" Id="{c8cf10ac-651e-4b55-936b-7741712b04f9}">
-      <Declaration><![CDATA[METHOD append_future : REFERENCE TO FB_Executor
+      <Declaration><![CDATA[METHOD append_future : I_Job
 VAR_INPUT
 	future : InterfaceFuture;
 END_VAR
@@ -93,14 +93,14 @@ END_VAR
 	RETURN;
 END_IF
 
-append_future REF= _executor.children.spawn_job(future);
+append_future := _executor.children.spawn_job(future);
 ]]></ST>
       </Implementation>
     </Method>
     <Method Name="append_job" Id="{9478587e-18c8-434e-9e7a-ea7720add6db}">
       <Declaration><![CDATA[METHOD append_job : BOOL
 VAR_INPUT
-	job : REFERENCE TO FB_Executor;
+	job : I_Job;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -115,7 +115,7 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="create_job" Id="{a15036f3-9f48-47bc-9e23-41ed0b98d15a}">
-      <Declaration><![CDATA[METHOD create_job : REFERENCE TO FB_Executor
+      <Declaration><![CDATA[METHOD create_job : I_Job
 VAR_INPUT
 	creator : InterfaceTaskCreator;
 	name : STRING;
@@ -126,7 +126,7 @@ END_VAR
 	RETURN;
 END_IF
 
-create_job REF= _executor.children.create_job(creator, name);
+create_job := _executor.children.create_job(creator, name);
 ]]></ST>
       </Implementation>
     </Method>
@@ -143,10 +143,10 @@ END_VAR
     <Method Name="job_clear" Id="{a712ddb7-5b8d-43cd-9202-b9ce0095b19b}">
       <Declaration><![CDATA[METHOD job_clear : BOOL
 VAR_INPUT
-	job : REFERENCE TO FB_Executor REF= 0;
+	job : I_Job := 0;
 END_VAR
 VAR
-	_child_executor : REFERENCE TO FB_Executor;
+	_child_executor : I_Job;
 	all_clear : BOOL;
 	
 END_VAR
@@ -158,31 +158,7 @@ END_VAR
 END_IF
 
 job_clear := _executor.children.reset(FALSE);
-
-(*
-IF NOT __ISVALIDREF(job) OR num_of_jobs = 0 THEN
-	all_clear := TRUE;
-END_IF
-REPEAT
-	_child_executor REF= _executor.children.each_executor;
-	IF __ISVALIDREF(_child_executor) THEN
-		IF __ISVALIDREF(job) THEN
-			IF ADR(job) = ADR(_child_executor) THEN
-				all_clear := _child_executor.reset(FALSE);
-			END_IF
-		ELSE
-			IF NOT _child_executor.reset(FALSE) THEN
-				all_clear := FALSE;
-			END_IF
-		END_IF
-
-	END_IF
-UNTIL
-	NOT __ISVALIDREF(_child_executor)
-END_REPEAT
-
-job_clear := all_clear;
-*)]]></ST>
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="observer" Id="{947c7939-e057-4dfe-be01-9957111d99a8}">
@@ -207,10 +183,10 @@ END_VAR
     <Method Name="quit" Id="{4ec2c2c1-9796-48ac-b58a-9925be5beab4}">
       <Declaration><![CDATA[METHOD quit : BOOL
 VAR_INPUT
-	job : REFERENCE TO FB_Executor REF= 0;
+	job : I_Job := 0;
 END_VAR
 VAR
-	_child_executor : REFERENCE TO FB_Executor;
+	_child_executor : I_Job;
 	all_quit: BOOL;
 END_VAR]]></Declaration>
       <Implementation>
@@ -218,15 +194,15 @@ END_VAR]]></Declaration>
 	RETURN;
 END_IF
 
-IF NOT __ISVALIDREF(job) OR num_of_jobs = 0 THEN
+IF job = 0 OR num_of_jobs = 0 THEN
 	all_quit := TRUE;
 END_IF
 
 REPEAT
-	_child_executor REF= _executor.children.each_executor;
-	IF __ISVALIDREF(_child_executor) THEN
-		IF __ISVALIDREF(job) THEN
-			IF ADR(job) = ADR(_child_executor) THEN
+	_child_executor := _executor.children.each_executor;
+	IF _child_executor <> 0 THEN
+		IF job <> 0 THEN
+			IF job = _child_executor THEN
 				all_quit := _child_executor.quit();
 			END_IF
 		ELSE
@@ -237,7 +213,7 @@ REPEAT
 
 	END_IF
 UNTIL
-	NOT __ISVALIDREF(_child_executor)
+	_child_executor = 0
 END_REPEAT
 
 quit := all_quit;
@@ -256,13 +232,13 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="root_executor" Id="{6593cc12-1f35-444c-8ca5-989cc3fd8171}">
-      <Declaration><![CDATA[PROPERTY root_executor : REFERENCE TO FB_Executor]]></Declaration>
+      <Declaration><![CDATA[PROPERTY root_executor : I_Job]]></Declaration>
       <Get Name="Get" Id="{ef19ae3b-d43d-4c19-bc32-8310228e9dc7}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[root_executor REF= _executor;]]></ST>
+          <ST><![CDATA[root_executor := _executor;]]></ST>
         </Implementation>
       </Get>
     </Property>

@@ -108,12 +108,12 @@ runner(root_job_id := '#1', root_job_name := 'ROOT');
     <Method Name="JobCreateDemo" Id="{c6c18e30-8bba-4c6d-806d-02b28dd2a277}">
       <Declaration><![CDATA[METHOD JobCreateDemo : BOOL
 VAR_INPUT
-	base_job : REFERENCE TO FB_Executor;
+	base_job : I_Job;
 	stAxis1	: REFERENCE TO AXIS_REF;
 END_VAR
 VAR
-	_job_temp : REFERENCE TO FB_Executor;
-	_job_temp_parent : REFERENCE TO FB_Executor;
+	_job_temp : I_Job;
+	_job_temp_parent : I_Job;
 	sleep : POINTER TO FutureSleep;
 	sleep_creator : FutureSleepCreator;
 
@@ -134,68 +134,68 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[base_job.create_container(ContainerTYpe.BATCH, 'DEMO_JOB');
 // Sequence
-_job_temp_parent REF= base_job.children.create_container(ContainerTYpe.BATCH, 'STEP MOVING');
+_job_temp_parent := base_job.children.create_container(ContainerTYpe.BATCH, 'STEP MOVING');
 FOR i := 1 TO 10 DO
 
 	mc_move_rel_future_creator.set_parameters(stAxis1,20,200,0,0,0,0);
-	_job_temp REF= _job_temp_parent.children.create_job(mc_move_rel_future_creator,'Move +20 deg, 200 deg/s');
+	_job_temp := _job_temp_parent.children.create_job(mc_move_rel_future_creator,'Move +20 deg, 200 deg/s');
 
 	sleep_creator.sleep_time := T#100MS;
-	_job_temp REF= _job_temp_parent.children.create_job(sleep_creator,'Wait 100ms');
+	_job_temp := _job_temp_parent.children.create_job(sleep_creator,'Wait 100ms');
 	
 END_FOR
 
 // position set to 0
 
 mc_move_abs_future_creator.set_parameters(stAxis1,0,200,0,0,0,0);
-_job_temp REF= base_job.children.create_job(mc_move_abs_future_creator,'Back to home');
+_job_temp := base_job.children.create_job(mc_move_abs_future_creator,'Back to home');
 
 FOR i := 1 TO 10 DO
 
 	mc_move_rel_future_creator.set_parameters(stAxis1,-20,200,0,0,0,0);
-	_job_temp REF= base_job.children.create_job(mc_move_rel_future_creator,'Move -20 deg, 200 deg/s');
+	_job_temp := base_job.children.create_job(mc_move_rel_future_creator,'Move -20 deg, 200 deg/s');
 
 	sleep_creator.sleep_time := T#100MS;
-	_job_temp REF= base_job.children.create_job(sleep_creator,'Wait 100ms');
+	_job_temp := base_job.children.create_job(sleep_creator,'Wait 100ms');
 	
 END_FOR
 
 // position to 0
 
 mc_move_abs_future_creator.set_parameters(stAxis1,0,200,0,0,0,0);
-_job_temp REF= base_job.children.create_job(mc_move_abs_future_creator,'Back to home');
+_job_temp := base_job.children.create_job(mc_move_abs_future_creator,'Back to home');
 
 sleep_creator.sleep_time := T#100MS;
-_job_temp REF= base_job.children.create_job(sleep_creator,'Wait 100ms');
+_job_temp := base_job.children.create_job(sleep_creator,'Wait 100ms');
 
 // 1000deg/s -> 500deg/s
 
 mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,10,0,0,0,0);
-_job_temp REF= base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
+_job_temp := base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
 
 sleep_creator.sleep_time := T#5S;
-_job_temp REF= base_job.children.create_job(sleep_creator,'10 deg/s 5 seconds');
+_job_temp := base_job.children.create_job(sleep_creator,'10 deg/s 5 seconds');
+
+mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,100,0,0,0,0);
+_job_temp := base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
+
+sleep_creator.sleep_time := T#5S;
+_job_temp := base_job.children.create_job(sleep_creator,'100 deg/s 5 seconds');
 
 mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,250,0,0,0,0);
-_job_temp REF= base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
+_job_temp := base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
 
-sleep_creator.sleep_time := T#3S;
-_job_temp REF= base_job.children.create_job(sleep_creator,'250 deg/s 5 seconds');
-
-mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,500,0,0,0,0);
-_job_temp REF= base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
-
-sleep_creator.sleep_time := T#2S;
-_job_temp REF= base_job.children.create_job(sleep_creator,'500 deg/s 5 seconds');
+sleep_creator.sleep_time := T#5S;
+_job_temp := base_job.children.create_job(sleep_creator,'250 deg/s 5 seconds');
 
 
 mc_stop_future_creator.set_parameters(stAxis1,0,0);
-_job_temp REF= base_job.children.create_job(mc_stop_future_creator,'STOP');
+_job_temp := base_job.children.create_job(mc_stop_future_creator,'STOP');
 
 // position to 0
 
-mc_move_abs_future_creator.set_parameters(stAxis1,0,1000,0,0,0,0);
-_job_temp REF= base_job.children.create_job(mc_move_abs_future_creator,'Back to home');
+mc_move_abs_future_creator.set_parameters(stAxis1,0,250,0,0,0,0);
+_job_temp := base_job.children.create_job(mc_move_abs_future_creator,'Back to home');
 ]]></ST>
       </Implementation>
     </Method>

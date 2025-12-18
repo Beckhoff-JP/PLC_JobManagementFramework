@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FB_QueueJobContainer" Id="{01d51c34-d9d2-4596-9c6a-f2560502cf89}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_QueueJobContainer EXTENDS FB_AbstructContainer
@@ -8,7 +8,7 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_current_executing_job : REFERENCE TO FB_Executor;
+	_current_executing_job : I_Job;
 	nWriteIndex: 	UINT := 1;
 	nReadIndex: 	UINT := 1;
 END_VAR
@@ -21,27 +21,27 @@ END_VAR]]></Declaration>
     <Method Name="_append_job" Id="{8f105f35-ff05-4a73-8bbf-cd1b6276e3e6}">
       <Declaration><![CDATA[METHOD PROTECTED _append_job : BOOL
 VAR_INPUT
-	executor	: REFERENCE TO FB_Executor;
+	executor	: I_Job;
 END_VAR
 VAR_INST
 	carry_flag:		BOOL;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[//Set buffer index
-IF __ISVALIDREF(executor) AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
+IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	executor.init();
 	// Spawn new task with specified feature
-	_executors[nWriteIndex] := ADR(executor);
+	_executors[nWriteIndex] := executor;
 
 	// Get parent tssk id
-	IF  __ISVALIDREF(_executor) THEN
-		_executors[nWriteIndex]^.job_event_reporter := _executor.job_event_reporter;
-		_executors[nWriteIndex]^.parent_executor REF= _executor;
-		_executors[nWriteIndex]^.upstream_aborting := _executor.upstream_aborting;
+	IF _executor <> 0 THEN
+		_executors[nWriteIndex].job_event_reporter := _executor.job_event_reporter;
+		_executors[nWriteIndex].parent_executor := _executor;
+		_executors[nWriteIndex].upstream_aborting := _executor.upstream_aborting;
 	END_IF
 
 	// Set my task ID
-	_executors[nWriteIndex]^.id := ULINT_TO_STRING(_serial);
+	_executors[nWriteIndex].id := ULINT_TO_STRING(_serial);
 	
 	// generate new serial number
 	IF _serial = 16#FFFFFFFFFFFFFFFF THEN
@@ -134,7 +134,7 @@ VAR_INST
 	await : BOOL;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF __ISVALIDREF(_current_executing_job) THEN
+        <ST><![CDATA[IF _current_executing_job <> 0 THEN
 	await := _current_executing_job.abort();
 	abort := await AND NOT _current_executing_job.busy;
 ELSE
@@ -143,7 +143,7 @@ END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="dequeue" Id="{042fad97-faf7-4c78-94a6-8caae6e0dedd}">
-      <Declaration><![CDATA[METHOD dequeue : POINTER TO FB_Executor;
+      <Declaration><![CDATA[METHOD dequeue : I_Job;
 VAR_INPUT
 END_VAR
 ]]></Declaration>
@@ -176,7 +176,8 @@ VAR
 	complete_last_proess :BOOL := FALSE;
 	i: UINT;
 	_finish_delay : TON;
-	_executor : POINTER TO FB_Executor;
+	_executor : I_Job;
+	_p_executor : POINTER TO FB_Executor;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[complete_last_proess := FALSE;
@@ -192,29 +193,29 @@ REPEAT
 	
 	IF i > 0 THEN
 		_executor := _executors[i];
-		_execution_complete := _executor^.execute();
+		_execution_complete := _executor.execute();
 		
-		CASE _executor^.current_state OF
+		CASE _executor.current_state OF
 			E_FutureExecutionState.idle:
-				_executor^.init();
+				_executor.init();
 			E_FutureExecutionState.wait_for_process:
-				IF _executor^.ready AND (complete_last_proess OR _head) AND _auto_start THEN
-					_executor^.start();
-					_current_executing_job REF= _executor^;
+				IF _executor.ready AND (complete_last_proess OR _head) AND _auto_start THEN
+					_executor.start();
+					_current_executing_job := _executor;
 				END_IF
 		END_CASE
 		
-		complete_last_proess := _executor^.done;	
+		complete_last_proess := _executor.done;	
 
-		_error_id := _executor^.nErrorID;
+		_error_id := _executor.nErrorID;
 		
 		IF _execution_complete THEN
 			IF _head THEN
 				// キューの先頭がfinish状態になれば取り出してキューから削除する
-				IF _executor^.reset(FALSE) THEN
+				IF _executor.reset(FALSE) THEN
 					THIS^.dequeue();
-					IF NOT _executor^.persistent_job THEN
-						__DELETE(_executor);
+					IF NOT _executor.persistent_job AND __QUERYPOINTER(_executor, _p_executor) THEN
+						__DELETE(_p_executor);
 					END_IF
 				END_IF
 			END_IF		
@@ -232,25 +233,25 @@ END_REPEAT;
     <Method Name="init" Id="{e2e928e1-a3fb-4663-8042-bd87f35fc43e}">
       <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR
-	_executor : REFERENCE TO FB_Executor;
+	_executor : I_Job;
 	_init_done : BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[_init_done := TRUE;
 REPEAT
-	_executor REF= each_executor;
-	IF __ISVALIDREF(_executor) THEN
+	_executor := each_executor;
+	IF _executor <> 0 THEN
 		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF
 	END_IF
 UNTIL
-	NOT __ISVALIDREF(_executor)
+	_executor = 0
 END_REPEAT
 
-_current_executing_job REF= 0;
+_current_executing_job := 0;
 _error_id := 0;
 init := _init_done;
 ]]></ST>
@@ -262,10 +263,10 @@ VAR
 	_all_done : BOOL;
 END_VAR
 VAR_INST
-	_executor : REFERENCE TO FB_Executor;
+	_executor : I_Job;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF __ISVALIDREF(_current_executing_job) THEN
+        <ST><![CDATA[IF _current_executing_job <> 0 THEN
 	IF _current_executing_job.ready THEN
 		start := _current_executing_job.start();
 	ELSE
@@ -276,88 +277,5 @@ ELSE
 END_IF]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FB_QueueJobContainer">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_QueueJobContainer._append_job">
-      <LineId Id="8" Count="1" />
-      <LineId Id="63" Count="0" />
-      <LineId Id="10" Count="1" />
-      <LineId Id="16" Count="4" />
-      <LineId Id="73" Count="0" />
-      <LineId Id="22" Count="31" />
-      <LineId Id="7" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_QueueJobContainer._index_generator_">
-      <LineId Id="743" Count="40" />
-      <LineId Id="289" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_QueueJobContainer.abort">
-      <LineId Id="139" Count="0" />
-      <LineId Id="160" Count="0" />
-      <LineId Id="165" Count="0" />
-      <LineId Id="162" Count="1" />
-      <LineId Id="161" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_QueueJobContainer.dequeue">
-      <LineId Id="6" Count="0" />
-      <LineId Id="8" Count="1" />
-      <LineId Id="12" Count="3" />
-      <LineId Id="22" Count="4" />
-      <LineId Id="21" Count="0" />
-      <LineId Id="30" Count="1" />
-      <LineId Id="17" Count="0" />
-      <LineId Id="16" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_QueueJobContainer.execute">
-      <LineId Id="313" Count="0" />
-      <LineId Id="368" Count="3" />
-      <LineId Id="451" Count="1" />
-      <LineId Id="316" Count="1" />
-      <LineId Id="553" Count="0" />
-      <LineId Id="395" Count="0" />
-      <LineId Id="320" Count="2" />
-      <LineId Id="408" Count="1" />
-      <LineId Id="415" Count="2" />
-      <LineId Id="419" Count="1" />
-      <LineId Id="554" Count="0" />
-      <LineId Id="521" Count="0" />
-      <LineId Id="411" Count="0" />
-      <LineId Id="384" Count="0" />
-      <LineId Id="337" Count="0" />
-      <LineId Id="466" Count="0" />
-      <LineId Id="465" Count="0" />
-      <LineId Id="338" Count="3" />
-      <LineId Id="438" Count="0" />
-      <LineId Id="552" Count="0" />
-      <LineId Id="565" Count="1" />
-      <LineId Id="564" Count="0" />
-      <LineId Id="440" Count="0" />
-      <LineId Id="343" Count="0" />
-      <LineId Id="345" Count="0" />
-      <LineId Id="473" Count="1" />
-      <LineId Id="349" Count="0" />
-      <LineId Id="467" Count="0" />
-      <LineId Id="453" Count="1" />
-      <LineId Id="350" Count="0" />
-      <LineId Id="507" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_QueueJobContainer.init">
-      <LineId Id="106" Count="12" />
-      <LineId Id="120" Count="0" />
-      <LineId Id="119" Count="0" />
-      <LineId Id="45" Count="0" />
-      <LineId Id="42" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_QueueJobContainer.start">
-      <LineId Id="39" Count="0" />
-      <LineId Id="43" Count="0" />
-      <LineId Id="46" Count="0" />
-      <LineId Id="44" Count="0" />
-      <LineId Id="47" Count="0" />
-      <LineId Id="45" Count="0" />
-      <LineId Id="41" Count="1" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

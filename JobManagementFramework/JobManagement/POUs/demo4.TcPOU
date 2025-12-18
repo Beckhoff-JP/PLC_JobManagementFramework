@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <POU Name="demo4" Id="{63ebbfb1-86b9-4c7c-a838-db8534a62dd4}" SpecialFunc="None">
+    <Declaration><![CDATA[PROGRAM demo4
+VAR
+	runner : FB_TaskRunner;
+	fbJobTreeSearch : FB_ExecutorTreeSearch;
+
+	init: BOOL;
+	_state :UINT;
+	mc_power : FutureMCPower;
+	_poweron_job	: FB_Executor;
+	
+	demo_job	: FB_Executor;
+	bPower : BOOL;
+	bStart : BOOL;
+	
+	await : BOOL;
+	
+	fbGetTimeZoneInformation	: FB_GetTimeZoneInformation := (bExecute := TRUE);
+	localTime : FB_LocalSystemTime := (bEnable := TRUE);
+	tzinfo : FB_GetTimeZoneInformation := (bExecute := TRUE);
+	getSystemtime : FB_TzSpecificLocalTimeToSystemTime;
+	current_time : T_FILETIME64;
+	observer : REFERENCE TO FB_observer;
+	
+	motion_data : ST_MotionData;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[IF NOT init THEN
+	mc_power.future_name := 'POWER_CTRL';
+	_poweron_job.future := mc_power;
+	observer REF= runner.fbObserver;
+	init := TRUE;	// RUN 後 1 サイクルだけ実行
+END_IF
+
+
+
+// 現在時刻の取得
+localTime();
+tzinfo();
+getSystemtime(in := localTime.systemTime, tzInfo := tzinfo.tzInfo);
+current_time := SYSTEMTIME_TO_FILETIME64(getSystemtime.out);
+observer(current_time := current_time);
+
+// Axis
+GVL.axis1.ReadStatus();
+MEMCPY(ADR(motion_data), ADR(GVL.axis1.NcToPlc), SIZEOF(GVL.axis1.NcToPlc));
+motion_data.record_time := current_time;
+
+CASE _state OF
+	0:
+		IF bPower THEN
+			mc_power.set_parameters(axis := GVL.axis1, status := TRUE); // Servo on
+			IF runner.append_job(_poweron_job) THEN
+				_state := 1;			
+			END_IF
+		END_IF
+	1:
+		IF _poweron_job.done THEN
+			_state := 2;
+		END_IF
+	2:
+		IF recipe_receive THEN
+			_state := 3;
+		END_IF
+	3:
+		IF bStart THEN
+			IF runner.append_job(demo_job) THEN
+				_state := 4;
+			END_IF
+		END_IF
+	4:
+		IF demo_job.done THEN
+			_state := 2;
+			//bStart := FALSE;
+		END_IF
+		IF NOT bPower THEN
+			_state := 5;
+		END_IF
+	5:
+		IF NOT demo_job.done THEN
+			IF runner.abort(demo_job) THEN
+				IF runner.quit(demo_job) THEN
+					IF runner.job_clear(demo_job) THEN
+						_state := 6;
+					END_IF
+				END_IF
+			END_IF
+		END_IF
+	6:
+		mc_power.set_parameters(axis := GVL.axis1, status := FALSE); // Servo off
+		IF runner.append_job(_poweron_job) THEN
+			_state := 7;		
+		END_IF
+	7:
+		IF _poweron_job.done THEN
+			_state := 0;
+		END_IF
+END_CASE
+
+//IF _state > 0 AND NOT bPower THEN
+//END_IF
+
+runner(root_job_id := '#1', root_job_name := 'ROOT');
+]]></ST>
+    </Implementation>
+    <Method Name="recipe_receive" Id="{81b4b112-e3bb-4c84-8468-a0472c0403b4}">
+      <Declaration><![CDATA[METHOD recipe_receive : BOOL
+VAR_INPUT
+	base_job : REFERENCE TO FB_Executor;
+	stAxis1	: REFERENCE TO AXIS_REF;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF GVL.motion_command.activate THEN
+	
+	
+	GVL.motion_command.activate := FALSE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

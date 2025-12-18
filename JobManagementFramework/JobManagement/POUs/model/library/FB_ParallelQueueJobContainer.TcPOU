@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FB_ParallelQueueJobContainer" Id="{d5fc8dd4-0f17-45e0-b0bb-86aca529f22f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_ParallelQueueJobContainer EXTENDS FB_AbstructContainer
@@ -18,7 +18,7 @@ END_VAR]]></Declaration>
     <Method Name="_append_job" Id="{495b462b-8875-4d61-81d1-98086729a5d3}">
       <Declaration><![CDATA[METHOD PROTECTED _append_job : BOOL
 VAR_INPUT
-	executor	: REFERENCE TO FB_Executor;
+	executor	: I_Job;
 END_VAR
 VAR
 	future_order_number: INT;
@@ -36,16 +36,16 @@ IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 
 	// Spawn new task with specified future
 	executor.init();
-	_executors[i] := ADR(executor);
+	_executors[i] := executor;
 	
 	// Get parent task id
-	IF  __ISVALIDREF(_executor) THEN
-		_executors[i]^.job_event_reporter := _executor.job_event_reporter;
-		_executors[i]^.parent_executor REF= _executor;
-		_executors[i]^.upstream_aborting := _executor.upstream_aborting;
+	IF _executor <> 0 THEN
+		_executors[i].job_event_reporter := _executor.job_event_reporter;
+		_executors[i].parent_executor := _executor;
+		_executors[i].upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
 	END_IF
-	_executors[i]^.id := ULINT_TO_STRING(_serial);
+	_executors[i].id := ULINT_TO_STRING(_serial);
 	_serial := _serial + 1;
 	IF _serial = 16#FFFFFFFFFFFFFFFF THEN
 		_serial := 0;
@@ -105,22 +105,22 @@ VAR
 	_all_done : BOOL;
 END_VAR
 VAR_INST
-	_executor : REFERENCE TO FB_Executor;
+	_executor : I_Job;
 	await : BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[_all_done := TRUE;
 REPEAT
-	_executor REF= each_executor;
-	IF __ISVALIDREF(_executor) THEN
+	_executor := each_executor;
+	IF _executor <> 0 THEN
 		await := _executor.abort();
 		IF _executor.busy OR NOT await THEN
 			_all_done := FALSE;
 		END_IF
 	END_IF
 UNTIL
-	NOT __ISVALIDREF(_executor)
+	_executor = 0
 END_REPEAT
 abort := _all_done;]]></ST>
       </Implementation>
@@ -130,6 +130,7 @@ abort := _all_done;]]></ST>
 VAR
 	_head : BOOL;
 	_future_id :UINT;
+	_p_executor : POINTER TO FB_Executor;
 	i: UINT;
 END_VAR
 ]]></Declaration>
@@ -144,29 +145,29 @@ REPEAT
 	// キューインされたFB_executorインスタンスを順に取り出すイテレータ。_endがTRUEになれば全て取り出し完了。_headは先頭のみtrueになる。
 	i := _index_generator_();
 	IF i > 0 THEN
-		IF _executors[i]^.execute() THEN
-			IF _executors[i]^.reset(FALSE) THEN
-				IF _executors[i]^.persistent_job THEN
+		IF _executors[i].execute() THEN
+			IF _executors[i].reset(FALSE) THEN
+				IF _executors[i].persistent_job THEN
 					_executors[i] := 0;
-				ELSE
-					__DELETE(_executors[i]);
+				ELSIF __QUERYPOINTER(_executors[i] ,_p_executor) THEN
+					__DELETE(_p_executor);
 				END_IF
 				_num_of_jobs := _num_of_jobs - 1;
 			END_IF
 			execute := _num_of_jobs = 0 AND NOT _continuous_mode;
 		ELSE
-			CASE _executors[i]^.current_state OF
+			CASE _executors[i].current_state OF
 				E_FutureExecutionState.idle:
-					_executors[i]^.init();
+					_executors[i].init();
 				E_FutureExecutionState.wait_for_process:
-					_executors[i]^.start();
+					_executors[i].start();
 				E_FutureExecutionState.init, E_FutureExecutionState.process, E_FutureExecutionState.quit:
-					IF 	_executors[i]^.current_state = E_FutureExecutionState.process THEN
+					IF 	_executors[i].current_state = E_FutureExecutionState.process THEN
 						// Report total futures
-						current_executing_future := _executors[i]^.future;						
+						current_executing_future := _executors[i].future;						
 					END_IF
 			END_CASE
-			_error_id := _executors[i]^.nErrorID;
+			_error_id := _executors[i].nErrorID;
 		END_IF
 	END_IF
 UNTIL
@@ -178,22 +179,22 @@ END_REPEAT
     <Method Name="init" Id="{8aeab0c6-d12b-4b5a-acab-44e82acbfd1b}">
       <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR
-	_executor : REFERENCE TO FB_Executor;
+	_executor : I_Job;
 	_init_done : BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[_init_done := TRUE;
 REPEAT
-	_executor REF= each_executor;
-	IF __ISVALIDREF(_executor) THEN
+	_executor := each_executor;
+	IF _executor <> 0 THEN
 		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF
 	END_IF
 UNTIL
-	NOT __ISVALIDREF(_executor)
+	_executor = 0
 END_REPEAT
 
 _error_id := 0;
@@ -207,88 +208,22 @@ VAR
 	_all_done : BOOL;
 END_VAR
 VAR_INST
-	_executor : REFERENCE TO FB_Executor;
+	_executor : I_Job;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_all_done := TRUE;
 REPEAT
-	_executor REF= each_executor;
-	IF __ISVALIDREF(_executor) THEN
+	_executor := each_executor;
+	IF _executor <> 0 THEN
 		IF NOT _executor.start() AND _executor.ready THEN
 			_all_done := FALSE;
 		END_IF
 	END_IF
 UNTIL
-	NOT __ISVALIDREF(_executor)
+	_executor = 0
 END_REPEAT
 start := _all_done;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FB_ParallelQueueJobContainer">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelQueueJobContainer._append_job">
-      <LineId Id="8" Count="7" />
-      <LineId Id="52" Count="0" />
-      <LineId Id="16" Count="0" />
-      <LineId Id="51" Count="0" />
-      <LineId Id="20" Count="3" />
-      <LineId Id="64" Count="0" />
-      <LineId Id="24" Count="7" />
-      <LineId Id="33" Count="0" />
-      <LineId Id="7" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelQueueJobContainer._index_generator_">
-      <LineId Id="647" Count="28" />
-      <LineId Id="498" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelQueueJobContainer.abort">
-      <LineId Id="132" Count="2" />
-      <LineId Id="150" Count="1" />
-      <LineId Id="160" Count="0" />
-      <LineId Id="163" Count="0" />
-      <LineId Id="162" Count="0" />
-      <LineId Id="139" Count="3" />
-      <LineId Id="124" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelQueueJobContainer.execute">
-      <LineId Id="434" Count="0" />
-      <LineId Id="368" Count="3" />
-      <LineId Id="315" Count="3" />
-      <LineId Id="468" Count="0" />
-      <LineId Id="322" Count="0" />
-      <LineId Id="504" Count="0" />
-      <LineId Id="570" Count="0" />
-      <LineId Id="583" Count="0" />
-      <LineId Id="582" Count="0" />
-      <LineId Id="573" Count="0" />
-      <LineId Id="572" Count="0" />
-      <LineId Id="516" Count="0" />
-      <LineId Id="503" Count="0" />
-      <LineId Id="395" Count="0" />
-      <LineId Id="323" Count="0" />
-      <LineId Id="478" Count="0" />
-      <LineId Id="480" Count="0" />
-      <LineId Id="482" Count="2" />
-      <LineId Id="551" Count="0" />
-      <LineId Id="558" Count="0" />
-      <LineId Id="562" Count="1" />
-      <LineId Id="561" Count="0" />
-      <LineId Id="481" Count="0" />
-      <LineId Id="494" Count="0" />
-      <LineId Id="479" Count="0" />
-      <LineId Id="349" Count="0" />
-      <LineId Id="514" Count="1" />
-      <LineId Id="350" Count="0" />
-      <LineId Id="543" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelQueueJobContainer.init">
-      <LineId Id="94" Count="14" />
-      <LineId Id="42" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelQueueJobContainer.start">
-      <LineId Id="29" Count="10" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

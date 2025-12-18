@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <Itf Name="InterfaceObserver" Id="{90b4d035-ce37-43c5-a5a2-947514da7e7e}">
     <Declaration><![CDATA[INTERFACE InterfaceObserver
 ]]></Declaration>
     <Method Name="subscribe_job_directory" Id="{8f9013c8-5018-4e79-b936-7283b70651f0}">
       <Declaration><![CDATA[METHOD subscribe_job_directory : BOOL
 VAR_INPUT
-	executor: REFERENCE TO FB_Executor; // Represent reference to subscribed job object
+	executor: I_Job; // Represent reference to subscribed job object
 END_VAR
 ]]></Declaration>
     </Method>
@@ -17,7 +17,7 @@ VAR_INPUT
 	old_state : E_FutureExecutionState; // Job state before transition.
 	new_state : E_FutureExecutionState; // Job state after transition.
 	record_time	: T_FILETIME64; // File-time at the time of transition.
-	executor	: REFERENCE TO FB_Executor; // Reference to job instance of which transition occurs.
+	executor	: I_Job; // Reference to job instance of which transition occurs.
 END_VAR
 ]]></Declaration>
     </Method>

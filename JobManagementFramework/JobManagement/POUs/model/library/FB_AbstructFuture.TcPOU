@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FB_AbstructFuture" Id="{e0e3f6dd-6f71-426e-8a03-d727df6ff260}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructFuture IMPLEMENTS InterfaceFuture
 VAR_INPUT
@@ -7,7 +7,7 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_executor : REFERENCE TO FB_Executor;
+	_executor : I_Job;
 	{attribute 'TcEncoding':='UTF-8'}
 	_future_name :STRING := 'NO_NAME';
 	_busy : BOOL; 
@@ -39,14 +39,14 @@ END_VAR
       </Implementation>
     </Method>
     <Property Name="executor" Id="{e22af436-28ff-4128-a585-9527975f7a68}">
-      <Declaration><![CDATA[PROPERTY executor : REFERENCE TO FB_Executor
+      <Declaration><![CDATA[PROPERTY executor : I_Job
 ]]></Declaration>
       <Get Name="Get" Id="{75135c4d-3399-4ea9-9504-13410d982d3c}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[executor REF= _executor;]]></ST>
+          <ST><![CDATA[executor := _executor;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{68b7c622-1aa4-4f24-afe2-48d4071f5eae}">
@@ -54,7 +54,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_executor REF= executor;]]></ST>
+          <ST><![CDATA[_executor := executor;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -126,45 +126,5 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <LineIds Name="FB_AbstructFuture">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.abort">
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.error_reset">
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.execute">
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.executor.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.executor.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.future_name.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.future_name.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.init">
-      <LineId Id="4" Count="0" />
-      <LineId Id="6" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.quit">
-      <LineId Id="4" Count="1" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.state.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructFuture.state.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

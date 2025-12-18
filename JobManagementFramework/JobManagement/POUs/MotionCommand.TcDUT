@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <DUT Name="MotionCommand" Id="{feb8b7e1-d811-4801-a8bb-da4ee4ef4d35}">
+    <Declaration><![CDATA[TYPE MotionCommand :
+STRUCT
+	activate	: BOOL;
+	command_id	: Command;
+	target		: LREAL;
+	velocity	: LREAL;
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FB_Executor" Id="{09518444-1d1d-452e-9e8f-647b2f8c5e33}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
-FUNCTION_BLOCK FB_Executor
+FUNCTION_BLOCK FB_Executor IMPLEMENTS I_Job
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -27,7 +27,7 @@ VAR
 	_job_event_reporter: InterfaceObserver;
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
-	_parent_executor : REFERENCE TO FB_Executor REF= 0;
+	_parent_executor : I_Job := 0;
 	_persistent_job : BOOL;
 END_VAR]]></Declaration>
     <Implementation>
@@ -285,7 +285,7 @@ CASE _state OF
 		IF _aborting THEN
 			await := _future.abort();
 			_resume := FALSE;
-			IF _upstream_aborting AND __ISVALIDREF(_parent_executor) THEN
+			IF _upstream_aborting AND _parent_executor <> 0 THEN
 				_parent_executor.abort();
 			END_IF
 			IF await THEN
@@ -376,7 +376,7 @@ END_VAR
         <Implementation>
           <ST><![CDATA[_future := future;
 _future.state := _state;
-_future.executor REF= THIS^;
+_future.executor := THIS^;
 IF NOT __QUERYINTERFACE(_future, _interface_container) THEN
 	_interface_container := 0;
 END_IF]]></ST>
@@ -444,19 +444,19 @@ END_VAR
       </Get>
       <Set Name="Set" Id="{4cb4a4bf-e492-4795-8469-65c6601636a4}">
         <Declaration><![CDATA[VAR
-	executor :REFERENCE TO FB_Executor;
+	executor : I_Job;
 END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[_job_event_reporter := job_event_reporter;
 IF THIS^.children <> 0 THEN
 	REPEAT
-		executor REF= THIS^.children.each_executor;
-		IF __ISVALIDREF(executor) THEN
+		executor := THIS^.children.each_executor;
+		IF executor <> 0 THEN
 			executor.job_event_reporter := job_event_reporter;
 		END_IF
 	UNTIL
-		NOT __ISVALIDREF(executor)
+		executor = 0
 	END_REPEAT
 END_IF]]></ST>
         </Implementation>
@@ -486,13 +486,13 @@ END_VAR
       </Get>
     </Property>
     <Property Name="parent_executor" Id="{b57cb923-713c-4924-8cfc-cae55fa1c52b}">
-      <Declaration><![CDATA[PROPERTY parent_executor : REFERENCE TO FB_Executor]]></Declaration>
+      <Declaration><![CDATA[PROPERTY parent_executor : I_Job]]></Declaration>
       <Get Name="Get" Id="{e78d9b69-dec8-4381-b9cd-280132473f08}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[parent_executor REF= _parent_executor;]]></ST>
+          <ST><![CDATA[parent_executor := _parent_executor;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{577406ef-8da9-4b14-a0b7-e722091103f8}">
@@ -500,7 +500,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_parent_executor REF= parent_executor;]]></ST>
+          <ST><![CDATA[_parent_executor := parent_executor;]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -646,21 +646,21 @@ END_IF
       <Declaration><![CDATA[PROPERTY uid : T_MaxString]]></Declaration>
       <Get Name="Get" Id="{c15a7ab7-b8a0-43cc-8050-a48bb688e753}">
         <Declaration><![CDATA[VAR
-	_eval_executor : REFERENCE TO FB_Executor;
+	_eval_executor : I_Job;
 	_uid : T_MaxString;
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_eval_executor REF= _parent_executor;
+          <ST><![CDATA[_eval_executor := _parent_executor;
 _uid := _id;
 REPEAT
 	_uid := CONCAT('/',_uid);
-	IF __ISVALIDREF(_eval_executor) THEN
+	IF _eval_executor <> 0 THEN
 		_uid := CONCAT(_eval_executor.id, _uid);
-		_eval_executor REF= _eval_executor._parent_executor;
+		_eval_executor := _eval_executor.parent_executor;
 	END_IF
 UNTIL
-	NOT __ISVALIDREF(_eval_executor)
+	_eval_executor = 0
 END_REPEAT
 
 uid := _uid;
@@ -688,310 +688,5 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <LineIds Name="FB_Executor">
-      <LineId Id="32" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.abort">
-      <LineId Id="12" Count="0" />
-      <LineId Id="14" Count="1" />
-      <LineId Id="87" Count="0" />
-      <LineId Id="17" Count="0" />
-      <LineId Id="150" Count="2" />
-      <LineId Id="164" Count="0" />
-      <LineId Id="154" Count="2" />
-      <LineId Id="111" Count="0" />
-      <LineId Id="172" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.busy.Get">
-      <LineId Id="5" Count="0" />
-      <LineId Id="12" Count="1" />
-      <LineId Id="15" Count="0" />
-      <LineId Id="11" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.children.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.continuous_mode.Set">
-      <LineId Id="9" Count="0" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="11" Count="0" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.create_container">
-      <LineId Id="6" Count="0" />
-      <LineId Id="47" Count="0" />
-      <LineId Id="50" Count="0" />
-      <LineId Id="52" Count="1" />
-      <LineId Id="51" Count="0" />
-      <LineId Id="48" Count="1" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="30" Count="0" />
-      <LineId Id="46" Count="0" />
-      <LineId Id="31" Count="2" />
-      <LineId Id="80" Count="0" />
-      <LineId Id="34" Count="1" />
-      <LineId Id="81" Count="0" />
-      <LineId Id="36" Count="1" />
-      <LineId Id="82" Count="0" />
-      <LineId Id="38" Count="1" />
-      <LineId Id="83" Count="0" />
-      <LineId Id="40" Count="2" />
-      <LineId Id="29" Count="0" />
-      <LineId Id="61" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.create_future">
-      <LineId Id="6" Count="2" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="11" Count="0" />
-      <LineId Id="17" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.current_state.Get">
-      <LineId Id="7" Count="0" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.done.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.error_reset">
-      <LineId Id="6" Count="1" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="29" Count="0" />
-      <LineId Id="19" Count="6" />
-      <LineId Id="30" Count="0" />
-      <LineId Id="11" Count="1" />
-      <LineId Id="10" Count="0" />
-      <LineId Id="41" Count="0" />
-      <LineId Id="34" Count="0" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="35" Count="0" />
-      <LineId Id="8" Count="0" />
-      <LineId Id="40" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.execute">
-      <LineId Id="8" Count="2" />
-      <LineId Id="50" Count="1" />
-      <LineId Id="11" Count="0" />
-      <LineId Id="157" Count="0" />
-      <LineId Id="162" Count="1" />
-      <LineId Id="421" Count="0" />
-      <LineId Id="424" Count="0" />
-      <LineId Id="423" Count="0" />
-      <LineId Id="425" Count="0" />
-      <LineId Id="166" Count="0" />
-      <LineId Id="156" Count="0" />
-      <LineId Id="237" Count="0" />
-      <LineId Id="239" Count="2" />
-      <LineId Id="13" Count="2" />
-      <LineId Id="474" Count="0" />
-      <LineId Id="258" Count="0" />
-      <LineId Id="471" Count="0" />
-      <LineId Id="261" Count="0" />
-      <LineId Id="290" Count="0" />
-      <LineId Id="289" Count="0" />
-      <LineId Id="260" Count="0" />
-      <LineId Id="18" Count="1" />
-      <LineId Id="75" Count="0" />
-      <LineId Id="21" Count="0" />
-      <LineId Id="76" Count="0" />
-      <LineId Id="473" Count="0" />
-      <LineId Id="122" Count="1" />
-      <LineId Id="78" Count="0" />
-      <LineId Id="22" Count="3" />
-      <LineId Id="92" Count="0" />
-      <LineId Id="26" Count="1" />
-      <LineId Id="139" Count="0" />
-      <LineId Id="29" Count="3" />
-      <LineId Id="55" Count="0" />
-      <LineId Id="100" Count="0" />
-      <LineId Id="34" Count="2" />
-      <LineId Id="117" Count="0" />
-      <LineId Id="500" Count="0" />
-      <LineId Id="426" Count="0" />
-      <LineId Id="441" Count="0" />
-      <LineId Id="444" Count="0" />
-      <LineId Id="443" Count="0" />
-      <LineId Id="364" Count="0" />
-      <LineId Id="120" Count="0" />
-      <LineId Id="365" Count="0" />
-      <LineId Id="121" Count="0" />
-      <LineId Id="363" Count="0" />
-      <LineId Id="468" Count="2" />
-      <LineId Id="456" Count="0" />
-      <LineId Id="112" Count="0" />
-      <LineId Id="38" Count="1" />
-      <LineId Id="81" Count="0" />
-      <LineId Id="40" Count="0" />
-      <LineId Id="82" Count="0" />
-      <LineId Id="124" Count="1" />
-      <LineId Id="85" Count="0" />
-      <LineId Id="236" Count="0" />
-      <LineId Id="41" Count="1" />
-      <LineId Id="301" Count="0" />
-      <LineId Id="405" Count="0" />
-      <LineId Id="230" Count="0" />
-      <LineId Id="44" Count="0" />
-      <LineId Id="66" Count="2" />
-      <LineId Id="176" Count="0" />
-      <LineId Id="179" Count="1" />
-      <LineId Id="183" Count="0" />
-      <LineId Id="182" Count="0" />
-      <LineId Id="177" Count="0" />
-      <LineId Id="247" Count="0" />
-      <LineId Id="185" Count="0" />
-      <LineId Id="189" Count="0" />
-      <LineId Id="188" Count="0" />
-      <LineId Id="248" Count="0" />
-      <LineId Id="250" Count="0" />
-      <LineId Id="407" Count="0" />
-      <LineId Id="251" Count="1" />
-      <LineId Id="249" Count="0" />
-      <LineId Id="202" Count="0" />
-      <LineId Id="205" Count="0" />
-      <LineId Id="216" Count="0" />
-      <LineId Id="204" Count="0" />
-      <LineId Id="69" Count="0" />
-      <LineId Id="65" Count="0" />
-      <LineId Id="60" Count="0" />
-      <LineId Id="172" Count="0" />
-      <LineId Id="217" Count="0" />
-      <LineId Id="220" Count="0" />
-      <LineId Id="327" Count="0" />
-      <LineId Id="221" Count="6" />
-      <LineId Id="219" Count="0" />
-      <LineId Id="277" Count="0" />
-      <LineId Id="257" Count="0" />
-      <LineId Id="278" Count="1" />
-      <LineId Id="243" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.future.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.future.Set">
-      <LineId Id="2" Count="0" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="20" Count="0" />
-      <LineId Id="22" Count="2" />
-    </LineIds>
-    <LineIds Name="FB_Executor.future_creator.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.id.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.id.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.init">
-      <LineId Id="6" Count="0" />
-      <LineId Id="21" Count="0" />
-      <LineId Id="50" Count="0" />
-      <LineId Id="33" Count="1" />
-      <LineId Id="43" Count="0" />
-      <LineId Id="45" Count="1" />
-      <LineId Id="44" Count="0" />
-      <LineId Id="17" Count="0" />
-      <LineId Id="26" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.job_event_reporter.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.job_event_reporter.Set">
-      <LineId Id="5" Count="0" />
-      <LineId Id="9" Count="8" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.last_state.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.parent_executor.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.parent_executor.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.persistent_job.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.persistent_job.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.quit">
-      <LineId Id="6" Count="10" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.ready.Get">
-      <LineId Id="2" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.reset">
-      <LineId Id="159" Count="0" />
-      <LineId Id="52" Count="0" />
-      <LineId Id="70" Count="0" />
-      <LineId Id="56" Count="0" />
-      <LineId Id="28" Count="0" />
-      <LineId Id="149" Count="0" />
-      <LineId Id="30" Count="0" />
-      <LineId Id="79" Count="0" />
-      <LineId Id="150" Count="0" />
-      <LineId Id="58" Count="0" />
-      <LineId Id="160" Count="0" />
-      <LineId Id="145" Count="0" />
-      <LineId Id="136" Count="0" />
-      <LineId Id="139" Count="0" />
-      <LineId Id="168" Count="0" />
-      <LineId Id="171" Count="1" />
-      <LineId Id="182" Count="0" />
-      <LineId Id="169" Count="1" />
-      <LineId Id="141" Count="3" />
-      <LineId Id="146" Count="0" />
-      <LineId Id="173" Count="0" />
-      <LineId Id="148" Count="0" />
-      <LineId Id="174" Count="0" />
-      <LineId Id="137" Count="1" />
-      <LineId Id="158" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.resume">
-      <LineId Id="10" Count="0" />
-      <LineId Id="57" Count="0" />
-      <LineId Id="62" Count="0" />
-      <LineId Id="59" Count="1" />
-      <LineId Id="56" Count="0" />
-      <LineId Id="65" Count="2" />
-      <LineId Id="64" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.start">
-      <LineId Id="108" Count="0" />
-      <LineId Id="111" Count="9" />
-      <LineId Id="130" Count="0" />
-      <LineId Id="132" Count="0" />
-      <LineId Id="131" Count="0" />
-      <LineId Id="41" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.uid.Get">
-      <LineId Id="75" Count="0" />
-      <LineId Id="66" Count="0" />
-      <LineId Id="51" Count="0" />
-      <LineId Id="59" Count="0" />
-      <LineId Id="56" Count="0" />
-      <LineId Id="60" Count="0" />
-      <LineId Id="76" Count="0" />
-      <LineId Id="61" Count="0" />
-      <LineId Id="55" Count="0" />
-      <LineId Id="57" Count="0" />
-      <LineId Id="54" Count="0" />
-      <LineId Id="73" Count="0" />
-      <LineId Id="15" Count="0" />
-      <LineId Id="72" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.upstream_aborting.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_Executor.upstream_aborting.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

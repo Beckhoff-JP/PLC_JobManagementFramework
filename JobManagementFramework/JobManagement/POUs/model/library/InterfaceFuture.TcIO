@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <Itf Name="InterfaceFuture" Id="{882bc581-e126-40c6-885e-c12ccc2f0bb9}">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 INTERFACE InterfaceFuture EXTENDS __System.IQueryInterface 
@@ -23,7 +23,7 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Property Name="executor" Id="{1ffce432-14a7-4918-9f9c-90ae1bb1d90d}">
-      <Declaration><![CDATA[PROPERTY executor : REFERENCE TO FB_Executor]]></Declaration>
+      <Declaration><![CDATA[PROPERTY executor : I_Job]]></Declaration>
       <Get Name="Get" Id="{a1986d22-3041-4060-aadc-fc03953d80fb}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

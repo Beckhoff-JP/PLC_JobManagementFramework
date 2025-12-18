@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <Itf Name="InterfaceContainer" Id="{24bfec70-0f3a-4ec1-a89e-5407d9c94d6d}">
     <Declaration><![CDATA[INTERFACE InterfaceContainer EXTENDS __SYSTEM.IQueryInterface 
 ]]></Declaration>
@@ -13,7 +13,7 @@ END_VAR
     <Method Name="append_job" Id="{3242dd7f-8422-475c-9ef2-fac3e07fa8b2}">
       <Declaration><![CDATA[METHOD append_job : BOOL
 VAR_INPUT
-	executor	: REFERENCE TO FB_Executor;
+	executor	: I_Job;
 END_VAR
 ]]></Declaration>
     </Method>
@@ -30,7 +30,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="create_container" Id="{e55dfbbc-91c0-448f-b41c-696bb7a50e91}">
-      <Declaration><![CDATA[METHOD create_container : REFERENCE TO FB_Executor
+      <Declaration><![CDATA[METHOD create_container : I_Job
 VAR_INPUT
 	container_type : ContainerType;
 	name: STRING;
@@ -38,7 +38,7 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="create_job" Id="{65cf060d-dd4c-4119-bcf8-79a9d41aeea7}">
-      <Declaration><![CDATA[METHOD create_job : REFERENCE TO FB_Executor
+      <Declaration><![CDATA[METHOD create_job : I_Job
 VAR_INPUT
 	creator : InterfaceTaskCreator;
 	future_name: STRING;
@@ -46,7 +46,7 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Property Name="each_executor" Id="{9e169ab1-5bb0-4c6d-a933-f3ef71b48570}">
-      <Declaration><![CDATA[PROPERTY each_executor : REFERENCE TO FB_Executor]]></Declaration>
+      <Declaration><![CDATA[PROPERTY each_executor : I_Job]]></Declaration>
       <Get Name="Get" Id="{c8f368de-7b29-4b83-b05b-66036611f351}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -71,7 +71,7 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="spawn_job" Id="{d49e697a-f8c3-49c2-92d4-238e4a1c4453}">
-      <Declaration><![CDATA[METHOD spawn_job : REFERENCE TO FB_Executor
+      <Declaration><![CDATA[METHOD spawn_job : I_Job
 VAR_INPUT
 	future : InterfaceFuture;
 END_VAR

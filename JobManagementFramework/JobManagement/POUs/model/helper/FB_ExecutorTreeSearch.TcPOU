@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FB_ExecutorTreeSearch" Id="{149b5315-e5ca-4a5c-b083-4e295a6fbba5}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ExecutorTreeSearch
 VAR_INPUT
@@ -27,10 +27,10 @@ END_VAR
     <Method Name="search" Id="{4aa60b52-b4c1-49ad-bcc1-ddd28e76b7fb}">
       <Declaration><![CDATA[METHOD search : BOOL
 VAR_INPUT
-	executor : REFERENCE TO FB_Executor;
+	executor : I_Job;
 END_VAR
 VAR
-	_child_executor  : REFERENCE TO FB_Executor;
+	_child_executor  : I_Job;
 	_all_done : BOOL;
 END_VAR]]></Declaration>
       <Implementation>
@@ -42,38 +42,18 @@ END_IF
 // Recursive process if child object exists.
 IF executor.children <> 0 THEN
 	REPEAT 
-		_child_executor REF= executor.children.each_executor;
-		IF __ISVALIDREF(_child_executor) THEN
+		_child_executor := executor.children.each_executor;
+		IF _child_executor <> 0 THEN
 			IF NOT THIS^.search(_child_executor) THEN
 				_all_done := FALSE;
 			END_IF
 		END_IF
 	UNTIL
-		NOT __ISVALIDREF(_child_executor)
+		_child_executor = 0
 	END_REPEAT	
 END_IF
 search := _all_done;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FB_ExecutorTreeSearch">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ExecutorTreeSearch.observer.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ExecutorTreeSearch.search">
-      <LineId Id="56" Count="0" />
-      <LineId Id="54" Count="0" />
-      <LineId Id="59" Count="1" />
-      <LineId Id="62" Count="0" />
-      <LineId Id="61" Count="0" />
-      <LineId Id="40" Count="0" />
-      <LineId Id="43" Count="2" />
-      <LineId Id="48" Count="0" />
-      <LineId Id="57" Count="1" />
-      <LineId Id="50" Count="3" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="21" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

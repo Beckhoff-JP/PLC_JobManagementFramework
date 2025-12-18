@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FB_ParallelJobContainerCreator" Id="{808db55b-c727-45ae-8e1f-ebf797e858e3}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_ParallelJobContainerCreator IMPLEMENTS InterfaceTaskCreator
 VAR_INPUT
@@ -46,16 +46,5 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FB_ParallelJobContainerCreator">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainerCreator.create_future">
-      <LineId Id="11" Count="1" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_ParallelJobContainerCreator.destroy_future">
-      <LineId Id="18" Count="5" />
-      <LineId Id="7" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>
