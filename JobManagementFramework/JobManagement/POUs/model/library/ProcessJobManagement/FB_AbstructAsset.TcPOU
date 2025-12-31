@@ -1,0 +1,139 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <POU Name="FB_AbstructAsset" Id="{d4d0355c-79fc-4600-bee5-c78f62e48799}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructAsset IMPLEMENTS I_Asset
+VAR CONSTANT
+	NUM_OF_JOBS : UDINT := 10;
+END_VAR
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_jobs : ARRAY [1..NUM_OF_JOBS] OF I_Job;
+	_error_id : HRESULT;
+	_asset_kind : E_AssetKind := E_AssetKind.station;
+	_asset_name : STRING;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="add_template_job" Id="{421f4dbf-8359-4849-87a0-5f4b133228d8}">
+      <Declaration><![CDATA[METHOD add_template_job : BOOL
+VAR_INPUT
+	job : I_Job;
+END_VAR
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO NUM_OF_JOBS DO
+	IF _jobs[i] = 0 THEN
+		_jobs[i] := I_Job;
+		add_template_job := TRUE;
+		_error_id := S_OK;
+		RETURN;
+	END_IF
+END_FOR
+
+_error_id := -1;
+add_template_job := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="asset_kind" Id="{2ac5f7ca-9796-4b79-8958-254a0b97c0d0}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY asset_kind : E_AssetKind
+]]></Declaration>
+      <Get Name="Get" Id="{0c768923-5fe9-4f39-9d49-438ae72e0815}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[asset_kind := _asset_kind;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{649a0f38-de96-482a-bbc4-dd9f61c67234}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_asset_kind := asset_kind ;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="asset_name" Id="{3afe87e4-af7e-4675-b6b4-86d7284aa59a}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY asset_name : STRING
+]]></Declaration>
+      <Get Name="Get" Id="{9d1f333d-982d-4fcc-ab2a-85204f429608}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[asset_name := _asset_name;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0dc94d7a-169b-44ec-adc3-e1e3866e5821}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_asset_name := asset_name;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="delete_template_job" Id="{61c863fe-cf5c-44cc-8de1-ad36ab58cb8e}">
+      <Declaration><![CDATA[METHOD delete_template_job : BOOL
+VAR_INPUT
+	job : I_Job;
+END_VAR
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO NUM_OF_JOBS DO
+	IF _jobs[i] = I_Job THEN
+		_jobs[i] := 0;
+		add_template_job := TRUE;
+		_error_id := S_OK;
+		RETURN;
+	END_IF
+END_FOR
+
+_error_id := -2;
+add_template_job := FALSE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="error_id" Id="{7a356971-588c-4218-b502-06b7edd477a1}">
+      <Declaration><![CDATA[PROPERTY error_id : HRESULT]]></Declaration>
+      <Get Name="Get" Id="{06f4107d-7cae-408c-9d3b-30afd98daf5a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[error_id := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="get_job_by_name" Id="{5202a574-e2c3-4a73-946f-6e219a31d619}">
+      <Declaration><![CDATA[METHOD get_job_by_name : I_Job
+VAR_INPUT
+	future_name : STRING;
+END_VAR
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO NUM_OF_JOBS DO
+	IF _jobs[i] <> 0 AND_THEN _jobs[i].future.future_name = future_name THEN
+		get_job_by_name := _jobs[i];
+		RETURN;
+	END_IF
+END_FOR
+
+get_job_by_name := 0;]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

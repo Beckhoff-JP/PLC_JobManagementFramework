@@ -24,11 +24,13 @@ VAR
 	_aborting :BOOL;
 	_quitting :BOOL;
 	_interface_container : InterfaceContainer := 0;
-	_job_event_reporter: InterfaceObserver;
+	_job_event_reporter: I_JobEventTransition;
+	_job_event_observable : I_Observable;
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
 	_parent_executor : I_Job := 0;
 	_persistent_job : BOOL;
+	_current_timestamp : POINTER TO T_FILETIME64 := 0;
 END_VAR]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
@@ -172,6 +174,25 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Property Name="current_timestamp" Id="{74095410-9ee5-43ed-9c18-81832c61b8b6}">
+      <Declaration><![CDATA[PROPERTY current_timestamp : POINTER TO T_FILETIME64]]></Declaration>
+      <Get Name="Get" Id="{7fe2ad0d-e85a-4a95-857c-47623a2cd762}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[current_timestamp := _current_timestamp;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c896aa9f-824e-471d-9ccb-0ebb207bc01b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_current_timestamp := current_timestamp;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="done" Id="{4120264c-9741-4f55-a3ec-37db4b2fdd1d}">
       <Declaration><![CDATA[PROPERTY done : BOOL // Present true if process be finished.]]></Declaration>
       <Get Name="Get" Id="{adfb9284-a38c-48f0-99cc-b8f7d36d7c03}">
@@ -192,14 +213,17 @@ END_VAR
         <ST><![CDATA[IF _future <> 0 THEN
 	IF _future.error_reset() THEN
 		error_reset := TRUE;
-		IF _job_event_reporter <> 0 THEN
-			_job_event_reporter.subscribe_job_event(
-						subject := 'ERROR_RESET',
-						old_state := _last_state,
-						new_state := _state,
-						record_time := F_GetSystemTime(),
-						executor := THIS^
-				);
+		IF _job_event_reporter <> 0 AND _job_event_observable <> 0 THEN
+			_job_event_reporter.title := 'ERROR_RESET';
+			_job_event_reporter.last_state := _last_state;
+			_job_event_reporter.new_state := _state;
+			IF _current_timestamp <> 0 THEN
+				_job_event_reporter.record_time := _current_timestamp^;
+			ELSE
+				_job_event_reporter.record_time := F_GetSystemTime();
+			END_IF
+			_job_event_reporter.job := THIS^;
+			_job_event_observable.notify_observers();
 		END_IF
 	ELSE
 		error_reset := FALSE;
@@ -332,7 +356,7 @@ IF _state <> _state_mem THEN
 		_quitting := TRUE;
 	END_IF
 		
-	IF _job_event_reporter <> 0 THEN
+	IF _job_event_reporter <> 0 AND _job_event_observable <> 0 THEN
 		// reporter
 		_logging := TRUE;
 	END_IF
@@ -341,14 +365,17 @@ END_IF
 _state_mem := _state;
 
 IF _logging THEN
-	IF _job_event_reporter.subscribe_job_event(
-			subject := 'TRANSITION',
-			old_state := _last_state,
-			new_state := _state,
-			record_time := F_GetSystemTime(),
-			executor := THIS^
-	) THEN
-		_logging := FALSE;
+	_job_event_reporter.title := 'TRANSITION';
+	_job_event_reporter.last_state := _last_state;
+	_job_event_reporter.new_state := _state;
+	IF _current_timestamp <> 0 THEN
+		_job_event_reporter.record_time := _current_timestamp^;
+	ELSE
+		_job_event_reporter.record_time := F_GetSystemTime();
+	END_IF
+	_job_event_reporter.job := THIS^;
+	IF _job_event_observable.notify_observers() THEN
+		_logging := FALSE;	
 	END_IF
 END_IF
 
@@ -432,7 +459,7 @@ INIT := TRUE;
       </Implementation>
     </Method>
     <Property Name="job_event_reporter" Id="{7070112e-2fb6-433d-85f5-f36a183c0a1e}">
-      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceObserver]]></Declaration>
+      <Declaration><![CDATA[PROPERTY job_event_reporter : I_JobEventTransition]]></Declaration>
       <Get Name="Get" Id="{150bf335-b5f5-4890-8f09-a0bd37e70e48}">
         <Declaration><![CDATA[
 VAR
@@ -449,6 +476,7 @@ END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[_job_event_reporter := job_event_reporter;
+__QUERYINTERFACE(_job_event_reporter, _job_event_observable);
 IF THIS^.children <> 0 THEN
 	REPEAT
 		executor := THIS^.children.each_executor;
@@ -500,7 +528,8 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_parent_executor := parent_executor;]]></ST>
+          <ST><![CDATA[_parent_executor := parent_executor;
+THIS^.current_timestamp := _parent_executor.current_timestamp;]]></ST>
         </Implementation>
       </Set>
     </Property>

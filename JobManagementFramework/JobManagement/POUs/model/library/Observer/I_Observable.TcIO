@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <Itf Name="I_Observable" Id="{92b993e2-e7c7-4e67-97d7-3ed763275f90}">
+    <Declaration><![CDATA[INTERFACE I_Observable  EXTENDS __SYSTEM.IQueryInterface 
+]]></Declaration>
+    <Method Name="add_observer" Id="{bd642e2f-5d27-4e66-9f33-1a521b718282}">
+      <Declaration><![CDATA[METHOD add_observer : BOOL
+VAR_INPUT
+	observer : I_Observer;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="error_id" Id="{739f0bef-5b2f-442e-b61b-84f0fa9315ae}">
+      <Declaration><![CDATA[PROPERTY error_id : HRESULT]]></Declaration>
+      <Get Name="Get" Id="{6f7cbb61-27f2-4b23-91f9-81214f215639}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{2773258f-ffde-4726-b18c-291029fae65b}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Method Name="notify_observers" Id="{54582a89-72cc-477c-a748-1b58ee3b7a78}">
+      <Declaration><![CDATA[METHOD notify_observers : BOOL
+]]></Declaration>
+    </Method>
+    <Method Name="remove_observer" Id="{4e028d00-22a0-48ff-b97c-9c0590df9e11}">
+      <Declaration><![CDATA[METHOD remove_observer : BOOL
+VAR_INPUT
+	observer : I_Observer;
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FB_TaskRunner_Test" Id="{d3f43d38-44f6-4522-94b7-30859937d93c}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_TaskRunner_Test EXTENDS TcUnit.FB_TestSuite
 VAR_INPUT
@@ -27,7 +27,7 @@ VAR
 	tzinfo : FB_GetTimeZoneInformation := (bExecute := TRUE);
 	getSystemtime : FB_TzSpecificLocalTimeToSystemTime;
 	current_time : T_FILETIME64;
-	observer : REFERENCE TO FB_observer;
+	observer : REFERENCE TO FB_JobEventLogStr;
 	
 	motion_data : ST_MotionData;
 END_VAR
@@ -53,7 +53,7 @@ IF NOT init THEN
 	JobCreateDemo(demo_job, axis1); // demo_job にメソッドを通してシーケンスジョブを組み立てる
 	mc_power.future_name := 'POWER_CTRL';
 	_poweron_job.future := mc_power;
-	observer REF= runner.fbObserver;
+	observer REF= runner.job_event_log_str;
 	num_of_jobs := demo_job.children.num_of_jobs;
 	init := TRUE;	// RUN 後 1 サイクルだけ実行
 END_IF
@@ -172,68 +172,5 @@ _job_temp REF= base_job.children.create_job(mc_move_abs_future_creator,'Back to 
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FB_TaskRunner_Test">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_TaskRunner_Test._01_WhenTaskSpawned">
-      <LineId Id="48" Count="0" />
-      <LineId Id="66" Count="5" />
-      <LineId Id="75" Count="0" />
-      <LineId Id="73" Count="0" />
-      <LineId Id="65" Count="0" />
-      <LineId Id="47" Count="0" />
-      <LineId Id="46" Count="0" />
-      <LineId Id="60" Count="3" />
-      <LineId Id="92" Count="1" />
-      <LineId Id="95" Count="0" />
-      <LineId Id="99" Count="0" />
-      <LineId Id="94" Count="0" />
-      <LineId Id="82" Count="4" />
-      <LineId Id="81" Count="0" />
-      <LineId Id="51" Count="0" />
-      <LineId Id="50" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_TaskRunner_Test.JobCreateDemo">
-      <LineId Id="341" Count="0" />
-      <LineId Id="243" Count="0" />
-      <LineId Id="391" Count="0" />
-      <LineId Id="244" Count="0" />
-      <LineId Id="360" Count="0" />
-      <LineId Id="245" Count="1" />
-      <LineId Id="361" Count="0" />
-      <LineId Id="250" Count="1" />
-      <LineId Id="255" Count="3" />
-      <LineId Id="362" Count="0" />
-      <LineId Id="259" Count="1" />
-      <LineId Id="264" Count="1" />
-      <LineId Id="363" Count="0" />
-      <LineId Id="266" Count="1" />
-      <LineId Id="364" Count="0" />
-      <LineId Id="271" Count="1" />
-      <LineId Id="276" Count="3" />
-      <LineId Id="365" Count="0" />
-      <LineId Id="280" Count="1" />
-      <LineId Id="366" Count="0" />
-      <LineId Id="285" Count="1" />
-      <LineId Id="290" Count="1" />
-      <LineId Id="367" Count="0" />
-      <LineId Id="292" Count="1" />
-      <LineId Id="297" Count="0" />
-      <LineId Id="368" Count="0" />
-      <LineId Id="298" Count="0" />
-      <LineId Id="369" Count="0" />
-      <LineId Id="302" Count="1" />
-      <LineId Id="370" Count="0" />
-      <LineId Id="307" Count="1" />
-      <LineId Id="393" Count="0" />
-      <LineId Id="395" Count="4" />
-      <LineId Id="394" Count="0" />
-      <LineId Id="371" Count="0" />
-      <LineId Id="312" Count="1" />
-      <LineId Id="317" Count="1" />
-      <LineId Id="372" Count="0" />
-      <LineId Id="319" Count="1" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

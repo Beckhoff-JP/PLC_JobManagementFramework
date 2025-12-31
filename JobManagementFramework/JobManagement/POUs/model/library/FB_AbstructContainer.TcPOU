@@ -20,7 +20,7 @@ VAR
 	_continuous_mode : BOOL;
 	_error_id :UDINT;
 	_state :E_FutureExecutionState;
-	_job_event_reporter : InterfaceObserver;
+	_job_event_reporter : I_JobEventTransition;
 END_VAR
 ]]></Declaration>
     <Implementation>

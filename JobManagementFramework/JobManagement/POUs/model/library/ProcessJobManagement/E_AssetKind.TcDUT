@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <DUT Name="E_AssetKind" Id="{fb8d0a82-2843-401e-9210-2c210ae4aead}">
+    <Declaration><![CDATA[{attribute 'qualified_only'}
+{attribute 'strict'}
+{attribute 'to_string'}
+TYPE E_AssetKind :
+(
+	driver := 0,
+	carrier,
+	station,
+);
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

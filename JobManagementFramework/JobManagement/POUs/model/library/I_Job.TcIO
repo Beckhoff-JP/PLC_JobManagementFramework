@@ -56,6 +56,15 @@ PROPERTY current_state : E_FutureExecutionState // Get current job state]]></Dec
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
+    <Property Name="current_timestamp" Id="{b926ced9-2489-4467-805a-e7d95bed8cdf}">
+      <Declaration><![CDATA[PROPERTY current_timestamp : POINTER TO T_FILETIME64]]></Declaration>
+      <Get Name="Get" Id="{a8d3ca2d-d89a-4442-b154-5f9ccad5ba29}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{04885ff6-8be2-40f0-a6f5-2042bf59e436}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Property Name="done" Id="{49aa35c1-9eff-40f2-9175-654e8db9ac55}">
       <Declaration><![CDATA[PROPERTY done : BOOL // Present true if process be finished.]]></Declaration>
       <Get Name="Get" Id="{45954038-aba4-4ca0-9dca-c851b3710f18}">
@@ -104,7 +113,7 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Property Name="job_event_reporter" Id="{86842a8e-fd31-4199-9e8a-898c1d1cd9cd}">
-      <Declaration><![CDATA[PROPERTY job_event_reporter : InterfaceObserver]]></Declaration>
+      <Declaration><![CDATA[PROPERTY job_event_reporter : I_JobEventTransition]]></Declaration>
       <Get Name="Get" Id="{99052aa6-8cde-4c37-b866-4701a11893cf}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

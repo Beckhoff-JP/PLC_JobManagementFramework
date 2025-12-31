@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <Itf Name="I_JobEventTransition" Id="{4dc44d15-265f-4ec7-84f8-bcf8248b2caa}">
+    <Declaration><![CDATA[INTERFACE I_JobEventTransition EXTENDS __SYSTEM.IQueryInterface 
+]]></Declaration>
+    <Property Name="job" Id="{c7e06e39-5822-4227-b213-852177217bc3}">
+      <Declaration><![CDATA[PROPERTY job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{40a5160f-b378-415d-97b0-45862869013d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{835df9ff-e616-4223-b41d-76707069b29d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="last_state" Id="{df9661e3-7fcd-4083-976b-d4128ee35186}">
+      <Declaration><![CDATA[PROPERTY last_state : E_FutureExecutionState]]></Declaration>
+      <Get Name="Get" Id="{5b91d3b0-f8c0-44fd-a139-68d9a7361443}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{4acbc2e2-69e8-4194-a12f-a2be10d8ad74}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="new_state" Id="{a8c78629-25ac-444a-97cd-8ea20fc844f6}">
+      <Declaration><![CDATA[PROPERTY new_state : E_FutureExecutionState]]></Declaration>
+      <Get Name="Get" Id="{b0584020-70df-44fd-886c-cf39290f176e}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{c1bfeb4a-f3f1-4051-a733-07a8859e24e5}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="record_time" Id="{dd3ab55d-07d1-4978-8956-a8ae6100de2c}">
+      <Declaration><![CDATA[PROPERTY record_time : T_FILETIME64]]></Declaration>
+      <Get Name="Get" Id="{1a0a5eb4-d397-4f3f-90a6-05c9b16f6b72}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{5cc1ee47-b1dc-4dee-9538-f6249e879e62}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="title" Id="{bb87a8a9-aafc-4b3d-a4c3-d1dbda280577}">
+      <Declaration><![CDATA[PROPERTY title : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{553c86d0-eaef-442e-9c3d-1e8902f9d0e4}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{489b25f9-75ee-441d-b857-f778a491f919}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

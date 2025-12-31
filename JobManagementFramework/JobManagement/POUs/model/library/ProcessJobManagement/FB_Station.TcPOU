@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <POU Name="FB_Station" Id="{aad04d2c-7b74-4a95-83e2-dc5f6cdfb64a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_Station EXTENDS FB_AbstructAsset
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Property Name="positioning_job" Id="{0126d3de-6766-4f74-99cf-6d2c3fff12bb}">
+      <Declaration><![CDATA[PROPERTY positioning_job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{d4f1fce4-5a26-4b17-85d5-06a2a040cccf}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{c2a6e322-7b42-46c4-b1fa-5743e79895b0}">
+        <Declaration><![CDATA[
+VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

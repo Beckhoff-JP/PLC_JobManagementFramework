@@ -22,7 +22,7 @@ VAR
 	tzinfo : FB_GetTimeZoneInformation := (bExecute := TRUE);
 	getSystemtime : FB_TzSpecificLocalTimeToSystemTime;
 	current_time : T_FILETIME64;
-	observer : REFERENCE TO FB_observer;
+	observer : REFERENCE TO FB_JobEventLogStr;
 	
 	motion_data : ST_MotionData;
 END_VAR
@@ -31,7 +31,7 @@ END_VAR
       <ST><![CDATA[IF NOT init THEN
 	mc_power.future_name := 'POWER_CTRL';
 	_poweron_job.future := mc_power;
-	observer REF= runner.fbObserver;
+	observer REF= runner.job_event_log_str;
 	init := TRUE;	// RUN 後 1 サイクルだけ実行
 END_IF
 

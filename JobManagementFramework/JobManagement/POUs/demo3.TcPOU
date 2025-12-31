@@ -4,7 +4,6 @@
     <Declaration><![CDATA[PROGRAM demo3
 VAR
 	runner : FB_TaskRunner;
-	fbJobTreeSearch : FB_ExecutorTreeSearch;
 
 	init: BOOL;
 	_state :UINT;
@@ -22,9 +21,12 @@ VAR
 	tzinfo : FB_GetTimeZoneInformation := (bExecute := TRUE);
 	getSystemtime : FB_TzSpecificLocalTimeToSystemTime;
 	current_time : T_FILETIME64;
-	observer : REFERENCE TO FB_observer;
+	observer : REFERENCE TO FB_JobEventLogStr;
 	
 	motion_data : ST_MotionData;
+
+	test : STRING;
+
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -32,7 +34,7 @@ END_VAR
 	JobCreateDemo(demo_job, GVL.axis1); // demo_job にメソッドを通してシーケンスジョブを組み立てる
 	mc_power.future_name := 'POWER_CTRL';
 	_poweron_job.future := mc_power;
-	observer REF= runner.fbObserver;
+	observer REF= runner.job_event_log_str;
 	init := TRUE;	// RUN 後 1 サイクルだけ実行
 END_IF
 
@@ -43,7 +45,7 @@ localTime();
 tzinfo();
 getSystemtime(in := localTime.systemTime, tzInfo := tzinfo.tzInfo);
 current_time := SYSTEMTIME_TO_FILETIME64(getSystemtime.out);
-observer(current_time := current_time);
+runner.root_executor.current_timestamp := ADR(current_time);
 
 // Axis
 GVL.axis1.ReadStatus();
@@ -187,6 +189,8 @@ _job_temp := base_job.children.create_job(mc_move_velocity_future_creator,'Move 
 
 sleep_creator.sleep_time := T#5S;
 _job_temp := base_job.children.create_job(sleep_creator,'250 deg/s 5 seconds');
+
+test := _job_temp.uid;
 
 
 mc_stop_future_creator.set_parameters(stAxis1,0,0);

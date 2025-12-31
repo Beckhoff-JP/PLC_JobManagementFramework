@@ -123,9 +123,6 @@
     <Compile Include="POUs\demo4.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\activities\FB_observer.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\model\activities\FB_EventMessageQueue.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -213,15 +210,6 @@
     <Compile Include="POUs\model\activities\FutureTimerBlinkCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\helper\FB_ExecutorTreeSearch.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\model\helper\InterfaceObserver.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\model\helper\seek_job.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\model\library\FB_AbstructFuture.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -232,6 +220,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_AbstructContainer.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\FB_JobEventTransitionPublisher.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_ParallelJobContainerCreator.TcPOU">
@@ -273,6 +264,39 @@
     <Compile Include="POUs\model\library\I_Job.TcIO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\Observer\FB_JobEventLogStr.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\Observer\FB_JobEventCyclicOutput.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\Observer\I_JobEventTransition.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\Observer\I_Observer.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\Observer\I_Observable.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\ProcessJobManagement\E_AssetKind.TcDUT">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\ProcessJobManagement\FB_AbstructAsset.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\ProcessJobManagement\FB_Station.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\ProcessJobManagement\FutureProcessJob.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\ProcessJobManagement\FutureProcessJobCreator.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\ProcessJobManagement\I_Asset.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\MotionCommand.TcDUT">
       <SubType>Code</SubType>
     </Compile>
@@ -302,7 +326,8 @@
     <Folder Include="POUs\model" />
     <Folder Include="POUs\model\activities" />
     <Folder Include="POUs\model\library" />
-    <Folder Include="POUs\model\helper" />
+    <Folder Include="POUs\model\library\Observer" />
+    <Folder Include="POUs\model\library\ProcessJobManagement" />
     <Folder Include="POUs\test" />
     <Folder Include="VISUs" />
     <Folder Include="POUs" />

@@ -11,25 +11,19 @@ VAR_INPUT
 END_VAR
 VAR_OUTPUT
 	job_empty : BOOL;
+	job_namespace : T_MaxString;
 	num_of_jobs : UINT;
-	fbObserver : FB_observer;
 END_VAR
 VAR
-	init : BOOL;
 	_executor: FB_Executor; // main Executor
+	_observable : FB_JobEventTransitionPublisher;
 	last_job_number : UINT;
+	job_event_log_str : FB_JobEventLogStr;	// ジョブイベントをメッセージとしてログ出力するサブスクライバ
+	job_event_cyclic_output : FB_JobEventCyclicOutput;	// ADS通信向けにジョブイベントをサイクル単位で出力するためのサブスクライバ
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[IF NOT init THEN
-	_executor.job_event_reporter := fbObserver;
-	init := TRUE;
-	_executor.id := root_job_id;
-	_executor.upstream_aborting := upstream_aborting;
-	_executor.create_container(ContainerType.PARALLEL_QUEUE, root_job_name);
-	_executor.continuous_mode := continuous_mode;
-END_IF
-
+      <ST><![CDATA[job_event_cyclic_output(); // Job event log for ADS output 
 
 _executor.execute();
 num_of_jobs := _executor.children.num_of_jobs;
@@ -94,7 +88,7 @@ END_VAR
 END_IF
 
 append_future := _executor.children.spawn_job(future);
-]]></ST>
+job_namespace := append_future.uid;]]></ST>
       </Implementation>
     </Method>
     <Method Name="append_job" Id="{9478587e-18c8-434e-9e7a-ea7720add6db}">
@@ -110,6 +104,7 @@ END_IF
 
 IF job.init() THEN
 	_executor.children.append_job(job);
+	job_namespace := job.uid;
 	append_job := TRUE;
 END_IF]]></ST>
       </Implementation>
@@ -127,7 +122,7 @@ END_VAR
 END_IF
 
 create_job := _executor.children.create_job(creator, name);
-]]></ST>
+job_namespace := create_job.uid;]]></ST>
       </Implementation>
     </Method>
     <Method Name="error_reset" Id="{49e44ab9-6fa5-4b48-b4fc-2124df79f2ad}">
@@ -138,6 +133,26 @@ END_VAR
       <Implementation>
         <ST><![CDATA[error_reset := _executor.error_reset();
 ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="FB_Init" Id="{5458cc6a-18c3-46ab-b74b-8ef5cc2836f1}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+//The return value is not evaluated. For a specific influence, you can also declare the
+//methods explicitly and provide additional code there with the standard initialization
+//code. You can evaluate the return value.
+METHOD FB_Init: BOOL
+VAR_INPUT
+    bInitRetains: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+    bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)   
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_executor.job_event_reporter := _observable;
+_observable.add_observer(job_event_log_str);
+_observable.add_observer(job_event_cyclic_output);
+_executor.id := root_job_id;
+_executor.upstream_aborting := upstream_aborting;
+_executor.create_container(ContainerType.PARALLEL_QUEUE, root_job_name);
+_executor.continuous_mode := continuous_mode;]]></ST>
       </Implementation>
     </Method>
     <Method Name="job_clear" Id="{a712ddb7-5b8d-43cd-9202-b9ce0095b19b}">
@@ -162,7 +177,7 @@ job_clear := _executor.children.reset(FALSE);
       </Implementation>
     </Method>
     <Property Name="observer" Id="{947c7939-e057-4dfe-be01-9957111d99a8}">
-      <Declaration><![CDATA[PROPERTY observer : InterfaceObserver]]></Declaration>
+      <Declaration><![CDATA[PROPERTY observer : I_JobEventTransition]]></Declaration>
       <Get Name="Get" Id="{17c56140-6fb9-4d59-948b-42e2f681725d}">
         <Declaration><![CDATA[VAR
 END_VAR

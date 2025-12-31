@@ -5,7 +5,7 @@
       <Data>
         <o xml:space="preserve" t="VisualObject">
           <n n="LastVisuLanguageModelEntry" />
-          <v n="UniqueIdGenerator">"69"</v>
+          <v n="UniqueIdGenerator">"78"</v>
           <o n="VisualElemList" t="VisualElemList">
             <l n="VisualElementList" t="VisualElemCollection" cet="GenericVisualElem">
               <o>
@@ -258,7 +258,7 @@
                     </o>
                     <o>
                       <v n="Id">2477733581L</v>
-                      <v n="Value">"demo3.runner.fbObserver.event_message.job_id"</v>
+                      <v n="Value">"demo3.runner.job_event_cyclic_output.event_message.job_id"</v>
                     </o>
                     <o>
                       <v n="Id">2597686782L</v>
@@ -972,7 +972,7 @@
                     </o>
                     <o>
                       <v n="Id">2477733581L</v>
-                      <v n="Value">"demo3.runner.fbObserver.event_message.subject"</v>
+                      <v n="Value">"demo3.runner.job_event_cyclic_output.event_message.subject"</v>
                     </o>
                     <o>
                       <v n="Id">2597686782L</v>
@@ -1138,7 +1138,7 @@
                     </o>
                     <o>
                       <v n="Id">2477733581L</v>
-                      <v n="Value">"demo3.runner.fbObserver.event_message.new_state"</v>
+                      <v n="Value">"demo3.runner.job_event_cyclic_output.event_message.new_state"</v>
                     </o>
                     <o>
                       <v n="Id">2597686782L</v>

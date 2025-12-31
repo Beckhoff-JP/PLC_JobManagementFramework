@@ -1,0 +1,207 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <POU Name="FB_JobEventTransitionPublisher" Id="{7a64fcb3-a887-456a-9fd8-a111e49a6cf3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_JobEventTransitionPublisher IMPLEMENTS I_JobEventTransition, I_Observable
+VAR CONSTANT
+	MAX_OBSERVERS : UDINT := 5;
+END_VAR
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_observers		: ARRAY [1..MAX_OBSERVERS] OF I_Observer;
+	_title	  		: T_MaxString;	// Subject text of event
+	_last_state 	: E_FutureExecutionState; // Job state before transition.
+	_new_state 		: E_FutureExecutionState; // Job state after transition.
+	_record_time	: T_FILETIME64; // File-time at the time of transition.
+	_job			: I_Job; // Reference to job instance of which transition occurs.
+	_error_id		: HRESULT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="add_observer" Id="{d712393b-074b-40ce-ab34-a3ae158e8435}">
+      <Declaration><![CDATA[METHOD add_observer : BOOL
+VAR_INPUT
+	observer	: I_Observer;
+END_VAR
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO MAX_OBSERVERS DO
+	IF _observers[i] = 0 THEN
+		_observers[i] := observer;
+		_error_id := S_OK;
+		add_observer := TRUE;
+		RETURN;
+	END_IF
+END_FOR
+_error_id := -1;
+add_observer := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="error_id" Id="{097bfdb5-8c91-4f30-951c-7994a4445464}">
+      <Declaration><![CDATA[PROPERTY error_id : HRESULT]]></Declaration>
+      <Get Name="Get" Id="{c8873fe5-6f71-431e-be62-a1683a1d1ef5}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[error_id := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{77d00a62-3027-4c5d-bf1e-5e6680cf3218}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_error_id := error_id;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="job" Id="{7ffe74ad-75ab-4ffd-be67-8bd95da67896}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY job : I_Job
+]]></Declaration>
+      <Get Name="Get" Id="{203eace5-176a-4546-9ba8-9222c3581386}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[job := _job;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{3d8f4474-bc71-4648-8e41-4fee6b02a08d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_job := job;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="last_state" Id="{04fd2377-5fcc-4370-8438-cd220270ddf8}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY last_state : E_FutureExecutionState
+]]></Declaration>
+      <Get Name="Get" Id="{a4a76b6e-bad7-4637-9b1e-10d9cd0435c0}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[last_state := _last_state;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{786bc1c9-24e5-4fd2-bfbd-3220e2794ff2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_last_state := last_state;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="new_state" Id="{0f0d0773-d759-4533-b954-ab8abc3edd0b}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY new_state : E_FutureExecutionState
+]]></Declaration>
+      <Get Name="Get" Id="{67ebf388-b35b-48e6-9a2a-3a5df0b4c462}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[new_state := _new_state;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{915ab9e3-bd11-4fc8-b718-cdd764d0a9e3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_new_state := new_state;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="notify_observers" Id="{24198e8b-93da-4bfe-b178-70a0f1f8b69b}">
+      <Declaration><![CDATA[METHOD notify_observers : BOOL
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[notify_observers := TRUE;
+FOR i := 1 TO MAX_OBSERVERS DO
+	IF _observers[i] <> 0 THEN
+		_observers[i].notify(THIS^);
+	END_IF
+END_FOR
+]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="record_time" Id="{e043bb70-f943-4c44-93c4-10e25e34e9f8}">
+      <Declaration><![CDATA[PROPERTY record_time : T_FILETIME64
+]]></Declaration>
+      <Get Name="Get" Id="{1ef59afb-5415-4e15-ad52-c1f7e22fbdec}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[record_time := _record_time;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{eda5ceb4-28bd-460e-b13d-925e46216f1b}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_record_time := record_time;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="remove_observer" Id="{ee66de95-751f-40b3-aa1d-da1581a9b056}">
+      <Declaration><![CDATA[METHOD remove_observer : BOOL
+VAR_INPUT
+	observer	: I_Observer;
+END_VAR
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO MAX_OBSERVERS DO
+	IF _observers[i] = observer THEN
+		_observers[i] := 0;
+		_error_id := S_OK;
+		remove_observer := TRUE;
+		RETURN;
+	END_IF
+END_FOR
+_error_id := -2;
+remove_observer := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="title" Id="{df3f22e1-8fa7-4ede-9800-4f7f70c43c3a}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY title : T_MaxString
+]]></Declaration>
+      <Get Name="Get" Id="{57c6140d-176b-4ab3-b731-538428ec1e7e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[title := _title;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{e471fcef-a8fd-4f1d-a8b2-0a5063e37ba2}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_title := title;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+  </POU>
+</TcPlcObject>

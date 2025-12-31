@@ -1,0 +1,52 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <POU Name="FutureProcessJobCreator" Id="{7c167031-294c-4c7a-b27b-82b6721727b2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureProcessJobCreator IMPLEMENTS InterfaceTaskCreator
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	_axis: REFERENCE TO AXIS_REF;
+	_axes_group : REFERENCE TO AXES_GROUP_REF;
+	_id : UDINT;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="create_future" Id="{139c3d67-f8a8-4889-91e8-82e6a50e29ec}">
+      <Declaration><![CDATA[METHOD create_future : InterfaceFuture
+VAR_INPUT
+	(* Specify future name*)
+	future_name	: STRING;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureProcessJob;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_p_future := __NEW(FutureProcessJob);
+_p_future^.future_name := future_name;
+create_future := _p_future^;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="destroy_future" Id="{5adef473-38a5-408a-a77b-c02ac5315c69}">
+      <Declaration><![CDATA[METHOD destroy_future : InterfaceFuture
+VAR_INPUT
+	(* Specify future instance whtat you want to delete.*)
+	future	: InterfaceFuture;
+END_VAR
+VAR
+	_p_future : POINTER TO FutureProcessJob;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF __QUERYPOINTER(future, _p_future) THEN
+	__DELETE(_p_future);
+	IF _p_future = 0  THEN
+		destroy_future := 0;
+	END_IF
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>
