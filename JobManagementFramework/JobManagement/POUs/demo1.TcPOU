@@ -48,6 +48,9 @@ CASE state OF
 		runner.append_job(demo_job);
 		state := 2;
 	2:
+		IF demo_job.ready THEN
+			demo_job.start();
+		END_IF
 		IF demo_job.done THEN
 			state := 3;
 		END_IF

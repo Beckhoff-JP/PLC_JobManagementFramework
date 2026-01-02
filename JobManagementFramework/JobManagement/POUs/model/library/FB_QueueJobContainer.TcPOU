@@ -36,6 +36,7 @@ IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	// Get parent tssk id
 	IF _executor <> 0 THEN
 		_executors[nWriteIndex].job_event_reporter := _executor.job_event_reporter;
+		_executors[nWriteIndex].future_assign_observable := _executor.future_assign_observable;
 		_executors[nWriteIndex].parent_executor := _executor;
 		_executors[nWriteIndex].upstream_aborting := _executor.upstream_aborting;
 	END_IF
@@ -199,7 +200,7 @@ REPEAT
 			E_FutureExecutionState.idle:
 				_executor.init();
 			E_FutureExecutionState.wait_for_process:
-				IF _executor.ready AND (complete_last_proess OR _head) AND _auto_start THEN
+				IF _executor.ready AND (complete_last_proess OR _head) AND SUPER^._auto_start THEN
 					_executor.start();
 					_current_executing_job := _executor;
 				END_IF
@@ -255,26 +256,6 @@ _current_executing_job := 0;
 _error_id := 0;
 init := _init_done;
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="start" Id="{4cf224e9-838c-49df-961f-f92e9826d1b5}">
-      <Declaration><![CDATA[METHOD start : BOOL
-VAR
-	_all_done : BOOL;
-END_VAR
-VAR_INST
-	_executor : I_Job;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[IF _current_executing_job <> 0 THEN
-	IF _current_executing_job.ready THEN
-		start := _current_executing_job.start();
-	ELSE
-		start := TRUE;	
-	END_IF
-ELSE
-	start := TRUE;
-END_IF]]></ST>
       </Implementation>
     </Method>
   </POU>

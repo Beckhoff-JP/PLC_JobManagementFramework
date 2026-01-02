@@ -126,6 +126,9 @@
     <Compile Include="POUs\model\activities\FB_EventMessageQueue.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\activities\FB_AssetXtsMover.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\activities\FutureCounterBlinkCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -283,9 +286,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\ProcessJobManagement\FB_AbstructAsset.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\model\library\ProcessJobManagement\FB_Station.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\ProcessJobManagement\FutureProcessJob.TcPOU">

@@ -3,13 +3,6 @@
   <Itf Name="I_Asset" Id="{12ee3a8b-6456-41e5-84b8-0def38f5c9f0}">
     <Declaration><![CDATA[INTERFACE I_Asset
 ]]></Declaration>
-    <Method Name="add_template_job" Id="{ec703c82-2caa-4cb5-b325-463b829d9ea1}">
-      <Declaration><![CDATA[METHOD add_template_job : BOOL
-VAR_INPUT
-	job : I_Job;
-END_VAR
-]]></Declaration>
-    </Method>
     <Property Name="asset_kind" Id="{10644835-1f1e-45a8-a601-a3d47cf7ad6c}">
       <Declaration><![CDATA[PROPERTY asset_kind : E_AssetKind]]></Declaration>
       <Get Name="Get" Id="{b28c6d47-d324-4fb8-93b4-dc0bbc1dad9d}">
@@ -28,25 +21,35 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
-    <Method Name="delete_template_job" Id="{b5ece863-3018-4a16-bd6d-2325ad79bdce}">
-      <Declaration><![CDATA[METHOD delete_template_job : BOOL
+    <Method Name="build_template_job" Id="{cf7751ca-08b5-43b5-81ae-b82ed0a06c1e}">
+      <Declaration><![CDATA[METHOD build_template_job : I_Job
 VAR_INPUT
-	job : I_Job;
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="driver" Id="{5e18b4e8-e6c4-4f9e-8aad-5a99d742e6ab}">
+      <Declaration><![CDATA[PROPERTY driver : I_Job]]></Declaration>
+      <Set Name="Set" Id="{5e1ddfc0-20b4-46da-a731-9c6837509368}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Property Name="error_id" Id="{f8c642f5-2f6c-4dc4-8d68-871d75d4fbe2}">
       <Declaration><![CDATA[PROPERTY error_id : HRESULT]]></Declaration>
       <Get Name="Get" Id="{981e5c57-44b0-44b5-90b2-f01952fffb78}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Method Name="get_job_by_name" Id="{2986277d-790a-43b0-8c5b-db15909e8236}">
-      <Declaration><![CDATA[METHOD get_job_by_name : I_Job
+    <Method Name="execute_job" Id="{dc80ce92-6ddb-4acd-b37b-3f2900d56045}">
+      <Declaration><![CDATA[METHOD execute_job : BOOL;
 VAR_INPUT
-	future_name : STRING;
 END_VAR
 ]]></Declaration>
     </Method>
+    <Property Name="job" Id="{a3431bac-dd92-47ec-8489-56c0f1e36cde}">
+      <Declaration><![CDATA[PROPERTY job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{1b07124f-bdef-4872-8368-148cea1db887}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
   </Itf>
 </TcPlcObject>

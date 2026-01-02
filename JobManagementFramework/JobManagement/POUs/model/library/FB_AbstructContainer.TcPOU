@@ -11,12 +11,10 @@ VAR
 	{attribute 'TcEncoding':='UTF-8'}
 	_name 	: STRING := 'BATCH JOB';
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF I_Job;
-	_auto_start : BOOL := TRUE;
 	_start :BOOL;
+	_auto_start : BOOL := TRUE;
 	_abort : BOOL;
 	_num_of_jobs: UINT;
-	current_executing_future_id : UINT;
-	current_executing_future : InterfaceFuture;
 	_continuous_mode : BOOL;
 	_error_id :UDINT;
 	_state :E_FutureExecutionState;
@@ -33,8 +31,7 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[
-]]></ST>
+        <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
     <Method Name="_index_generator_" Id="{0b7627ee-07d1-41a3-a3fd-74c088c2456f}">
@@ -56,7 +53,7 @@ _index_generator_ := _index;
       <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[abort := _executors[current_executing_future_id].abort();]]></ST>
+        <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
     <Method Name="append_job" Id="{0a19466a-05de-4dc5-9d2f-632032e1c8b9}">
@@ -70,10 +67,19 @@ END_VAR
 THIS^._append_job(executor);]]></ST>
       </Implementation>
     </Method>
-    <Property Name="auto_start" Id="{48f4601e-00d0-4d3a-af4f-d732184041e7}">
-      <Declaration><![CDATA[PROPERTY auto_start : BOOL
+    <Property Name="auto_start" Id="{f841be87-7a96-47cf-9cba-0bbcca93df8a}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY auto_start : BOOL
 ]]></Declaration>
-      <Set Name="Set" Id="{95234663-5ad4-4b30-a2a2-95b35924da44}">
+      <Get Name="Get" Id="{d8b84932-c4d3-483e-8248-028427da2f13}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[auto_start := _auto_start;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{0124f128-7875-4c8d-b9a7-bd0d51756c12}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
@@ -248,24 +254,22 @@ END_VAR
     <Method Name="init" Id="{8b026f10-89d6-40c5-a4e1-421de953942d}">
       <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR
-	_executor : i_Job;
+	_each_executor : i_Job;
 	_init_done : BOOL;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_init_done := TRUE;
 REPEAT
-	_executor := THIS^.each_executor;
-	IF _executor <> 0 THEN
-		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
-		IF NOT _executor.init() THEN
+	_each_executor := THIS^.each_executor;
+	IF _each_executor <> 0 THEN
+		IF NOT _each_executor.init() THEN
 			_init_done := FALSE;
 		END_IF
 	END_IF
 UNTIL
-	_executor = 0
+	_each_executor = 0
 END_REPEAT
 
-current_executing_future_id := 1;
 _error_id := 0;
 init := _init_done;]]></ST>
       </Implementation>
@@ -377,14 +381,6 @@ END_VAR
 ELSE
 	spawn_job := 0;
 END_IF
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="start" Id="{7d0c8149-0616-4126-987f-47dd1ea83ace}">
-      <Declaration><![CDATA[METHOD start : BOOL
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[start := _executors[current_executing_future_id].start();
 ]]></ST>
       </Implementation>
     </Method>

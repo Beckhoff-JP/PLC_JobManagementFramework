@@ -31,6 +31,7 @@ END_VAR]]></Declaration>
 	IF  _executor <> 0 THEN
 		// Propergate task creator object
 		_executors[_num_of_jobs].job_event_reporter := _executor.job_event_reporter;
+		_executors[_num_of_jobs].future_assign_observable := _executor.future_assign_observable;
 		_executors[_num_of_jobs].parent_executor := _executor;
 		_executors[_num_of_jobs].upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
@@ -105,7 +106,7 @@ FOR i := 1 TO _num_of_jobs DO
 	
 	CASE _executors[i].current_state OF 
 		E_FutureExecutionState.wait_for_process:
-			IF _executors[i].ready AND _auto_start THEN
+			IF _executors[i].ready AND SUPER^._auto_start THEN
 				_executors[i].start();
 			END_IF
 	END_CASE
@@ -115,8 +116,6 @@ FOR i := 1 TO _num_of_jobs DO
 		_error_id := _executors[i].nErrorID;
 	END_IF
 END_FOR
-
-current_executing_future := _executors[_num_of_jobs].future;
 
 execute := complete_all_task;
 ]]></ST>
@@ -172,29 +171,6 @@ IF complete_all_task THEN
 	quit := TRUE;	
 END_IF
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="start" Id="{ee5f3f9a-6bf3-4152-ba8b-8cd61ca8e446}">
-      <Declaration><![CDATA[METHOD start : BOOL
-VAR
-	_all_done : BOOL;
-END_VAR
-VAR_INST
-	_executor : I_Job;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_all_done := TRUE;
-REPEAT
-	_executor := each_executor;
-	IF _executor <> 0 THEN
-		IF NOT _executor.start() THEN
-			_all_done := FALSE;
-		END_IF
-	END_IF
-UNTIL
-	_executor = 0
-END_REPEAT
-start := _all_done;]]></ST>
       </Implementation>
     </Method>
   </POU>

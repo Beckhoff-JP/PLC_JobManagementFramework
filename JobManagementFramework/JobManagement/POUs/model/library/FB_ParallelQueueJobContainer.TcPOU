@@ -41,6 +41,7 @@ IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	// Get parent task id
 	IF _executor <> 0 THEN
 		_executors[i].job_event_reporter := _executor.job_event_reporter;
+		_executors[i].future_assign_observable := _executor.future_assign_observable;
 		_executors[i].parent_executor := _executor;
 		_executors[i].upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
@@ -160,12 +161,14 @@ REPEAT
 				E_FutureExecutionState.idle:
 					_executors[i].init();
 				E_FutureExecutionState.wait_for_process:
-					_executors[i].start();
-				E_FutureExecutionState.init, E_FutureExecutionState.process, E_FutureExecutionState.quit:
-					IF 	_executors[i].current_state = E_FutureExecutionState.process THEN
-						// Report total futures
-						current_executing_future := _executors[i].future;						
+					IF _executor.ready AND SUPER^._auto_start THEN
+						_executors[i].start();
 					END_IF
+				//E_FutureExecutionState.init, E_FutureExecutionState.process, E_FutureExecutionState.quit:
+				//	IF 	_executors[i].current_state = E_FutureExecutionState.process THEN
+				//		// Report total futures
+				//		current_executing_future := _executors[i].future;						
+				//	END_IF
 			END_CASE
 			_error_id := _executors[i].nErrorID;
 		END_IF
@@ -200,29 +203,6 @@ END_REPEAT
 _error_id := 0;
 init := _init_done;
 ]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="start" Id="{622ff657-21bd-4195-a321-21302395d2e6}">
-      <Declaration><![CDATA[METHOD start : BOOL
-VAR
-	_all_done : BOOL;
-END_VAR
-VAR_INST
-	_executor : I_Job;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_all_done := TRUE;
-REPEAT
-	_executor := each_executor;
-	IF _executor <> 0 THEN
-		IF NOT _executor.start() AND _executor.ready THEN
-			_all_done := FALSE;
-		END_IF
-	END_IF
-UNTIL
-	_executor = 0
-END_REPEAT
-start := _all_done;]]></ST>
       </Implementation>
     </Method>
   </POU>

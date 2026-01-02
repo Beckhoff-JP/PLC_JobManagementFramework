@@ -90,6 +90,15 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
+    <Property Name="future_assign_observable" Id="{63a39de5-d551-4c21-9d49-f82e14ffa025}">
+      <Declaration><![CDATA[PROPERTY future_assign_observable : I_Observable]]></Declaration>
+      <Get Name="Get" Id="{eedc7aac-27f0-47dc-a8d7-ae9e4775941f}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{46f95b49-c8a6-4451-bf19-0ca4509bae88}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Property Name="future_creator" Id="{4453c69f-5993-4e32-aa6b-70c0a3524612}">
       <Declaration><![CDATA[PROPERTY future_creator : InterfaceTaskCreator // Set creator instance.]]></Declaration>
       <Set Name="Set" Id="{4c5d6441-82c1-43cc-a85e-15d729c30d05}">
@@ -124,6 +133,12 @@ END_VAR
     <Property Name="last_state" Id="{c0d32629-3739-44a6-a76a-562079ce9773}">
       <Declaration><![CDATA[PROPERTY last_state : E_FutureExecutionState]]></Declaration>
       <Get Name="Get" Id="{516dfae1-5a01-4cc5-bfd0-d6e15004cff0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="namespace" Id="{3fd49687-b433-46f1-b4e3-da6564312bf5}">
+      <Declaration><![CDATA[PROPERTY namespace : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{a073b4a6-1d91-4c1f-b46b-586a3d540fad}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>

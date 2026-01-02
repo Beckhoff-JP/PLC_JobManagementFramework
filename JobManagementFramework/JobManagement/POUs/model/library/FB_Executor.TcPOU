@@ -11,6 +11,8 @@ VAR
 	
 	{attribute 'TcEncoding':='UTF-8'}
 	_id : T_MaxString;
+	_uid : T_MaxString;
+	_namespace : T_MaxString;
 	_done : BOOL;
 	_start : BOOL;
 	_resume : BOOL;
@@ -26,6 +28,7 @@ VAR
 	_interface_container : InterfaceContainer := 0;
 	_job_event_reporter: I_JobEventTransition;
 	_job_event_observable : I_Observable;
+	_future_assign_observable : I_Observable;
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
 	_parent_executor : I_Job := 0;
@@ -410,6 +413,27 @@ END_IF]]></ST>
         </Implementation>
       </Set>
     </Property>
+    <Property Name="future_assign_observable" Id="{0c72f6d0-eac8-4f9f-bbc2-f53baa376c44}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY future_assign_observable : I_Observable
+]]></Declaration>
+      <Get Name="Get" Id="{dc06977b-2a36-406c-985e-f38ef9991c92}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[future_assign_observable := _future_assign_observable;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{22844362-5bd3-468d-9abc-c030ebe70718}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_future_assign_observable := future_assign_observable;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="future_creator" Id="{4ef3d23b-70fc-42e7-92d1-5df42cf5ccf9}">
       <Declaration><![CDATA[PROPERTY future_creator : InterfaceTaskCreator // Set creator instance.]]></Declaration>
       <Set Name="Set" Id="{73c997cd-b03a-40d8-97e1-94183b40cdc9}">
@@ -432,10 +456,25 @@ END_VAR
       </Get>
       <Set Name="Set" Id="{9e8cd938-613c-4a5e-bd20-a66e0b88a473}">
         <Declaration><![CDATA[VAR
+	_eval_executor : I_Job;
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_id := id;]]></ST>
+          <ST><![CDATA[_id := id;
+_eval_executor := _parent_executor;
+_namespace := '';
+REPEAT
+	IF _eval_executor <> 0 THEN
+		_namespace := CONCAT(_eval_executor.id, _namespace);
+		_namespace := CONCAT('/',_namespace);
+		_eval_executor := _eval_executor.parent_executor;
+	END_IF
+UNTIL
+	_eval_executor = 0
+END_REPEAT
+
+_uid := CONCAT(_namespace, '/');
+_uid := CONCAT(_uid, _id);]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -448,12 +487,12 @@ END_VAR
         <ST><![CDATA[_done := FALSE;
 _passive_abort := FALSE;
 _start := FALSE;
-_state := E_FutureExecutionState.init;
+_state := E_FutureExecutionState.idle;
 _error_id := 0;
-IF _future <> 0 THEN
-	_future.init();
+THIS^.id := _id;
+IF _future_assign_observable <> 0 THEN
+	_future_assign_observable.notify_observers();
 END_IF
-
 INIT := TRUE;
 ]]></ST>
       </Implementation>
@@ -498,6 +537,18 @@ END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[last_state := _last_state;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="namespace" Id="{e687b51c-1eb3-4c29-99ba-5eb9a8c6c8be}">
+      <Declaration><![CDATA[PROPERTY namespace : T_MaxString
+]]></Declaration>
+      <Get Name="Get" Id="{0b0730e5-e410-46b6-9595-fd47b24aa11a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[namespace := _namespace;]]></ST>
         </Implementation>
       </Get>
     </Property>
@@ -654,45 +705,18 @@ VAR
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[// Send start signal to children.
-IF _interface_container <> 0 THEN
-	IF _interface_container.start() THEN
-		_start_children := TRUE;
-	END_IF
-ELSE
-	_start_children := TRUE;
-END_IF
-
-// Start my future.
-IF _start_children THEN
-	_start := _state = E_FutureExecutionState.wait_for_process;
-	start := TRUE;
-END_IF
-]]></ST>
+        <ST><![CDATA[// Start my future.
+_start := _state = E_FutureExecutionState.wait_for_process;
+start := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="uid" Id="{564a3395-593c-4073-b553-e3a86e6b9914}">
       <Declaration><![CDATA[PROPERTY uid : T_MaxString]]></Declaration>
       <Get Name="Get" Id="{c15a7ab7-b8a0-43cc-8050-a48bb688e753}">
-        <Declaration><![CDATA[VAR
-	_eval_executor : I_Job;
-	_uid : T_MaxString;
-END_VAR
+        <Declaration><![CDATA[
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_eval_executor := _parent_executor;
-_uid := _id;
-REPEAT
-	_uid := CONCAT('/',_uid);
-	IF _eval_executor <> 0 THEN
-		_uid := CONCAT(_eval_executor.id, _uid);
-		_eval_executor := _eval_executor.parent_executor;
-	END_IF
-UNTIL
-	_eval_executor = 0
-END_REPEAT
-
-uid := _uid;
+          <ST><![CDATA[uid := _uid;
 ]]></ST>
         </Implementation>
       </Get>

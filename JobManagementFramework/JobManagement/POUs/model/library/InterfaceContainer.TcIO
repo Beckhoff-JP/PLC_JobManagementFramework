@@ -17,9 +17,12 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
-    <Property Name="auto_start" Id="{2e7e6e99-de52-4cca-a980-c03dd8230e0f}">
-      <Declaration><![CDATA[PROPERTY auto_start : bool]]></Declaration>
-      <Set Name="Set" Id="{b376652a-a263-4fd4-bbb2-fe00b56cdc19}">
+    <Property Name="auto_start" Id="{7edf24c9-2dd1-4e3e-8cf1-31451a83eaea}">
+      <Declaration><![CDATA[PROPERTY auto_start : BOOL]]></Declaration>
+      <Get Name="Get" Id="{d18e8750-e056-41ae-9771-67ae38337645}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{f506afae-2c66-4eb1-94f0-ea5493073e74}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
@@ -75,10 +78,6 @@ END_VAR
 VAR_INPUT
 	future : InterfaceFuture;
 END_VAR
-]]></Declaration>
-    </Method>
-    <Method Name="start" Id="{31efdc2e-5217-4bb1-99d2-b528d594f419}">
-      <Declaration><![CDATA[METHOD start : BOOL
 ]]></Declaration>
     </Method>
   </Itf>

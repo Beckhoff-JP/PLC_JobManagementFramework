@@ -2,15 +2,14 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FB_AbstructAsset" Id="{d4d0355c-79fc-4600-bee5-c78f62e48799}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructAsset IMPLEMENTS I_Asset
-VAR CONSTANT
-	NUM_OF_JOBS : UDINT := 10;
-END_VAR
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_jobs : ARRAY [1..NUM_OF_JOBS] OF I_Job;
+	_driver		: InterfaceContainer;
+	_batch_job   : FB_Executor;
+	_job 		: I_JOB;
 	_error_id : HRESULT;
 	_asset_kind : E_AssetKind := E_AssetKind.station;
 	_asset_name : STRING;
@@ -19,28 +18,6 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="add_template_job" Id="{421f4dbf-8359-4849-87a0-5f4b133228d8}">
-      <Declaration><![CDATA[METHOD add_template_job : BOOL
-VAR_INPUT
-	job : I_Job;
-END_VAR
-VAR
-	i : UDINT;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[FOR i := 1 TO NUM_OF_JOBS DO
-	IF _jobs[i] = 0 THEN
-		_jobs[i] := I_Job;
-		add_template_job := TRUE;
-		_error_id := S_OK;
-		RETURN;
-	END_IF
-END_FOR
-
-_error_id := -1;
-add_template_job := FALSE;]]></ST>
-      </Implementation>
-    </Method>
     <Property Name="asset_kind" Id="{2ac5f7ca-9796-4b79-8958-254a0b97c0d0}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY asset_kind : E_AssetKind
@@ -79,32 +56,34 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_asset_name := asset_name;]]></ST>
+          <ST><![CDATA[_asset_name := asset_name;
+_batch_job.future.future_name := _asset_name;]]></ST>
         </Implementation>
       </Set>
     </Property>
-    <Method Name="delete_template_job" Id="{61c863fe-cf5c-44cc-8de1-ad36ab58cb8e}">
-      <Declaration><![CDATA[METHOD delete_template_job : BOOL
-VAR_INPUT
-	job : I_Job;
-END_VAR
-VAR
-	i : UDINT;
-END_VAR]]></Declaration>
+    <Method Name="build_template_job" Id="{cb19dcc3-319f-4944-a1b8-7d171a3cb17a}">
+      <Declaration><![CDATA[(* Create original jobs for this asset.
+Notice! Created job must be returned as I_Job type.
+*)
+METHOD build_template_job : I_Job
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR i := 1 TO NUM_OF_JOBS DO
-	IF _jobs[i] = I_Job THEN
-		_jobs[i] := 0;
-		add_template_job := TRUE;
-		_error_id := S_OK;
-		RETURN;
-	END_IF
-END_FOR
-
-_error_id := -2;
-add_template_job := FALSE;]]></ST>
+        <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
+    <Property Name="driver" Id="{cab1a5f0-3d1e-4843-a677-06939ef7a5ae}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY driver : I_Job
+]]></Declaration>
+      <Set Name="Set" Id="{b5125617-136d-4390-a8bb-2e0d72edc21d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="error_id" Id="{7a356971-588c-4218-b502-06b7edd477a1}">
       <Declaration><![CDATA[PROPERTY error_id : HRESULT]]></Declaration>
       <Get Name="Get" Id="{06f4107d-7cae-408c-9d3b-30afd98daf5a}">
@@ -116,24 +95,45 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Method Name="get_job_by_name" Id="{5202a574-e2c3-4a73-946f-6e219a31d619}">
-      <Declaration><![CDATA[METHOD get_job_by_name : I_Job
+    <Method Name="execute_job" Id="{952130f9-79a5-406f-adc7-5c023024fd68}">
+      <Declaration><![CDATA[METHOD execute_job : BOOL
 VAR_INPUT
-	future_name : STRING;
 END_VAR
-VAR
-	i : UDINT;
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[FOR i := 1 TO NUM_OF_JOBS DO
-	IF _jobs[i] <> 0 AND_THEN _jobs[i].future.future_name = future_name THEN
-		get_job_by_name := _jobs[i];
-		RETURN;
-	END_IF
-END_FOR
-
-get_job_by_name := 0;]]></ST>
+        <ST><![CDATA[execute_job := _batch_job.children.append_job(_job);]]></ST>
       </Implementation>
     </Method>
+    <Method Name="FB_Init" Id="{21cee4a2-3874-4f37-96ac-b683cedadefa}">
+      <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
+//The return value is not evaluated. For a specific influence, you can also declare the
+//methods explicitly and provide additional code there with the standard initialization
+//code. You can evaluate the return value.
+METHOD FB_Init: BOOL
+VAR_INPUT
+    bInitRetains: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
+    bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)   
+	driver : InterfaceContainer;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_job := THIS^.build_template_job();
+_batch_job.create_container(ContainerType.QUEUE, '');
+_driver := driver;
+_driver.append_job(_batch_job);]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="job" Id="{8b6d2da2-21cf-48f4-a563-68ecc4301090}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY job : I_Job
+]]></Declaration>
+      <Get Name="Get" Id="{c10ddf3f-e541-4ec8-ad36-ef73804d3a15}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[job := _job;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
   </POU>
 </TcPlcObject>

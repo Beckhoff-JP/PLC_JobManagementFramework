@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <POU Name="FB_AssetXtsMover" Id="{aad04d2c-7b74-4a95-83e2-dc5f6cdfb64a}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_AssetXtsMover EXTENDS FB_AbstructAsset
+VAR_INPUT
+END_VAR
+VAR_OUTPUT
+END_VAR
+VAR
+	
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[]]></ST>
+    </Implementation>
+    <Method Name="build_template_job" Id="{0f9ad5b9-34dd-451e-9b97-c650e9d221f3}">
+      <Declaration><![CDATA[METHOD build_template_job : I_Job
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>

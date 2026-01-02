@@ -9,6 +9,8 @@ VAR_OUTPUT
 END_VAR
 VAR
 	_all_abort : BOOL;
+	current_executing_future_id : UINT;
+	current_executing_future : InterfaceFuture;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -31,6 +33,7 @@ END_VAR]]></Declaration>
 	IF  _executor <> 0 THEN
 		// Propergate task creator object
 		_executors[_num_of_jobs].job_event_reporter := _executor.job_event_reporter;
+		_executors[_num_of_jobs].future_assign_observable := _executor.future_assign_observable;
 		_executors[_num_of_jobs].parent_executor := _executor;
 		_executors[_num_of_jobs].upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
@@ -99,7 +102,7 @@ CASE _executors[current_executing_future_id].current_state OF
 			END_IF
 		END_IF
 	E_FutureExecutionState.wait_for_process:
-		IF _executors[current_executing_future_id].ready AND complete_last_proess AND _auto_start THEN
+		IF _executors[current_executing_future_id].ready AND complete_last_proess AND SUPER^._auto_start THEN
 			_executors[current_executing_future_id].start();
 		END_IF
 END_CASE
@@ -168,14 +171,6 @@ END_IF
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[resume := _executors[current_executing_future_id].resume();
-]]></ST>
-      </Implementation>
-    </Method>
-    <Method Name="start" Id="{9fc705dd-5825-4cad-a6ab-98fcdf75a61a}">
-      <Declaration><![CDATA[METHOD start : BOOL
-]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[start := _executors[current_executing_future_id].start();
 ]]></ST>
       </Implementation>
     </Method>
