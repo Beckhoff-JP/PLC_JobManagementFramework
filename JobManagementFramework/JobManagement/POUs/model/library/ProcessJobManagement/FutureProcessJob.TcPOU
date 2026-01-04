@@ -8,14 +8,33 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_error_id 				:UDINT;
+	_error_id 				:HRESULT;
 	_selected_future_name 	: STRING;
-	_station				: I_Asset;    
+	_asset					: I_Asset;    
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Property Name="asset" Id="{51a2677a-cd3d-4525-82b9-74ac378874b2}">
+      <Declaration><![CDATA[PROPERTY asset : I_Asset]]></Declaration>
+      <Get Name="Get" Id="{1890c33c-cb72-4eb7-a37d-e58b60aa543d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[asset := _asset;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{426a80f0-87db-40fd-bdb3-e036bcf06f2a}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_asset := asset;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
     <Property Name="control_job" Id="{296b87b0-0d85-443a-9346-bf05538ab521}">
       <Declaration><![CDATA[PROPERTY control_job : I_Station]]></Declaration>
       <Get Name="Get" Id="{c85850d8-facf-4796-ad22-6f7ee3677bef}">
@@ -39,7 +58,10 @@ END_VAR
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[IF _asset = 0 THEN
+	_error_id := -1;
+	RETURN;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="init" Id="{47b55248-8f59-4a6c-a73b-ca93cfa84ad7}">

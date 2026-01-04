@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FutureMCSetPosition" Id="{d61bff14-9e58-4f9b-b583-353e0d0667c2}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCSetPosition EXTENDS FB_AbstructFuture
@@ -14,7 +14,7 @@ VAR
 	_position	: MC_LREAL;
 	_mode		: BOOL;
 	_option 	: ST_SetPositionOptions;
-	_error_id :UDINT;
+	_error_id :HRESULT;
 	_exec_state : UDINT;
 	_reset_state : UDINT;
 END_VAR
@@ -93,7 +93,7 @@ init := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{fef29eb0-8ad6-4992-85bd-77e274eb424f}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT]]></Declaration>
       <Get Name="Get" Id="{0dff01db-06ac-495c-b6df-d8ea0fdd89b7}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -138,60 +138,5 @@ _position := position;
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureMCSetPosition">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCSetPosition.error_reset">
-      <LineId Id="32" Count="0" />
-      <LineId Id="4" Count="4" />
-      <LineId Id="30" Count="0" />
-      <LineId Id="9" Count="3" />
-      <LineId Id="24" Count="0" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="23" Count="0" />
-      <LineId Id="37" Count="0" />
-      <LineId Id="25" Count="0" />
-      <LineId Id="38" Count="2" />
-      <LineId Id="14" Count="2" />
-      <LineId Id="36" Count="0" />
-      <LineId Id="34" Count="0" />
-      <LineId Id="17" Count="2" />
-    </LineIds>
-    <LineIds Name="FutureMCSetPosition.execute">
-      <LineId Id="109" Count="2" />
-      <LineId Id="103" Count="0" />
-      <LineId Id="60" Count="1" />
-      <LineId Id="106" Count="0" />
-      <LineId Id="104" Count="1" />
-      <LineId Id="107" Count="1" />
-      <LineId Id="115" Count="0" />
-      <LineId Id="113" Count="1" />
-      <LineId Id="116" Count="1" />
-      <LineId Id="112" Count="0" />
-      <LineId Id="121" Count="0" />
-      <LineId Id="100" Count="0" />
-      <LineId Id="98" Count="0" />
-      <LineId Id="3" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCSetPosition.init">
-      <LineId Id="3" Count="1" />
-    </LineIds>
-    <LineIds Name="FutureMCSetPosition.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCSetPosition.nErrorID.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCSetPosition.set_options">
-      <LineId Id="5" Count="0" />
-      <LineId Id="19" Count="0" />
-      <LineId Id="11" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCSetPosition.set_parameters">
-      <LineId Id="26" Count="0" />
-      <LineId Id="29" Count="0" />
-      <LineId Id="27" Count="0" />
-      <LineId Id="17" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

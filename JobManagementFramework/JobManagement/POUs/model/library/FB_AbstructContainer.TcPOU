@@ -14,9 +14,9 @@ VAR
 	_start :BOOL;
 	_auto_start : BOOL := TRUE;
 	_abort : BOOL;
-	_num_of_jobs: UINT;
+	_num_of_jobs: UDINT;
 	_continuous_mode : BOOL;
-	_error_id :UDINT;
+	_error_id :HRESULT;
 	_state :E_FutureExecutionState;
 	_job_event_reporter : I_JobEventTransition;
 END_VAR
@@ -275,7 +275,7 @@ init := _init_done;]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{94ee52b0-40f2-4d6f-9337-a9328f2a1464}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT
 ]]></Declaration>
       <Get Name="Get" Id="{5faccff4-a822-474a-9472-f26a1340b8f1}">
         <Declaration><![CDATA[VAR
@@ -287,7 +287,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="num_of_jobs" Id="{67188b4f-1a89-4b9f-b67d-5081688517b7}">
-      <Declaration><![CDATA[PROPERTY num_of_jobs : UINT]]></Declaration>
+      <Declaration><![CDATA[PROPERTY num_of_jobs : UDINT]]></Declaration>
       <Get Name="Get" Id="{ab866391-1024-4dc6-8119-247b033456f6}">
         <Declaration><![CDATA[VAR
 END_VAR

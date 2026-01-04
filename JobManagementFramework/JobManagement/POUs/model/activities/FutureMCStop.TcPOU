@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FutureMCStop" Id="{26698a42-81bf-4866-be85-711032f5993e}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCStop EXTENDS FB_AbstructFuture
@@ -14,7 +14,6 @@ VAR
 	_deceleration: MC_LREAL;
 	_jerk		: MC_LREAL;
 	_option : ST_MoveOptions;
-	_error_id :UDINT;
 	_exec_state : UDINT;
 END_VAR
 ]]></Declaration>
@@ -77,25 +76,6 @@ execute := _mc_stop.Done OR _mc_stop.Error;]]></ST>
 init := TRUE;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="nErrorID" Id="{c1a5a770-b4f2-4aa4-877b-4c6151f02bed}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
-      <Get Name="Get" Id="{70263807-e80d-4f08-8fdf-cead688ef504}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[nErrorID := _error_id;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{45d2374b-3748-46e9-970a-3c6220bcf56b}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <Method Name="set_options" Id="{d5b82e0f-9855-4e24-94e5-fe17a38beff1}">
       <Declaration><![CDATA[METHOD set_options : BOOL
 VAR_INPUT
@@ -122,51 +102,5 @@ _jerk := jerk;
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureMCStop">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCStop.error_reset">
-      <LineId Id="4" Count="12" />
-      <LineId Id="3" Count="0" />
-      <LineId Id="17" Count="2" />
-    </LineIds>
-    <LineIds Name="FutureMCStop.execute">
-      <LineId Id="111" Count="0" />
-      <LineId Id="107" Count="0" />
-      <LineId Id="120" Count="0" />
-      <LineId Id="141" Count="0" />
-      <LineId Id="123" Count="1" />
-      <LineId Id="127" Count="0" />
-      <LineId Id="126" Count="0" />
-      <LineId Id="129" Count="0" />
-      <LineId Id="125" Count="0" />
-      <LineId Id="131" Count="0" />
-      <LineId Id="130" Count="0" />
-      <LineId Id="132" Count="0" />
-      <LineId Id="137" Count="0" />
-      <LineId Id="135" Count="0" />
-      <LineId Id="121" Count="0" />
-      <LineId Id="139" Count="0" />
-      <LineId Id="138" Count="0" />
-      <LineId Id="3" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCStop.init">
-      <LineId Id="6" Count="0" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCStop.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCStop.nErrorID.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCStop.set_options">
-      <LineId Id="19" Count="0" />
-      <LineId Id="11" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCStop.set_parameters">
-      <LineId Id="40" Count="2" />
-      <LineId Id="17" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

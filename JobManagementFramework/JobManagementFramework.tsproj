@@ -1631,7 +1631,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{14A16199-AC25-482B-A6DB-DF484965E4FB}" Name="JobManagement" PrjFilePath="JobManagement\JobManagement.plcproj" TmcFilePath="JobManagement\JobManagement.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{E4ABDCBE-044C-ED9E-36B4-30CB84C8B5F4}" TmcPath="JobManagement\JobManagement.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{4E16DA88-5AA0-AC81-E0AC-A13324B3E852}" TmcPath="JobManagement\JobManagement.tmc">
 					<Name>JobManagement Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="2" AreaNo="1">

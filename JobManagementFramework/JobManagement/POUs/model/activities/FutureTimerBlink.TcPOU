@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FutureTimerBlink" Id="{1076d71a-3a65-40e8-9c4e-a3e9e6fe7b78}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureTimerBlink EXTENDS FB_AbstructFuture
@@ -88,7 +88,7 @@ init := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{d940a05b-457a-4571-af02-9c908c0ddd5a}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT
 ]]></Declaration>
       <Get Name="Get" Id="{f38a3ee9-4b95-4da3-b87d-09c08cdf31f1}">
         <Declaration><![CDATA[VAR
@@ -130,53 +130,5 @@ _output REF= output;
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureTimerBlink">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.abort">
-      <LineId Id="10" Count="0" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="12" Count="0" />
-      <LineId Id="8" Count="0" />
-      <LineId Id="4" Count="0" />
-      <LineId Id="6" Count="0" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.error_reset">
-      <LineId Id="3" Count="0" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.error_test.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.execute">
-      <LineId Id="57" Count="1" />
-      <LineId Id="60" Count="1" />
-      <LineId Id="63" Count="2" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="70" Count="3" />
-      <LineId Id="69" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.init">
-      <LineId Id="14" Count="0" />
-      <LineId Id="21" Count="0" />
-      <LineId Id="15" Count="1" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.quit">
-      <LineId Id="19" Count="0" />
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.set_options">
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlink.set_parameter">
-      <LineId Id="9" Count="1" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

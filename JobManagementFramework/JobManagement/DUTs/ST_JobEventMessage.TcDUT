@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <DUT Name="ST_JobEventMessage" Id="{a16896f8-6da5-4539-bf0a-67d1f97a50a5}">
     <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
 TYPE ST_JobEventMessage :
@@ -8,7 +8,7 @@ STRUCT
 	job_id : STRING(256);
 	old_state : STRING(16);
 	new_state : STRING(16);
-	num_of_job : UINT;
+	num_of_job : UDINT;
 	record_time : ULINT; 
 END_STRUCT
 END_TYPE

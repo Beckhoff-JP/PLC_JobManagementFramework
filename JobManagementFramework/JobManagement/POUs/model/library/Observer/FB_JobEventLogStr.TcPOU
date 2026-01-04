@@ -20,7 +20,7 @@ END_VAR
 VAR
 	job_report : I_JobEventTransition;
 	container : InterfaceContainer;
-	num_of_jobs : UINT;
+	num_of_jobs : UDINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[
@@ -35,20 +35,21 @@ ELSE
 END_IF
 
 IF job_report.job <> 0 THEN
-	fb_timezone_info();
-	text := FILETIME64_TO_ISO8601(fileTime := job_report.record_time, nBias := DINT_TO_INT(fb_timezone_info.tzInfo.bias), bUTC := TRUE,nPrecision := 6);
-	text := CONCAT(text, '	');
-	text := CONCAT(text, job_report.title);
-	text := CONCAT(text, '	');
-	text := CONCAT(text, TO_STRING(job_report.new_state));
-	text := CONCAT(text, '	');
-	text := CONCAT(text, TO_STRING(job_report.job.nErrorID));
-	text := CONCAT(text, '		');
-	text := CONCAT(text, job_report.job.future.future_name);
+	text := '';
+	//fb_timezone_info();
+	//text := FILETIME64_TO_ISO8601(fileTime := job_report.record_time, nBias := DINT_TO_INT(fb_timezone_info.tzInfo.bias), bUTC := TRUE,nPrecision := 6);
+	//text := CONCAT(text, ' ');
+	//text := CONCAT(text, job_report.title);
 	text := CONCAT(text, '		');
 	text := CONCAT(text, job_report.job.uid);
 	text := CONCAT(text, '		');
 	text := CONCAT(text, TO_STRING(num_of_jobs));
+	text := CONCAT(text, '		');
+	text := CONCAT(text, TO_STRING(job_report.new_state));
+	text := CONCAT(text, '		');
+	text := CONCAT(text, TO_STRING(job_report.job.nErrorID));
+	text := CONCAT(text, '		');
+	text := CONCAT(text, job_report.job.future.future_name);
 	
 	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG,
  			 msgFmtStr := text, 

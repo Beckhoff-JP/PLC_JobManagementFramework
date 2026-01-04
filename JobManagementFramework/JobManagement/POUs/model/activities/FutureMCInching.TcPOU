@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FutureMCInching" Id="{2d0d01ce-3012-43a6-9be6-fc6a356527f7}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCInching EXTENDS FB_AbstructFuture
@@ -19,7 +19,7 @@ VAR
 	_deceleration: MC_LREAL;
 	_jerk		: MC_LREAL;
 	_mode : E_JogMode ;
-	_error_id :UDINT;
+	_error_id :HRESULT;
 	_reset_state : UINT;
 	step : UINT;
 END_VAR
@@ -111,7 +111,7 @@ init := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{b433b11e-449b-410e-af2f-363681da691e}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT]]></Declaration>
       <Get Name="Get" Id="{c626f03a-dd6a-4e73-9760-b26289a6edf3}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -160,68 +160,5 @@ _velocity := velocity;
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureMCInching">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCInching.error_reset">
-      <LineId Id="32" Count="0" />
-      <LineId Id="4" Count="4" />
-      <LineId Id="30" Count="0" />
-      <LineId Id="9" Count="3" />
-      <LineId Id="24" Count="0" />
-      <LineId Id="13" Count="0" />
-      <LineId Id="23" Count="0" />
-      <LineId Id="41" Count="0" />
-      <LineId Id="37" Count="0" />
-      <LineId Id="45" Count="0" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="25" Count="0" />
-      <LineId Id="38" Count="0" />
-      <LineId Id="43" Count="0" />
-      <LineId Id="39" Count="1" />
-      <LineId Id="44" Count="0" />
-      <LineId Id="14" Count="2" />
-      <LineId Id="36" Count="0" />
-      <LineId Id="34" Count="0" />
-      <LineId Id="17" Count="2" />
-    </LineIds>
-    <LineIds Name="FutureMCInching.execute">
-      <LineId Id="160" Count="0" />
-      <LineId Id="163" Count="0" />
-      <LineId Id="165" Count="10" />
-      <LineId Id="183" Count="0" />
-      <LineId Id="185" Count="0" />
-      <LineId Id="184" Count="0" />
-      <LineId Id="180" Count="0" />
-      <LineId Id="176" Count="0" />
-      <LineId Id="188" Count="0" />
-      <LineId Id="186" Count="0" />
-      <LineId Id="178" Count="0" />
-      <LineId Id="162" Count="0" />
-      <LineId Id="139" Count="0" />
-      <LineId Id="3" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCInching.init">
-      <LineId Id="6" Count="0" />
-      <LineId Id="10" Count="0" />
-      <LineId Id="15" Count="0" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCInching.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCInching.nErrorID.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCInching.set_options">
-      <LineId Id="24" Count="1" />
-      <LineId Id="19" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCInching.set_parameters">
-      <LineId Id="80" Count="0" />
-      <LineId Id="90" Count="0" />
-      <LineId Id="81" Count="1" />
-      <LineId Id="56" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

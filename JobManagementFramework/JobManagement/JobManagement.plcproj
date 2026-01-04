@@ -225,6 +225,9 @@
     <Compile Include="POUs\model\library\FB_AbstructContainer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\FB_JobCreationPublisher.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\FB_JobEventTransitionPublisher.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -274,6 +277,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\Observer\I_JobEventTransition.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\Observer\I_JobEventCreation.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\Observer\I_Observer.TcIO">

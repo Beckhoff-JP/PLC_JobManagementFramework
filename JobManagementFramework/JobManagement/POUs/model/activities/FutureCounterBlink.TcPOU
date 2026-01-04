@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FutureCounterBlink" Id="{fcedd839-491a-4b82-962e-a6b212add423}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureCounterBlink EXTENDS FB_AbstructFuture
@@ -11,7 +11,7 @@ VAR
 	process_timer: TON;
 	blink_timer: TON;
 	_counter :UINT;
-	_error_id :UDINT;
+	_error_id :HRESULT;
 	_target_count: UINT;
 	_count_trigger: REFERENCE TO BOOL;
 	_output: REFERENCE TO BOOL;
@@ -132,7 +132,7 @@ init := TRUE;
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{16e63a23-0f02-402f-9998-37a3e09307d6}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT
 ]]></Declaration>
       <Get Name="Get" Id="{10902b3b-ec3f-43fc-b121-362377561d1c}">
         <Declaration><![CDATA[VAR
@@ -175,73 +175,5 @@ _output REF= output;
 _target_count := target_count;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureCounterBlink">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.abort">
-      <LineId Id="13" Count="4" />
-      <LineId Id="11" Count="1" />
-      <LineId Id="4" Count="0" />
-      <LineId Id="6" Count="0" />
-      <LineId Id="8" Count="2" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.counter.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.error_reset">
-      <LineId Id="3" Count="0" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.error_test.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.execute">
-      <LineId Id="35" Count="3" />
-      <LineId Id="48" Count="0" />
-      <LineId Id="39" Count="0" />
-      <LineId Id="33" Count="0" />
-      <LineId Id="49" Count="1" />
-      <LineId Id="53" Count="0" />
-      <LineId Id="51" Count="1" />
-      <LineId Id="34" Count="0" />
-      <LineId Id="14" Count="0" />
-      <LineId Id="20" Count="2" />
-      <LineId Id="24" Count="3" />
-      <LineId Id="40" Count="2" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.init">
-      <LineId Id="26" Count="0" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="31" Count="0" />
-      <LineId Id="20" Count="0" />
-      <LineId Id="35" Count="0" />
-      <LineId Id="21" Count="0" />
-      <LineId Id="18" Count="1" />
-      <LineId Id="7" Count="1" />
-      <LineId Id="10" Count="0" />
-      <LineId Id="14" Count="0" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="29" Count="0" />
-      <LineId Id="28" Count="0" />
-      <LineId Id="24" Count="0" />
-      <LineId Id="23" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.quit">
-      <LineId Id="4" Count="0" />
-      <LineId Id="11" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.set_options">
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlink.set_parameter">
-      <LineId Id="9" Count="1" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

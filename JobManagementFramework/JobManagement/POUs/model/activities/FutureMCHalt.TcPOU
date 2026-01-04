@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FutureMCHalt" Id="{2dc714ff-adc1-44ab-b7e0-76a95eea807d}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCHalt EXTENDS FB_AbstructFuture
@@ -15,7 +15,7 @@ VAR
 	_jerk		: MC_LREAL;
 	_option : ST_MoveOptions;
 	_buffer_mode : MC_BufferMode;
-	_error_id :UDINT;
+	_error_id :HRESULT;
 	_exec_state : UDINT;
 END_VAR
 ]]></Declaration>
@@ -80,7 +80,7 @@ init := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{f26f4ea7-8ce7-49fa-9833-3e578be10865}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT]]></Declaration>
       <Get Name="Get" Id="{4fb1eb75-3038-4c58-a8ee-43f876083f46}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -126,52 +126,5 @@ _jerk := jerk;
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureMCHalt">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCHalt.error_reset">
-      <LineId Id="4" Count="12" />
-      <LineId Id="3" Count="0" />
-      <LineId Id="17" Count="2" />
-    </LineIds>
-    <LineIds Name="FutureMCHalt.execute">
-      <LineId Id="111" Count="0" />
-      <LineId Id="107" Count="0" />
-      <LineId Id="120" Count="0" />
-      <LineId Id="141" Count="0" />
-      <LineId Id="123" Count="1" />
-      <LineId Id="127" Count="0" />
-      <LineId Id="126" Count="0" />
-      <LineId Id="128" Count="1" />
-      <LineId Id="125" Count="0" />
-      <LineId Id="131" Count="0" />
-      <LineId Id="130" Count="0" />
-      <LineId Id="132" Count="0" />
-      <LineId Id="137" Count="0" />
-      <LineId Id="135" Count="0" />
-      <LineId Id="121" Count="0" />
-      <LineId Id="139" Count="0" />
-      <LineId Id="138" Count="0" />
-      <LineId Id="3" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCHalt.init">
-      <LineId Id="6" Count="0" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCHalt.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCHalt.nErrorID.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCHalt.set_options">
-      <LineId Id="5" Count="0" />
-      <LineId Id="19" Count="0" />
-      <LineId Id="11" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCHalt.set_parameters">
-      <LineId Id="40" Count="2" />
-      <LineId Id="17" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

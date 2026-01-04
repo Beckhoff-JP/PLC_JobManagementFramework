@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <Itf Name="I_JobEventCreation" Id="{ceea12a6-9e9c-4ed6-b610-0c7ba67cc010}">
+    <Declaration><![CDATA[INTERFACE I_JobEventCreation EXTENDS __SYSTEM.IQueryInterface 
+]]></Declaration>
+    <Property Name="job" Id="{9cf427a5-a4be-41e8-a7bc-623984129431}">
+      <Declaration><![CDATA[PROPERTY job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{729e7e51-b4af-4ad1-80be-9b5ad74660fb}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{ba8b64fd-da95-45c5-8c1e-c1cbb32b714d}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="title" Id="{5372dc68-e45d-40fa-89ac-ccce6675f7d9}">
+      <Declaration><![CDATA[PROPERTY title : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{81a29a1c-2f23-42ca-a32d-a602d65dbc46}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{786c2ffb-0e01-47ab-be6b-9c9575544184}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

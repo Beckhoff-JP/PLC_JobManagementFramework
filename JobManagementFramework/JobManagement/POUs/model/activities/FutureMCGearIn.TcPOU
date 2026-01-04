@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
   <POU Name="FutureMCGearIn" Id="{c980d3b9-cb89-4ac9-8181-828a59352e34}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCGearIn EXTENDS FB_AbstructFuture
@@ -19,7 +19,7 @@ VAR
 	_jerk		: MC_LREAL;
 	_option : ST_GearInOptions;
 	_buffer_mode : MC_BufferMode;
-	_error_id :UDINT;
+	_error_id :HRESULT;
 	_exec_state : UDINT;
 	_reset_state : UDINT;
 END_VAR
@@ -124,7 +124,7 @@ init := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{f9a35e4f-a004-40b5-b6d3-9e868fd57c8a}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT]]></Declaration>
       <Get Name="Get" Id="{85617870-8735-40c7-8fc0-c0a0b5d9eb30}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -181,79 +181,5 @@ _axis_sub REF= axis_sub;
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureMCGearIn">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearIn.error_reset">
-      <LineId Id="32" Count="0" />
-      <LineId Id="4" Count="9" />
-      <LineId Id="22" Count="2" />
-      <LineId Id="20" Count="0" />
-      <LineId Id="25" Count="2" />
-      <LineId Id="30" Count="0" />
-      <LineId Id="48" Count="4" />
-      <LineId Id="47" Count="0" />
-      <LineId Id="53" Count="0" />
-      <LineId Id="29" Count="0" />
-      <LineId Id="43" Count="0" />
-      <LineId Id="14" Count="0" />
-      <LineId Id="17" Count="2" />
-    </LineIds>
-    <LineIds Name="FutureMCGearIn.execute">
-      <LineId Id="111" Count="0" />
-      <LineId Id="107" Count="0" />
-      <LineId Id="120" Count="0" />
-      <LineId Id="149" Count="0" />
-      <LineId Id="123" Count="0" />
-      <LineId Id="127" Count="0" />
-      <LineId Id="147" Count="1" />
-      <LineId Id="145" Count="1" />
-      <LineId Id="143" Count="1" />
-      <LineId Id="126" Count="0" />
-      <LineId Id="128" Count="1" />
-      <LineId Id="125" Count="0" />
-      <LineId Id="131" Count="0" />
-      <LineId Id="130" Count="0" />
-      <LineId Id="132" Count="0" />
-      <LineId Id="137" Count="0" />
-      <LineId Id="154" Count="0" />
-      <LineId Id="160" Count="2" />
-      <LineId Id="152" Count="0" />
-      <LineId Id="155" Count="4" />
-      <LineId Id="153" Count="0" />
-      <LineId Id="121" Count="0" />
-      <LineId Id="164" Count="3" />
-      <LineId Id="139" Count="0" />
-      <LineId Id="138" Count="0" />
-      <LineId Id="3" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearIn.init">
-      <LineId Id="6" Count="0" />
-      <LineId Id="15" Count="0" />
-      <LineId Id="10" Count="0" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearIn.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearIn.nErrorID.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearIn.set_options">
-      <LineId Id="36" Count="0" />
-      <LineId Id="28" Count="0" />
-      <LineId Id="38" Count="1" />
-      <LineId Id="37" Count="0" />
-      <LineId Id="5" Count="0" />
-      <LineId Id="19" Count="0" />
-      <LineId Id="27" Count="0" />
-      <LineId Id="11" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearIn.set_parameters">
-      <LineId Id="40" Count="0" />
-      <LineId Id="51" Count="0" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="17" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

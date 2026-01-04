@@ -64,8 +64,7 @@ END_VAR
       </Set>
     </Property>
     <Property Name="job" Id="{7ffe74ad-75ab-4ffd-be67-8bd95da67896}">
-      <Declaration><![CDATA[{warning 'Add property implementation'}
-PROPERTY job : I_Job
+      <Declaration><![CDATA[PROPERTY job : I_Job
 ]]></Declaration>
       <Get Name="Get" Id="{203eace5-176a-4546-9ba8-9222c3581386}">
         <Declaration><![CDATA[VAR

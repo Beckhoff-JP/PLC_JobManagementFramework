@@ -100,6 +100,9 @@ CASE _state OF
 			_state := 6;		
 		END_IF
 	6:
+		IF _poweron_job.ready THEN
+			_poweron_job.start();
+		END_IF
 		IF _poweron_job.done THEN
 			_state := 0;
 		END_IF

@@ -47,7 +47,7 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Property Name="nErrorID" Id="{091e3808-1f21-4039-8bcc-e07988c843df}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT // Set result code when finished any method. 0 should be set when normal case.]]></Declaration>
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT // Set result code when finished any method. 0 should be set when normal case.]]></Declaration>
       <Get Name="Get" Id="{3dfc56f5-414c-4e9f-8318-d6a9044e8070}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

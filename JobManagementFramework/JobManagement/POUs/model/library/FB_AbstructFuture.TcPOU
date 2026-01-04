@@ -12,6 +12,7 @@ VAR
 	_future_name :STRING := 'NO_NAME';
 	_busy : BOOL; 
 	_state : E_FutureExecutionState;
+	_error_id : HRESULT;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -87,14 +88,14 @@ END_VAR
       </Implementation>
     </Method>
     <Property Name="nErrorID" Id="{5e96776e-2ecf-4a2b-b5d9-c234f6343ca2}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT // Must be overrided if future has any errors.
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT // Must be overrided if future has any errors.
 ]]></Declaration>
       <Get Name="Get" Id="{60455303-60d8-490d-880a-ad439ea813d7}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[]]></ST>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
         </Implementation>
       </Get>
     </Property>

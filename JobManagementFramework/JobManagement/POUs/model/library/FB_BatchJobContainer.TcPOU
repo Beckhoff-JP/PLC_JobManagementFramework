@@ -28,7 +28,7 @@ END_VAR]]></Declaration>
         <ST><![CDATA[IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	executor.init();
 	_num_of_jobs := _num_of_jobs + 1;
-	executor.id := UINT_TO_STRING(_num_of_jobs);
+	executor.id := UDINT_TO_STRING(_num_of_jobs);
 	_executors[_num_of_jobs] := executor;
 	IF  _executor <> 0 THEN
 		// Propergate task creator object
@@ -70,7 +70,7 @@ abort := TRUE;]]></ST>
     <Method Name="execute" Id="{3a50f198-985b-4ce4-97c9-3b4f8b04dcb5}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INST
-	i :UINT;
+	i :UDINT;
 	complete_last_proess :BOOL;
 	complete_all_process :BOOL;
 END_VAR
@@ -146,7 +146,7 @@ init := _init_done;]]></ST>
     <Method Name="quit" Id="{7bdf3f44-47c5-4d23-b936-9fe467aec209}">
       <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
 VAR_INST
-	i: UINT;
+	i: UDINT;
 	complete_all_task :BOOL;
 END_VAR]]></Declaration>
       <Implementation>

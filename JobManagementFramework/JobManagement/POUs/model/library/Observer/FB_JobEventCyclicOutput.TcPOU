@@ -29,7 +29,7 @@ END_VAR
 VAR
 	job_report : I_JobEventTransition;
 	container : InterfaceContainer;
-	num_of_jobs : UINT;
+	num_of_jobs : UDINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF NOT __QUERYINTERFACE(publisher, job_report) THEN
