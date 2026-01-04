@@ -111,8 +111,10 @@ END_VAR
       <Get Name="Get" Id="{cd5b6e57-c851-4790-b895-552dc87d0850}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
-      <Set Name="Set" Id="{ae6465b6-030c-4b35-b076-5f0026328450}">
-        <Declaration><![CDATA[]]></Declaration>
+      <Set Name="Set" Id="{6956f113-09b2-4acc-bbc2-bf32e24ecb97}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
       </Set>
     </Property>
     <Method Name="init" Id="{d81bf7e0-a419-45a2-a8da-d29900ce51e8}">
@@ -133,6 +135,12 @@ END_VAR
     <Property Name="last_state" Id="{c0d32629-3739-44a6-a76a-562079ce9773}">
       <Declaration><![CDATA[PROPERTY last_state : E_FutureExecutionState]]></Declaration>
       <Get Name="Get" Id="{516dfae1-5a01-4cc5-bfd0-d6e15004cff0}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Property Name="lid" Id="{630d76a2-75c7-40d8-ad23-f5f0e325fe2e}">
+      <Declaration><![CDATA[PROPERTY lid : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{a0799991-7d39-4da9-8d77-69af7e855799}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>

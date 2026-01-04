@@ -270,6 +270,9 @@
     <Compile Include="POUs\model\library\I_Job.TcIO">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\Observer\FB_JobRelayObserver.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\Observer\FB_JobEventLogStr.TcPOU">
       <SubType>Code</SubType>
     </Compile>

@@ -4,8 +4,9 @@
     <Declaration><![CDATA[{attribute 'pack_mode' := '1'}
 TYPE ST_JobEventMessage :
 STRUCT
-	subject : STRING(256);
-	job_id : STRING(256);
+	subject : T_MaxString;
+	job_namespace : T_MaxString;
+	job_id : T_MaxString;
 	old_state : STRING(16);
 	new_state : STRING(16);
 	num_of_job : UDINT;

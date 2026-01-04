@@ -43,6 +43,8 @@ IF job_report.job <> 0 THEN
 	text := CONCAT(text, '		');
 	text := CONCAT(text, job_report.job.uid);
 	text := CONCAT(text, '		');
+	text := CONCAT(text, job_report.job.namespace);
+	text := CONCAT(text, '		');
 	text := CONCAT(text, TO_STRING(num_of_jobs));
 	text := CONCAT(text, '		');
 	text := CONCAT(text, TO_STRING(job_report.new_state));

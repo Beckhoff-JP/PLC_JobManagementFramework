@@ -12,6 +12,7 @@ VAR
 	{attribute 'TcEncoding':='UTF-8'}
 	_id : T_MaxString;
 	_uid : T_MaxString;
+	_lid : T_MaxString;
 	_namespace : T_MaxString;
 	_done : BOOL;
 	_start : BOOL;
@@ -31,7 +32,7 @@ VAR
 	_future_assign_observable : I_Observable;
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
-	_parent_executor : I_Job := 0;
+	_parent_job : I_Job := 0;
 	_persistent_job : BOOL;
 	_current_timestamp : POINTER TO T_FILETIME64 := 0;
 END_VAR]]></Declaration>
@@ -312,8 +313,8 @@ CASE _state OF
 		IF _aborting THEN
 			await := _future.abort();
 			_resume := FALSE;
-			IF _upstream_aborting AND _parent_executor <> 0 THEN
-				_parent_executor.abort();
+			IF _upstream_aborting AND _parent_job <> 0 THEN
+				_parent_job.abort();
 			END_IF
 			IF await THEN
 				_aborting := FALSE;
@@ -457,24 +458,34 @@ END_VAR
       <Set Name="Set" Id="{9e8cd938-613c-4a5e-bd20-a66e0b88a473}">
         <Declaration><![CDATA[VAR
 	_eval_executor : I_Job;
+	_parent_path : T_MaxString;
 END_VAR
 ]]></Declaration>
         <Implementation>
           <ST><![CDATA[_id := id;
-_eval_executor := _parent_executor;
-_namespace := '';
+_eval_executor := _parent_job;
+
+_parent_path := '';
 REPEAT
 	IF _eval_executor <> 0 THEN
-		_namespace := CONCAT(_eval_executor.id, _namespace);
-		_namespace := CONCAT('/',_namespace);
+		_parent_path := CONCAT(_eval_executor.id, _parent_path);
+		_parent_path := CONCAT('/',_parent_path);
 		_eval_executor := _eval_executor.parent_executor;
 	END_IF
 UNTIL
 	_eval_executor = 0
 END_REPEAT
 
-_uid := CONCAT(_namespace, '/');
-_uid := CONCAT(_uid, _id);]]></ST>
+_uid := CONCAT(_parent_path, '/');
+_uid := CONCAT(_uid, _id);
+
+IF _parent_job <> 0 AND_THEN NOT _parent_job.persistent_job THEN
+	_namespace := _parent_job.namespace;
+ELSE
+	_namespace := _parent_path;
+END_IF
+
+_lid := RIGHT(_uid,LEN(_uid) - LEN(_namespace));]]></ST>
         </Implementation>
       </Set>
     </Property>
@@ -540,6 +551,19 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <Property Name="lid" Id="{ea8c96f5-9c1c-4e76-ba21-cadbf6dabb6b}">
+      <Declaration><![CDATA[{warning 'Add property implementation'}
+PROPERTY lid : T_MaxString
+]]></Declaration>
+      <Get Name="Get" Id="{b20fa2c8-f4ee-4264-b9dd-696eb27fa70e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Property Name="namespace" Id="{e687b51c-1eb3-4c29-99ba-5eb9a8c6c8be}">
       <Declaration><![CDATA[PROPERTY namespace : T_MaxString
 ]]></Declaration>
@@ -571,7 +595,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[parent_executor := _parent_executor;]]></ST>
+          <ST><![CDATA[parent_executor := _parent_job;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{577406ef-8da9-4b14-a0b7-e722091103f8}">
@@ -579,8 +603,8 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_parent_executor := parent_executor;
-THIS^.current_timestamp := _parent_executor.current_timestamp;]]></ST>
+          <ST><![CDATA[_parent_job := parent_executor;
+THIS^.current_timestamp := _parent_job.current_timestamp;]]></ST>
         </Implementation>
       </Set>
     </Property>

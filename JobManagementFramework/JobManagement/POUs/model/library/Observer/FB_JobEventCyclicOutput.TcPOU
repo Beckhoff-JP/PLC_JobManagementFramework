@@ -43,6 +43,7 @@ ELSE
 END_IF
 
 _event_message.job_id := job_report.job.uid;
+_event_message.job_namespace := job_report.job.namespace;
 _event_message.num_of_job := num_of_jobs;
 _event_message.new_state := TO_STRING(job_report.new_state);
 _event_message.old_state := TO_STRING(job_report.last_state);

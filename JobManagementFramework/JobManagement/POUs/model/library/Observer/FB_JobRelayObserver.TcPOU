@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <POU Name="FB_JobRelayObserver" Id="{9d22037c-698b-4cd8-9e13-655f250ed70f}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_JobRelayObserver IMPLEMENTS I_Observer
+VAR CONSTANT
+	MAX_OBSERVERS : UDINT := 5;
+END_VAR
+VAR_OUTPUT
+	event_message : ST_JobEventMessage;
+END_VAR
+VAR
+	_observed_job	: I_Job;
+	_action_job		: I_Job;
+	_parent_id		: T_MaxString;
+	_local_id		: T_MaxString;
+	_condition_last_state : E_FutureExecutionState := E_FutureExecutionState.process;
+	_condition_new_state : E_FutureExecutionState := E_FutureExecutionState.quit;
+END_VAR
+]]></Declaration>
+    <Implementation>
+      <ST><![CDATA[
+]]></ST>
+    </Implementation>
+    <Property Name="action_job" Id="{da5aa7c4-7231-45f9-8240-a1fc4b44527a}">
+      <Declaration><![CDATA[PROPERTY action_job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{fe822d0f-26c7-41f0-9cff-9603a874fdda}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{be32e887-1083-4526-b95f-a5f2faa2bbef}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="notify" Id="{8f18ba4c-8f4d-4197-be9b-90a71010a5c1}">
+      <Declaration><![CDATA[METHOD notify : BOOL
+VAR_INPUT
+	publisher	: I_Observable;
+END_VAR
+VAR
+	job_report : I_JobEventTransition;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT __QUERYINTERFACE(publisher, job_report) OR _observed_job = 0 OR _action_job = 0 THEN
+	notify := TRUE;
+	RETURN;
+END_IF
+
+CASE job_report.new_state OF
+	E_FutureExecutionState.init:
+		IF _observed_job.lid = job_report.job.lid THEN
+			_parent_id := job_report.job.namespace;
+			_local_id := job_report.job.lid;
+		END_IF
+	_condition_new_state:
+		IF job_report.last_state = _condition_last_state AND _local_id = job_report.job.lid THEN
+			_action_job.start();
+		END_IF
+END_CASE
+
+notify := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="observed_job" Id="{073dbf06-ad89-404f-ba78-d96150fa0856}">
+      <Declaration><![CDATA[PROPERTY observed_job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{6583bf66-f97d-4db6-8abe-b308fc3d3171}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[observed_job := _observed_job;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{3bff8b5d-4c9d-45cd-a10d-df729d24c989}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_observed_job := observed_job;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="set_condition" Id="{e32f60ab-ec7e-45f3-994a-ba036de94c16}">
+      <Declaration><![CDATA[METHOD set_condition : BOOL
+VAR_INPUT
+	new_state : E_FutureExecutionState;
+	last_state : E_FutureExecutionState;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_condition_new_state := new_state;
+_condition_last_state := last_state;
+]]></ST>
+      </Implementation>
+    </Method>
+  </POU>
+</TcPlcObject>
