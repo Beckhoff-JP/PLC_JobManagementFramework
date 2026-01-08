@@ -90,21 +90,20 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
-    <Property Name="future_assign_observable" Id="{63a39de5-d551-4c21-9d49-f82e14ffa025}">
-      <Declaration><![CDATA[PROPERTY future_assign_observable : I_Observable]]></Declaration>
-      <Get Name="Get" Id="{eedc7aac-27f0-47dc-a8d7-ae9e4775941f}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-      <Set Name="Set" Id="{46f95b49-c8a6-4451-bf19-0ca4509bae88}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Set>
-    </Property>
     <Property Name="future_creator" Id="{4453c69f-5993-4e32-aa6b-70c0a3524612}">
       <Declaration><![CDATA[PROPERTY future_creator : InterfaceTaskCreator // Set creator instance.]]></Declaration>
       <Set Name="Set" Id="{4c5d6441-82c1-43cc-a85e-15d729c30d05}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
+    <Method Name="get_job_info" Id="{dcf93f75-a375-4062-b2dd-3955dc6dab77}">
+      <Declaration><![CDATA[METHOD get_job_info : BOOL
+VAR_INPUT
+	title		: T_MaxString;
+	observable 	: I_Observable;
+	recursive	: BOOL := FALSE;
+END_VAR]]></Declaration>
+    </Method>
     <Property Name="id" Id="{7e4a5eb7-1da6-498f-b820-0b35913287d7}">
       <Declaration><![CDATA[PROPERTY id : T_MaxString // Get job id.
 ]]></Declaration>
@@ -124,7 +123,7 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Property Name="job_event_reporter" Id="{86842a8e-fd31-4199-9e8a-898c1d1cd9cd}">
-      <Declaration><![CDATA[PROPERTY job_event_reporter : I_JobEventTransition]]></Declaration>
+      <Declaration><![CDATA[PROPERTY job_event_reporter : I_JobInfo]]></Declaration>
       <Get Name="Get" Id="{99052aa6-8cde-4c37-b866-4701a11893cf}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -151,7 +150,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="nErrorID" Id="{587d3aee-efb4-44d2-8930-476a7f1c0617}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT // Present error code when each process,init(), execute(), quit() are finished. '0' represent normal condition without any errors.
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT // Present error code when each process,init(), execute(), quit() are finished. '0' represent normal condition without any errors.
 ]]></Declaration>
       <Get Name="Get" Id="{a3d3ab3d-9d97-4c08-af3c-1d49e2061134}">
         <Declaration><![CDATA[]]></Declaration>

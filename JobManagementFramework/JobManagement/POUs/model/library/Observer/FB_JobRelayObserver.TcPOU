@@ -46,7 +46,7 @@ VAR_INPUT
 	publisher	: I_Observable;
 END_VAR
 VAR
-	job_report : I_JobEventTransition;
+	job_report : I_JobInfo;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF NOT __QUERYINTERFACE(publisher, job_report) OR _observed_job = 0 OR _action_job = 0 THEN

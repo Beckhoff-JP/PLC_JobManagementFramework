@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_TaskRunner_Test" Id="{d3f43d38-44f6-4522-94b7-30859937d93c}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_TaskRunner_Test EXTENDS TcUnit.FB_TestSuite
 VAR_INPUT
@@ -172,5 +172,16 @@ _job_temp REF= base_job.children.create_job(mc_move_abs_future_creator,'Back to 
 ]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="FB_TaskRunner_Test">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner_Test._01_WhenTaskSpawned">
+      <LineId Id="3" Count="27" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_TaskRunner_Test.JobCreateDemo">
+      <LineId Id="3" Count="63" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

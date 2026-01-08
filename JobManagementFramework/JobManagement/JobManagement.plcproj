@@ -228,7 +228,7 @@
     <Compile Include="POUs\model\library\FB_JobCreationPublisher.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\library\FB_JobEventTransitionPublisher.TcPOU">
+    <Compile Include="POUs\model\library\FB_JobInfoPublisher.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\FB_ParallelJobContainerCreator.TcPOU">
@@ -279,7 +279,7 @@
     <Compile Include="POUs\model\library\Observer\FB_JobEventCyclicOutput.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\library\Observer\I_JobEventTransition.TcIO">
+    <Compile Include="POUs\model\library\Observer\I_JobInfo.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\Observer\I_JobEventCreation.TcIO">
@@ -304,6 +304,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\ProcessJobManagement\I_Asset.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\ProcessJobManagement\I_JobCatalogue.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\MotionCommand.TcDUT">

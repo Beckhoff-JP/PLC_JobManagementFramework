@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureMCInching" Id="{2d0d01ce-3012-43a6-9be6-fc6a356527f7}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCInching EXTENDS FB_AbstructFuture
@@ -19,7 +19,6 @@ VAR
 	_deceleration: MC_LREAL;
 	_jerk		: MC_LREAL;
 	_mode : E_JogMode ;
-	_error_id :HRESULT;
 	_reset_state : UINT;
 	step : UINT;
 END_VAR
@@ -160,5 +159,34 @@ _velocity := velocity;
 ]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="FutureMCInching">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.error_reset">
+      <LineId Id="3" Count="30" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.execute">
+      <LineId Id="3" Count="22" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.init">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.nErrorID.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.set_options">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCInching.set_parameters">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

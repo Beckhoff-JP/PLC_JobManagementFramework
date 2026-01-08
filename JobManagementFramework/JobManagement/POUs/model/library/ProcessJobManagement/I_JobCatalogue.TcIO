@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <Itf Name="I_JobCatalogue" Id="{3301eed0-94a1-4479-8e23-8aa0d0ea45e5}">
+    <Declaration><![CDATA[INTERFACE I_JobCatalogue EXTENDS __SYSTEM.IQueryInterface 
+]]></Declaration>
+    <Method Name="build_template_job" Id="{cf7751ca-08b5-43b5-81ae-b82ed0a06c1e}">
+      <Declaration><![CDATA[(* Create original jobs for this asset.
+Notice! Created job must be returned as I_Job type.
+*)
+METHOD build_template_job : I_Job
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="template_job_object" Id="{283ab1a1-ae2f-4878-b316-e091ca6abe12}">
+      <Declaration><![CDATA[PROPERTY template_job_object : I_Job]]></Declaration>
+      <Get Name="Get" Id="{7e411968-1b8a-442c-9893-f9bc6436f9a2}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{b53f6649-4863-492f-be5c-4aef933c0dd3}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="template_name" Id="{e70c6368-896c-4970-853f-4cdc0d5abbce}">
+      <Declaration><![CDATA[PROPERTY template_name : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{0f6515d6-a4a5-4d7c-9f0d-2651c7206aae}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{206340cd-c4cf-4251-b382-dc54025e1666}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+  </Itf>
+</TcPlcObject>

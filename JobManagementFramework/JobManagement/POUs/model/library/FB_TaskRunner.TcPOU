@@ -16,7 +16,7 @@ VAR_OUTPUT
 END_VAR
 VAR
 	_executor: FB_Executor; // main Executor
-	_observable : FB_JobEventTransitionPublisher;
+	_observable : FB_JobInfoPublisher;
 	last_job_number : UDINT;
 	job_event_log_str : FB_JobEventLogStr;	// ジョブイベントをメッセージとしてログ出力するサブスクライバ
 	job_event_cyclic_output : FB_JobEventCyclicOutput;	// ADS通信向けにジョブイベントをサイクル単位で出力するためのサブスクライバ
@@ -177,7 +177,7 @@ job_clear := _executor.children.reset(FALSE);
       </Implementation>
     </Method>
     <Property Name="observer" Id="{947c7939-e057-4dfe-be01-9957111d99a8}">
-      <Declaration><![CDATA[PROPERTY observer : I_JobEventTransition]]></Declaration>
+      <Declaration><![CDATA[PROPERTY observer : I_JobInfo]]></Declaration>
       <Get Name="Get" Id="{17c56140-6fb9-4d59-948b-42e2f681725d}">
         <Declaration><![CDATA[VAR
 END_VAR

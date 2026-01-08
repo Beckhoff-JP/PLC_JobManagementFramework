@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_JobCreationPublisher" Id="{caf75876-428e-49a4-88fe-0a6ab280ec42}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_JobCreationPublisher IMPLEMENTS I_Observable, I_JobEventCreation
 VAR CONSTANT
@@ -138,5 +138,39 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
+    <LineIds Name="FB_JobCreationPublisher">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobCreationPublisher.add_observer">
+      <LineId Id="3" Count="9" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobCreationPublisher.error_id.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobCreationPublisher.error_id.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobCreationPublisher.job.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobCreationPublisher.job.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobCreationPublisher.notify_observers">
+      <LineId Id="3" Count="5" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobCreationPublisher.remove_observer">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobCreationPublisher.title.Get">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_JobCreationPublisher.title.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
-  <Itf Name="I_JobEventTransition" Id="{4dc44d15-265f-4ec7-84f8-bcf8248b2caa}">
-    <Declaration><![CDATA[INTERFACE I_JobEventTransition EXTENDS __SYSTEM.IQueryInterface 
+  <Itf Name="I_JobInfo" Id="{4dc44d15-265f-4ec7-84f8-bcf8248b2caa}">
+    <Declaration><![CDATA[INTERFACE I_JobInfo EXTENDS __SYSTEM.IQueryInterface 
 ]]></Declaration>
     <Property Name="job" Id="{c7e06e39-5822-4227-b213-852177217bc3}">
       <Declaration><![CDATA[PROPERTY job : I_Job]]></Declaration>

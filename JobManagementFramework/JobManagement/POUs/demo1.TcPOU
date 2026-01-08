@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="demo1" Id="{b3d0dc4b-2e01-4629-891c-9fa4ae71bd2a}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM demo1
 VAR
@@ -66,5 +66,9 @@ END_CASE
 
 runner();]]></ST>
     </Implementation>
+    <LineIds Name="demo1">
+      <LineId Id="3" Count="48" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

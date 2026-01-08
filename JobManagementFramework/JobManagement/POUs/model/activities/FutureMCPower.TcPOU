@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureMCPower" Id="{53bbc5ad-8cba-4d76-9354-ff6510473cd2}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureMCPower EXTENDS FB_AbstructFuture
@@ -126,5 +126,24 @@ _enable_positive := status;
 _enable_negative := status;]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="FutureMCPower">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.error_reset">
+      <LineId Id="3" Count="14" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.execute">
+      <LineId Id="3" Count="35" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.set_options">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureMCPower.set_parameters">
+      <LineId Id="3" Count="2" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

@@ -3,6 +3,13 @@
   <Itf Name="I_Asset" Id="{12ee3a8b-6456-41e5-84b8-0def38f5c9f0}">
     <Declaration><![CDATA[INTERFACE I_Asset
 ]]></Declaration>
+    <Method Name="add_template_job" Id="{37e01327-d2bd-46ce-b321-590953217d5a}">
+      <Declaration><![CDATA[METHOD add_template_job : BOOL
+VAR_INPUT
+	template_job : I_JobCatalogue;
+END_VAR
+]]></Declaration>
+    </Method>
     <Property Name="asset_kind" Id="{10644835-1f1e-45a8-a601-a3d47cf7ad6c}">
       <Declaration><![CDATA[PROPERTY asset_kind : E_AssetKind]]></Declaration>
       <Get Name="Get" Id="{b28c6d47-d324-4fb8-93b4-dc0bbc1dad9d}">
@@ -21,8 +28,8 @@
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
-    <Method Name="build_template_job" Id="{cf7751ca-08b5-43b5-81ae-b82ed0a06c1e}">
-      <Declaration><![CDATA[METHOD build_template_job : I_Job
+    <Method Name="asset_start" Id="{aefe3fdb-0823-4b31-acac-ea1574422993}">
+      <Declaration><![CDATA[METHOD asset_start : BOOL
 VAR_INPUT
 END_VAR
 ]]></Declaration>
@@ -42,11 +49,32 @@ END_VAR
     <Method Name="execute_job" Id="{dc80ce92-6ddb-4acd-b37b-3f2900d56045}">
       <Declaration><![CDATA[METHOD execute_job : BOOL;
 VAR_INPUT
+	template_name : T_MaxString;
 END_VAR
 ]]></Declaration>
     </Method>
-    <Property Name="job" Id="{a3431bac-dd92-47ec-8489-56c0f1e36cde}">
-      <Declaration><![CDATA[PROPERTY job : I_Job]]></Declaration>
+    <Property Name="iter_process_jobs" Id="{7109d664-7ce1-4fe0-886e-bf8e706f61a3}">
+      <Declaration><![CDATA[PROPERTY iter_process_jobs : I_JobCatalogue]]></Declaration>
+      <Get Name="Get" Id="{e6044fb6-ed53-4327-85dc-8f6ad671ea19}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+    <Method Name="remove_template_job_by_name" Id="{17291b40-2ac9-483d-8762-5d3ace7184cb}">
+      <Declaration><![CDATA[METHOD remove_template_job_by_name : BOOL
+VAR_INPUT
+	template_name : T_MaxString;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Method Name="remove_template_job_by_object" Id="{222e0364-4f8a-40ec-babf-c76b4a6f5ce0}">
+      <Declaration><![CDATA[METHOD remove_template_job_by_object : BOOL
+VAR_INPUT
+	template_job : I_JobCatalogue;
+END_VAR
+]]></Declaration>
+    </Method>
+    <Property Name="selected_process_job" Id="{a3431bac-dd92-47ec-8489-56c0f1e36cde}">
+      <Declaration><![CDATA[PROPERTY selected_process_job : I_Job]]></Declaration>
       <Get Name="Get" Id="{1b07124f-bdef-4872-8368-148cea1db887}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="demo4" Id="{63ebbfb1-86b9-4c7c-a838-db8534a62dd4}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM demo4
 VAR
 	runner : FB_TaskRunner;
-	fbJobTreeSearch : FB_ExecutorTreeSearch;
+	
 
 	init: BOOL;
 	_state :UINT;
@@ -34,8 +34,6 @@ END_VAR
 	observer REF= runner.job_event_log_str;
 	init := TRUE;	// RUN 後 1 サイクルだけ実行
 END_IF
-
-
 
 // 現在時刻の取得
 localTime();
@@ -121,5 +119,13 @@ END_VAR
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="demo4">
+      <LineId Id="3" Count="73" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="demo4.recipe_receive">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

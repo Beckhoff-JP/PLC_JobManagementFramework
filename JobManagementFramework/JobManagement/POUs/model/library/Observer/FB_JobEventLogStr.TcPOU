@@ -18,7 +18,7 @@ VAR_INST
 	text : T_MaxString;
 END_VAR
 VAR
-	job_report : I_JobEventTransition;
+	job_report : I_JobInfo;
 	container : InterfaceContainer;
 	num_of_jobs : UDINT;
 END_VAR]]></Declaration>

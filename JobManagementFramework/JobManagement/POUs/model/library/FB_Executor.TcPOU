@@ -23,13 +23,12 @@ VAR
 	 {attribute 'TcAnalytics'}
 	 _state :E_FutureExecutionState := E_FutureExecutionState.idle;
 	_last_state  :E_FutureExecutionState;
-	_error_id : UDINT;
+	_error_id : HRESULT;
 	_aborting :BOOL;
 	_quitting :BOOL;
 	_interface_container : InterfaceContainer := 0;
-	_job_event_reporter: I_JobEventTransition;
+	_job_info: I_JobInfo;
 	_job_event_observable : I_Observable;
-	_future_assign_observable : I_Observable;
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
 	_parent_job : I_Job := 0;
@@ -217,18 +216,7 @@ END_VAR
         <ST><![CDATA[IF _future <> 0 THEN
 	IF _future.error_reset() THEN
 		error_reset := TRUE;
-		IF _job_event_reporter <> 0 AND _job_event_observable <> 0 THEN
-			_job_event_reporter.title := 'ERROR_RESET';
-			_job_event_reporter.last_state := _last_state;
-			_job_event_reporter.new_state := _state;
-			IF _current_timestamp <> 0 THEN
-				_job_event_reporter.record_time := _current_timestamp^;
-			ELSE
-				_job_event_reporter.record_time := F_GetSystemTime();
-			END_IF
-			_job_event_reporter.job := THIS^;
-			_job_event_observable.notify_observers();
-		END_IF
+		get_job_info('ERROR_RESET', _job_event_observable, FALSE);
 	ELSE
 		error_reset := FALSE;
 	END_IF
@@ -244,10 +232,10 @@ END_IF
       <Declaration><![CDATA[METHOD execute : BOOL // Execute future process and return TRUE if all task are finished.
 VAR_INST
 	_state_mem :E_FutureExecutionState;
-	_logging :BOOL;
 	delay : TIME := T#3S;
 	sleep : TON;
 	await : BOOL;
+	_logging : BOOL;
 END_VAR
 VAR
 	_executor : REFERENCE TO FB_Executor;
@@ -277,7 +265,6 @@ _quit := FALSE;
 
 CASE _state OF
 	E_FutureExecutionState.idle:
-		ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG, msgFmtStr := TO_STRING(_future.state), strArg := '');
 		IF _future.state = E_FutureExecutionState.idle OR 
 			_future.state = E_FutureExecutionState.finish THEN
 			IF init() THEN
@@ -359,29 +346,21 @@ IF _state <> _state_mem THEN
 		sleep(IN := FALSE);
 		_quitting := TRUE;
 	END_IF
-		
-	IF _job_event_reporter <> 0 AND _job_event_observable <> 0 THEN
-		// reporter
-		_logging := TRUE;
-	END_IF
+
+	_logging := TRUE;
+
 END_IF
 
 _state_mem := _state;
 
+// Transition logging
 IF _logging THEN
-	_job_event_reporter.title := 'TRANSITION';
-	_job_event_reporter.last_state := _last_state;
-	_job_event_reporter.new_state := _state;
-	IF _current_timestamp <> 0 THEN
-		_job_event_reporter.record_time := _current_timestamp^;
-	ELSE
-		_job_event_reporter.record_time := F_GetSystemTime();
-	END_IF
-	_job_event_reporter.job := THIS^;
-	IF _job_event_observable.notify_observers() THEN
-		_logging := FALSE;	
+	IF get_job_info('TRANSITION', _job_event_observable,FALSE) THEN
+		_logging := FALSE;
 	END_IF
 END_IF
+
+
 
 IF _future <> 0 THEN
 	_future.state := _state;
@@ -414,27 +393,6 @@ END_IF]]></ST>
         </Implementation>
       </Set>
     </Property>
-    <Property Name="future_assign_observable" Id="{0c72f6d0-eac8-4f9f-bbc2-f53baa376c44}">
-      <Declaration><![CDATA[{warning 'Add property implementation'}
-PROPERTY future_assign_observable : I_Observable
-]]></Declaration>
-      <Get Name="Get" Id="{dc06977b-2a36-406c-985e-f38ef9991c92}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[future_assign_observable := _future_assign_observable;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{22844362-5bd3-468d-9abc-c030ebe70718}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_future_assign_observable := future_assign_observable;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <Property Name="future_creator" Id="{4ef3d23b-70fc-42e7-92d1-5df42cf5ccf9}">
       <Declaration><![CDATA[PROPERTY future_creator : InterfaceTaskCreator // Set creator instance.]]></Declaration>
       <Set Name="Set" Id="{73c997cd-b03a-40d8-97e1-94183b40cdc9}">
@@ -446,6 +404,57 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
+    <Method Name="get_job_info" Id="{776089a7-403b-4f19-b673-2cf0c4b27716}">
+      <Declaration><![CDATA[METHOD get_job_info : BOOL
+VAR_INPUT
+	title		: T_MaxString;
+	observable 	: I_Observable;
+	recursive	: BOOL := FALSE;
+END_VAR
+VAR
+	_info : I_JobInfo;
+	_child_job : I_Job;
+	_cmp : BOOL;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF observable = 0  OR NOT __QUERYINTERFACE(observable, _info) THEN
+	get_job_info := TRUE;
+	RETURN;
+END_IF
+
+_info.title := title;
+_info.job := THIS^;
+_info.last_state := _last_state;
+_info.new_state := _state;
+IF _current_timestamp <> 0 THEN
+	_info.record_time := _current_timestamp^;
+ELSE
+	_info.record_time := F_GetSystemTime();
+END_IF
+
+observable.notify_observers();
+
+IF recursive THEN
+	_cmp := TRUE;
+	IF THIS^.children <> 0 THEN
+		REPEAT
+			_child_job := THIS^.children.each_executor;
+			IF _child_job <> 0 THEN
+				IF NOT _child_job.get_job_info(title, observable, recursive) THEN
+					_cmp := FALSE;
+				END_IF
+			END_IF
+		UNTIL
+			_child_job = 0
+		END_REPEAT
+	END_IF
+	
+	get_job_info := _cmp;
+ELSE
+	get_job_info := TRUE;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="id" Id="{cfcf1743-1715-4af2-a0a4-cd9f1ebd1808}">
       <Declaration><![CDATA[PROPERTY id : T_MaxString // Get job id.
 ]]></Declaration>
@@ -501,22 +510,19 @@ _start := FALSE;
 _state := E_FutureExecutionState.idle;
 _error_id := 0;
 THIS^.id := _id;
-IF _future_assign_observable <> 0 THEN
-	_future_assign_observable.notify_observers();
-END_IF
 INIT := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
     <Property Name="job_event_reporter" Id="{7070112e-2fb6-433d-85f5-f36a183c0a1e}">
-      <Declaration><![CDATA[PROPERTY job_event_reporter : I_JobEventTransition]]></Declaration>
+      <Declaration><![CDATA[PROPERTY job_event_reporter : I_JobInfo]]></Declaration>
       <Get Name="Get" Id="{150bf335-b5f5-4890-8f09-a0bd37e70e48}">
         <Declaration><![CDATA[
 VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[job_event_reporter := _job_event_reporter;]]></ST>
+          <ST><![CDATA[job_event_reporter := _job_info;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{4cb4a4bf-e492-4795-8469-65c6601636a4}">
@@ -525,8 +531,8 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_job_event_reporter := job_event_reporter;
-__QUERYINTERFACE(_job_event_reporter, _job_event_observable);
+          <ST><![CDATA[_job_info := job_event_reporter;
+__QUERYINTERFACE(_job_info, _job_event_observable);
 IF THIS^.children <> 0 THEN
 	REPEAT
 		executor := THIS^.children.each_executor;
@@ -577,7 +583,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="nErrorID" Id="{b8e1cf4d-b2aa-4996-8037-fe94c831ada6}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT // Present error code when each process,init(), execute(), quit() are finished. '0' represent normal condition without any errors.
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT // Present error code when each process,init(), execute(), quit() are finished. '0' represent normal condition without any errors.
 ]]></Declaration>
       <Get Name="Get" Id="{279bd7d5-87e3-414a-919d-b55c6d45fe5f}">
         <Declaration><![CDATA[VAR

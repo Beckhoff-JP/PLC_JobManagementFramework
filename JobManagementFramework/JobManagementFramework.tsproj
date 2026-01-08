@@ -1451,15 +1451,15 @@ External Setpoint Generation:
 	<Project ProjectGUID="{58F13914-585B-43B7-BEB4-87C45D7400FF}" TargetNetId="199.4.42.250.1.1" Target64Bit="true" AutoPrioManagement="true" ShowHideConfigurations="#x6">
 		<System>
 			<Settings MaxCpus="2" RouterMemory="67108864">
-				<Cpu CpuMemorySize="#x100000"/>
-				<Cpu CpuId="1" CpuMemorySize="#x100000"/>
+				<Cpu/>
+				<Cpu CpuId="1"/>
 				<IoIdleTask Priority="6" Affinity="#x00000001"/>
 			</Settings>
 			<Licenses>
 				<Target>
 					<ManualSelect>{BB40055B-8333-4223-90EA-7C4559DC7C69}</ManualSelect>
-					<ManualSelect>{88FA6DAB-09EF-464E-A413-EE4B97F3F185}</ManualSelect>
 					<ManualSelect>{27326EE5-AB30-4084-B15B-8CCA96CCBF0B}</ManualSelect>
+					<ManualSelect>{88FA6DAB-09EF-464E-A413-EE4B97F3F185}</ManualSelect>
 				</Target>
 			</Licenses>
 			<Tasks>
@@ -1473,7 +1473,7 @@ External Setpoint Generation:
 		</System>
 		<Motion>
 			<NC>
-				<SafTask Priority="4" CycleTime="10000" AmsPort="501" IoAtBegin="true" SafTaskInfo="256" HighPrioAds="true">
+				<SafTask Priority="4" CycleTime="10000" AmsPort="501" IoAtBegin="true" SafTaskInfo="256">
 					<Name>NC-Task 1 SAF</Name>
 					<Vars VarGrpType="1" InsertType="1">
 						<Name>Inputs</Name>
@@ -1631,7 +1631,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{14A16199-AC25-482B-A6DB-DF484965E4FB}" Name="JobManagement" PrjFilePath="JobManagement\JobManagement.plcproj" TmcFilePath="JobManagement\JobManagement.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{3753E3BD-9F42-2918-C212-C93336DEFCF4}" TmcPath="JobManagement\JobManagement.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{54879B97-7840-0FAA-14EC-6CE0AE92F296}" TmcPath="JobManagement\JobManagement.tmc">
 					<Name>JobManagement Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="2" AreaNo="1">
@@ -1676,24 +1676,6 @@ External Setpoint Generation:
 			</Project>
 			<PlcAuxTask Affinity="#x00000001"/>
 		</Plc>
-		<Analytics ConfigVersion="1.4">
-			<Name>ANALYTICS</Name>
-			<ImageId>437</ImageId>
-			<XmlProps><![CDATA[<Address>Hauptstraße 5, 32567 Berlin</Address><Latitude>123.41</Latitude><Longitude>43.4555</Longitude><SystemIdAlias></SystemIdAlias><DeviceProps></DeviceProps><SelectedDriverVersion>3.3.211.0</SelectedDriverVersion><StreamTargets><StreamTargetItem Id="db02f74f-d59e-4894-9154-6618ec8e4887"><Name>Stream Target 1</Name><Type>FILE</Type><Directory>%TC_BOOTPRJPATH%</Directory><MqttConnectionSettings><Broker>127.0.0.1</Broker><BrokerPort>1883</BrokerPort><UserID /><WithCertificates>false</WithCertificates><CA_Certificate /><Cert_Certificate /><Key_Certificate /><CommunicationTimeout>30000000</CommunicationTimeout><KeepAlivePeriod>600000000</KeepAlivePeriod><TcpBufferSize>32768</TcpBufferSize><SecurityType>NO_SECURITY</SecurityType><Insecure>false</Insecure><IgnoreExpiration>false</IgnoreExpiration><IsPskIdCaseSensitive>false</IsPskIdCaseSensitive><IgnoreCnMismatch>false</IgnoreCnMismatch><TargetPaths>false</TargetPaths><PskMode>HexKey</PskMode></MqttConnectionSettings><TimeType>None</TimeType></StreamTargetItem></StreamTargets><ActivateAlyLogger>true</ActivateAlyLogger>]]></XmlProps>
-			<StreamContext AdiOid="#x08502000" CallerOid="#x08502001" Category="0">
-				<Name>JobManagement Instance - PlcTask (PLC)</Name>
-				<ImageId>438</ImageId>
-				<Stream Id="#x02040001" oid="#x2040001" eventBased="false">
-					<Name>CyclicStream 1</Name>
-					<ImageId>439</ImageId>
-					<XmlProps><![CDATA[<AutostartStream>true</AutostartStream><SamplingDivider>1</SamplingDivider><SamplesPerBuffer>32</SamplesPerBuffer><TargetId>db02f74f-d59e-4894-9154-6618ec8e4887</TargetId><BuffersPerFile>32</BuffersPerFile><UseRingbuffer>true</UseRingbuffer><FilesPerRingbuffer>2</FilesPerRingbuffer><QueueMessages>true</QueueMessages><MqttBuffersPerQueue>100</MqttBuffersPerQueue><MqttQueueInFile>false</MqttQueueInFile><MainTopic></MainTopic><ClientID>5.163.233.66.1.1_JobManagement Instance - PlcTask (PLC)_CyclicStream 1_0x00000000</ClientID><SymbolNames>R1ZMLmF4aXMxLk5jVG9QbGMA</SymbolNames><StreamProps></StreamProps><VnImageName></VnImageName><EnableVnImageLogging>false</EnableVnImageLogging><MaxVnImageSize>3000000</MaxVnImageSize><CopyTmiToTarget>false</CopyTmiToTarget><BackupOnStart>false</BackupOnStart><UseBackupTrigger>false</UseBackupTrigger><UseBackupPathOption>false</UseBackupPathOption><BackupPath>%TC_BOOTPRJPATH%</BackupPath><BackupDirectory>%TC_BOOTPRJPATH%</BackupDirectory><BackupFilePrefix></BackupFilePrefix><CompressionMode>1</CompressionMode><TriggerDelayTimeTuple><Value>0</Value><Mode>Seconds</Mode></TriggerDelayTimeTuple><PreTriggerTimeTuple><Value>0</Value><Mode>Seconds</Mode></PreTriggerTimeTuple><BackupConditionSettings><IsRhsEnabled>false</IsRhsEnabled><IsExpertMode>false</IsExpertMode><SelectedSymbolLhs></SelectedSymbolLhs><SelectedSymbolRhs></SelectedSymbolRhs><SelectedOperator>None</SelectedOperator><FlagValue>0</FlagValue><FreeTextCondition></FreeTextCondition></BackupConditionSettings><CompressionWidth>32</CompressionWidth>]]></XmlProps>
-				</Stream>
-			</StreamContext>
-			<StreamContext AdiOid="#x08502000" CallerOid="#x08502002" Category="0">
-				<Name>JobManagement Instance - VISU_TASK (PLC)</Name>
-				<ImageId>438</ImageId>
-			</StreamContext>
-		</Analytics>
 		<Io>
 			<Device Id="1" Disabled="true" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="199.4.42.250.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="3">
 				<Name>Device 1 (EtherCAT)</Name>

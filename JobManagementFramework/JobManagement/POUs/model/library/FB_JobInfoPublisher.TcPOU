@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
-  <POU Name="FB_JobEventTransitionPublisher" Id="{7a64fcb3-a887-456a-9fd8-a111e49a6cf3}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_JobEventTransitionPublisher IMPLEMENTS I_JobEventTransition, I_Observable
+  <POU Name="FB_JobInfoPublisher" Id="{7a64fcb3-a887-456a-9fd8-a111e49a6cf3}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_JobInfoPublisher IMPLEMENTS I_JobInfo, I_Observable
 VAR CONSTANT
 	MAX_OBSERVERS : UDINT := 5;
 END_VAR

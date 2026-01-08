@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureProcessJob" Id="{1a36e9e9-ab13-4441-b361-f9d5d764096a}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureProcessJob EXTENDS FB_AbstructFuture
@@ -10,7 +10,7 @@ END_VAR
 VAR
 	_error_id 				:HRESULT;
 	_selected_future_name 	: STRING;
-	_asset					: I_Asset;    
+	_asset					: I_Asset;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -35,25 +35,6 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Property Name="control_job" Id="{296b87b0-0d85-443a-9346-bf05538ab521}">
-      <Declaration><![CDATA[PROPERTY control_job : I_Station]]></Declaration>
-      <Get Name="Get" Id="{c85850d8-facf-4796-ad22-6f7ee3677bef}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[control_job := _control_job;]]></ST>
-        </Implementation>
-      </Get>
-      <Set Name="Set" Id="{c53d002e-6896-45f6-b51d-a398a3052c92}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-        <Implementation>
-          <ST><![CDATA[_control_job := control_job;]]></ST>
-        </Implementation>
-      </Set>
-    </Property>
     <Method Name="execute" Id="{417962f7-daf8-4dae-990a-9d97785b54f5}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 ]]></Declaration>
@@ -61,7 +42,9 @@ END_VAR
         <ST><![CDATA[IF _asset = 0 THEN
 	_error_id := -1;
 	RETURN;
-END_IF]]></ST>
+END_IF
+
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="init" Id="{47b55248-8f59-4a6c-a73b-ca93cfa84ad7}">
@@ -86,5 +69,25 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
+    <LineIds Name="FutureProcessJob">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureProcessJob.asset.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureProcessJob.asset.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureProcessJob.execute">
+      <LineId Id="3" Count="4" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureProcessJob.init">
+      <LineId Id="3" Count="3" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureProcessJob.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

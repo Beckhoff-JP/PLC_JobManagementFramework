@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FutureCounterBlink" Id="{fcedd839-491a-4b82-962e-a6b212add423}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FutureCounterBlink EXTENDS FB_AbstructFuture
@@ -175,5 +175,44 @@ _output REF= output;
 _target_count := target_count;]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="FutureCounterBlink">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.abort">
+      <LineId Id="3" Count="11" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.counter.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.error_reset">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.error_test.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.execute">
+      <LineId Id="3" Count="23" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.init">
+      <LineId Id="3" Count="15" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.nErrorID.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.quit">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.set_options">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FutureCounterBlink.set_parameter">
+      <LineId Id="3" Count="1" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

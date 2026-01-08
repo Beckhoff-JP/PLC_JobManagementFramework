@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_AssetXtsMover" Id="{aad04d2c-7b74-4a95-83e2-dc5f6cdfb64a}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_AssetXtsMover EXTENDS FB_AbstructAsset
 VAR_INPUT
@@ -20,5 +20,11 @@ END_VAR
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="FB_AssetXtsMover">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AssetXtsMover.build_template_job">
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

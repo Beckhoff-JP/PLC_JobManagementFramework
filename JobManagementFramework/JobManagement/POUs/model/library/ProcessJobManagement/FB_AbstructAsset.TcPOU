@@ -1,15 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="FB_AbstructAsset" Id="{d4d0355c-79fc-4600-bee5-c78f62e48799}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructAsset IMPLEMENTS I_Asset
+VAR CONSTANT
+	MAX_TEMPLATE_JOBS : UDINT := 10;
+END_VAR
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
 	_driver		: InterfaceContainer;
+	_template_jobs : ARRAY [1..MAX_TEMPLATE_JOBS] OF I_JobCatalogue;
+	_num_of_jobs : UDINT;
 	_batch_job   : FB_Executor;
-	_job 		: I_JOB;
+	_selected_process_job 		: I_JOB;
 	_error_id : HRESULT;
 	_asset_kind : E_AssetKind := E_AssetKind.station;
 	_asset_name : STRING;
@@ -18,9 +23,77 @@ END_VAR
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
+    <Method Name="_index_generator_" Id="{974a4970-f4cf-4e24-a956-ee0217ceeab4}">
+      <Declaration><![CDATA[(* This is the generator that iteratively generates references to FB_executor instances*)
+METHOD _index_generator_ : UINT;
+VAR_INPUT
+END_VAR
+VAR_INST
+	_init	: BOOL := FALSE;
+	_current_order_number : UINT; // Represent order number of iteration
+	_index: UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT _init THEN
+	_current_order_number := 0;
+	_index := 1;
+	_index_generator_ := 0;
+	_init := TRUE;
+END_IF
+
+IF _num_of_jobs = 0 THEN
+	RETURN;
+END_IF
+
+
+IF _current_order_number >= _num_of_jobs OR _index > MAX_TEMPLATE_JOBS THEN
+	_init := FALSE;
+END_IF
+
+IF _init THEN
+	WHILE _index < MAX_TEMPLATE_JOBS AND _template_jobs[_index] = 0 DO
+		_index := _index + 1;
+	END_WHILE
+	IF _template_jobs[_index] <> 0 THEN
+		_index_generator_ := _index;
+	ELSE
+		_index_generator_ := 0;
+	END_IF
+	_current_order_number := _current_order_number + 1;
+	_index := _index + 1;
+ELSE
+	_index_generator_ := 0;
+END_IF]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="add_template_job" Id="{4358ad89-b831-401e-97f7-5b72f8b20c6f}">
+      <Declaration><![CDATA[METHOD add_template_job : BOOL
+VAR_INPUT
+	template_job	: I_JobCatalogue;
+END_VAR
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO MAX_TEMPLATE_JOBS DO
+	IF _template_jobs[i] = 0 THEN
+		IF template_job.build_template_job() THEN
+			_template_jobs[i] := template_job;
+			_error_id := S_OK;
+			add_template_job := TRUE;
+			_num_of_jobs := _num_of_jobs + 1;
+			RETURN;
+		END_IF
+	END_IF
+END_FOR
+_error_id := -1;
+add_template_job := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="asset_kind" Id="{2ac5f7ca-9796-4b79-8958-254a0b97c0d0}">
-      <Declaration><![CDATA[{warning 'Add property implementation'}
-PROPERTY asset_kind : E_AssetKind
+      <Declaration><![CDATA[PROPERTY asset_kind : E_AssetKind
 ]]></Declaration>
       <Get Name="Get" Id="{0c768923-5fe9-4f39-9d49-438ae72e0815}">
         <Declaration><![CDATA[VAR
@@ -40,8 +113,7 @@ END_VAR
       </Set>
     </Property>
     <Property Name="asset_name" Id="{3afe87e4-af7e-4675-b6b4-86d7284aa59a}">
-      <Declaration><![CDATA[{warning 'Add property implementation'}
-PROPERTY asset_name : STRING
+      <Declaration><![CDATA[PROPERTY asset_name : STRING
 ]]></Declaration>
       <Get Name="Get" Id="{9d1f333d-982d-4fcc-ab2a-85204f429608}">
         <Declaration><![CDATA[VAR
@@ -61,19 +133,23 @@ _batch_job.future.future_name := _asset_name;]]></ST>
         </Implementation>
       </Set>
     </Property>
-    <Method Name="build_template_job" Id="{cb19dcc3-319f-4944-a1b8-7d171a3cb17a}">
-      <Declaration><![CDATA[(* Create original jobs for this asset.
-Notice! Created job must be returned as I_Job type.
-*)
-METHOD build_template_job : I_Job
+    <Method Name="asset_start" Id="{66f78847-43f0-4d96-8ae7-3ddd2bcdbbec}">
+      <Declaration><![CDATA[METHOD asset_start : BOOL
+VAR_INPUT
+END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[IF _batch_job.ready THEN
+	_batch_job.start();	
+	asset_start := TRUE;
+ELSE
+	asset_start := FALSE;
+END_IF
+]]></ST>
       </Implementation>
     </Method>
     <Property Name="driver" Id="{cab1a5f0-3d1e-4843-a677-06939ef7a5ae}">
-      <Declaration><![CDATA[{warning 'Add property implementation'}
-PROPERTY driver : I_Job
+      <Declaration><![CDATA[PROPERTY driver : I_Job
 ]]></Declaration>
       <Set Name="Set" Id="{b5125617-136d-4390-a8bb-2e0d72edc21d}">
         <Declaration><![CDATA[VAR
@@ -98,10 +174,25 @@ END_VAR
     <Method Name="execute_job" Id="{952130f9-79a5-406f-adc7-5c023024fd68}">
       <Declaration><![CDATA[METHOD execute_job : BOOL
 VAR_INPUT
+	template_name : T_MaxString;
 END_VAR
-]]></Declaration>
+VAR
+	job_template : I_JobCatalogue;
+END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[execute_job := _batch_job.children.append_job(_job);]]></ST>
+        <ST><![CDATA[_error_id := -9;
+REPEAT
+	job_template := THIS^.iter_process_jobs;
+	IF job_template <> 0 AND_THEN job_template.template_name = template_name THEN
+		_selected_process_job := job_template.template_job_object;
+		_batch_job.children.append_job(_selected_process_job);
+		_error_id := S_OK;
+	END_IF
+UNTIL
+	job_template = 0
+END_REPEAT
+
+execute_job := TRUE;]]></ST>
       </Implementation>
     </Method>
     <Method Name="FB_Init" Id="{21cee4a2-3874-4f37-96ac-b683cedadefa}">
@@ -116,24 +207,156 @@ VAR_INPUT
 	driver : InterfaceContainer;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_job := THIS^.build_template_job();
-_batch_job.create_container(ContainerType.QUEUE, '');
+        <ST><![CDATA[_batch_job.create_container(ContainerType.QUEUE, '');
+_batch_job.continuous_mode := TRUE;
+_batch_job.children.auto_start := FALSE;
+IF driver = 0 THEN
+	_error_id := -100;
+	RETURN;
+END_IF
 _driver := driver;
 _driver.append_job(_batch_job);]]></ST>
       </Implementation>
     </Method>
-    <Property Name="job" Id="{8b6d2da2-21cf-48f4-a563-68ecc4301090}">
+    <Property Name="iter_process_jobs" Id="{b94bd61e-9e02-46f0-bbcc-25c594961268}">
+      <Declaration><![CDATA[PROPERTY iter_process_jobs : I_JobCatalogue
+]]></Declaration>
+      <Get Name="Get" Id="{17f796f5-0748-4bce-9d9f-f1d25310a16c}">
+        <Declaration><![CDATA[VAR_INST
+	_index : UDINT := 1;
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_index := _index_generator_();
+IF _index > 0 THEN
+	IF _template_jobs[_index] <> 0 THEN
+		IF _template_jobs[_index] <> 0 THEN
+			iter_process_jobs := _template_jobs[_index];
+		ELSE
+			iter_process_jobs := 0;
+		END_IF
+	END_IF
+ELSE
+	iter_process_jobs := 0;
+END_IF
+]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Method Name="remove_template_job_by_name" Id="{92eecbd9-ae24-4ab4-bbe7-285e5a8204ba}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD remove_template_job_by_name : BOOL
+VAR_INPUT
+	template_name	: T_MaxString;
+END_VAR
+VAR
+	i : UDINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO MAX_TEMPLATE_JOBS DO
+	IF _template_jobs[i].template_name = template_name THEN
+		_template_jobs[i] := 0;
+		_error_id := S_OK;
+		remove_template_job_by_object := TRUE;
+		RETURN;
+	END_IF
+END_FOR
+_error_id := -2;
+remove_template_job_by_object := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="remove_template_job_by_object" Id="{61c905ac-e7e2-4623-bb53-9dad92657542}">
+      <Declaration><![CDATA[METHOD remove_template_job_by_object : BOOL
+VAR_INPUT
+	template_job	: I_Job;
+END_VAR
+VAR
+	i : UDINT;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[FOR i := 1 TO MAX_TEMPLATE_JOBS DO
+	IF _template_jobs[i].template_job_object = _template_jobs THEN
+		_template_jobs[i] := 0;
+		_error_id := S_OK;
+		remove_template_job_by_object := TRUE;
+		_num_of_jobs := _num_of_jobs - 1;
+		RETURN;
+	END_IF
+END_FOR
+_error_id := -2;
+remove_template_job_by_object := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="selected_process_job" Id="{8b6d2da2-21cf-48f4-a563-68ecc4301090}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
-PROPERTY job : I_Job
+PROPERTY selected_process_job : I_Job
 ]]></Declaration>
       <Get Name="Get" Id="{c10ddf3f-e541-4ec8-ad36-ef73804d3a15}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[job := _job;]]></ST>
+          <ST><![CDATA[selected_process_job := _selected_process_job;]]></ST>
         </Implementation>
       </Get>
     </Property>
+    <LineIds Name="FB_AbstructAsset">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset._index_generator_">
+      <LineId Id="3" Count="28" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.add_template_job">
+      <LineId Id="3" Count="12" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.asset_kind.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.asset_kind.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.asset_name.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.asset_name.Set">
+      <LineId Id="3" Count="0" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.asset_start">
+      <LineId Id="3" Count="5" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.driver.Set">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.error_id.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.execute_job">
+      <LineId Id="3" Count="11" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.FB_Init">
+      <LineId Id="3" Count="7" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.iter_process_jobs.Get">
+      <LineId Id="3" Count="11" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.remove_template_job_by_name">
+      <LineId Id="3" Count="8" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.remove_template_job_by_object">
+      <LineId Id="3" Count="9" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="FB_AbstructAsset.selected_process_job.Get">
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>

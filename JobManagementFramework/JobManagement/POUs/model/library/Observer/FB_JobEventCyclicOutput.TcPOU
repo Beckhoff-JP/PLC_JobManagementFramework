@@ -27,7 +27,7 @@ VAR_INST
 	_event_message : ST_JobEventMessage;
 END_VAR
 VAR
-	job_report : I_JobEventTransition;
+	job_report : I_JobInfo;
 	container : InterfaceContainer;
 	num_of_jobs : UDINT;
 END_VAR]]></Declaration>

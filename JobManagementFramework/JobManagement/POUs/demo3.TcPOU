@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
   <POU Name="demo3" Id="{0711fc19-ddf5-4c28-b96d-7cde88b1723f}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM demo3
 VAR
@@ -212,5 +212,13 @@ _job_temp := base_job.children.create_job(mc_move_abs_future_creator,'Back to ho
 ]]></ST>
       </Implementation>
     </Method>
+    <LineIds Name="demo3">
+      <LineId Id="3" Count="83" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
+    <LineIds Name="demo3.JobCreateDemo">
+      <LineId Id="3" Count="65" />
+      <LineId Id="2" Count="0" />
+    </LineIds>
   </POU>
 </TcPlcObject>
