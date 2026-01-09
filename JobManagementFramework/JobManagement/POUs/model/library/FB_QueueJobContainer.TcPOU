@@ -35,7 +35,7 @@ IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 
 	// Get parent tssk id
 	IF _executor <> 0 THEN
-		_executors[nWriteIndex].job_event_reporter := _executor.job_event_reporter;
+		_executors[nWriteIndex].job_event_observable := _executor.job_event_observable;
 		_executors[nWriteIndex].parent_executor := _executor;
 		_executors[nWriteIndex].upstream_aborting := _executor.upstream_aborting;
 	END_IF
@@ -242,7 +242,7 @@ END_VAR
 REPEAT
 	_executor := each_executor;
 	IF _executor <> 0 THEN
-		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
+		_executor.job_event_observable := THIS^._executor.job_event_observable;
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF

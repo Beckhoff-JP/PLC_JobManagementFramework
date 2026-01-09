@@ -27,7 +27,6 @@ VAR
 	_aborting :BOOL;
 	_quitting :BOOL;
 	_interface_container : InterfaceContainer := 0;
-	_job_info: I_JobInfo;
 	_job_event_observable : I_Observable;
 	_future_creator : InterfaceTaskCreator;
 	_future : InterfaceFuture;
@@ -514,15 +513,15 @@ INIT := TRUE;
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="job_event_reporter" Id="{7070112e-2fb6-433d-85f5-f36a183c0a1e}">
-      <Declaration><![CDATA[PROPERTY job_event_reporter : I_JobInfo]]></Declaration>
+    <Property Name="job_event_observable" Id="{7070112e-2fb6-433d-85f5-f36a183c0a1e}">
+      <Declaration><![CDATA[PROPERTY job_event_observable : I_Observable]]></Declaration>
       <Get Name="Get" Id="{150bf335-b5f5-4890-8f09-a0bd37e70e48}">
         <Declaration><![CDATA[
 VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[job_event_reporter := _job_info;]]></ST>
+          <ST><![CDATA[job_event_observable := _job_event_observable;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{4cb4a4bf-e492-4795-8469-65c6601636a4}">
@@ -531,13 +530,12 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_job_info := job_event_reporter;
-__QUERYINTERFACE(_job_info, _job_event_observable);
+          <ST><![CDATA[_job_event_observable := job_event_observable;
 IF THIS^.children <> 0 THEN
 	REPEAT
 		executor := THIS^.children.each_executor;
 		IF executor <> 0 THEN
-			executor.job_event_reporter := job_event_reporter;
+			executor.job_event_observable := job_event_observable;
 		END_IF
 	UNTIL
 		executor = 0

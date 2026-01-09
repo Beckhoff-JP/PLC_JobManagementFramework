@@ -122,8 +122,8 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
-    <Property Name="job_event_reporter" Id="{86842a8e-fd31-4199-9e8a-898c1d1cd9cd}">
-      <Declaration><![CDATA[PROPERTY job_event_reporter : I_JobInfo]]></Declaration>
+    <Property Name="job_event_observable" Id="{86842a8e-fd31-4199-9e8a-898c1d1cd9cd}">
+      <Declaration><![CDATA[PROPERTY job_event_observable : I_Observable]]></Declaration>
       <Get Name="Get" Id="{99052aa6-8cde-4c37-b866-4701a11893cf}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>

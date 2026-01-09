@@ -40,7 +40,7 @@ IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	
 	// Get parent task id
 	IF _executor <> 0 THEN
-		_executors[i].job_event_reporter := _executor.job_event_reporter;
+		_executors[i].job_event_observable := _executor.job_event_observable;
 		_executors[i].parent_executor := _executor;
 		_executors[i].upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
@@ -190,7 +190,7 @@ END_VAR
 REPEAT
 	_executor := each_executor;
 	IF _executor <> 0 THEN
-		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
+		_executor.job_event_observable := THIS^._executor.job_event_observable;
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF

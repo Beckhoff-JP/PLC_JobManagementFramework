@@ -32,7 +32,7 @@ END_VAR]]></Declaration>
 	_executors[_num_of_jobs] := executor;
 	IF  _executor <> 0 THEN
 		// Propergate task creator object
-		_executors[_num_of_jobs].job_event_reporter := _executor.job_event_reporter;
+		_executors[_num_of_jobs].job_event_observable := _executor.job_event_observable;
 		_executors[_num_of_jobs].parent_executor := _executor;
 		_executors[_num_of_jobs].upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
@@ -128,7 +128,7 @@ END_VAR]]></Declaration>
 REPEAT
 	_executor := each_executor;
 	IF _executor <> 0 THEN
-		_executor.job_event_reporter := THIS^._executor.job_event_reporter;
+		_executor.job_event_observable := THIS^._executor.job_event_observable;
 		IF NOT _executor.init() THEN
 			_init_done := FALSE;
 		END_IF

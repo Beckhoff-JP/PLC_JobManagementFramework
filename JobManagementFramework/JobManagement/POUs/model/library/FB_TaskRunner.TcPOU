@@ -146,7 +146,7 @@ VAR_INPUT
     bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)   
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_executor.job_event_reporter := _observable;
+        <ST><![CDATA[_executor.job_event_observable := _observable;
 _observable.add_observer(job_event_log_str);
 _observable.add_observer(job_event_cyclic_output);
 _executor.id := root_job_id;
@@ -176,14 +176,14 @@ job_clear := _executor.children.reset(FALSE);
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="observer" Id="{947c7939-e057-4dfe-be01-9957111d99a8}">
-      <Declaration><![CDATA[PROPERTY observer : I_JobInfo]]></Declaration>
+    <Property Name="job_event_observable" Id="{947c7939-e057-4dfe-be01-9957111d99a8}">
+      <Declaration><![CDATA[PROPERTY job_event_observable : I_Observable]]></Declaration>
       <Get Name="Get" Id="{17c56140-6fb9-4d59-948b-42e2f681725d}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[observer := _executor.job_event_reporter;]]></ST>
+          <ST><![CDATA[job_event_observable := _executor.job_event_observable;]]></ST>
         </Implementation>
       </Get>
       <Set Name="Set" Id="{f479983c-3a32-4080-975e-175a536cc1c1}">
@@ -191,7 +191,7 @@ END_VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[_executor.job_event_reporter := observer;]]></ST>
+          <ST><![CDATA[_executor.job_event_observable := job_event_observable;]]></ST>
         </Implementation>
       </Set>
     </Property>
