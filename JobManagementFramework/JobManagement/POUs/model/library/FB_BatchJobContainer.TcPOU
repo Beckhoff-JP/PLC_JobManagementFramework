@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_BatchJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_BatchJobContainer EXTENDS FB_AbstructContainer
@@ -10,7 +10,7 @@ END_VAR
 VAR
 	_all_abort : BOOL;
 	current_executing_future_id : UINT;
-	current_executing_future : InterfaceFuture;
+	current_executing_future : I_Future;
 END_VAR
 ]]></Declaration>
     <Implementation>

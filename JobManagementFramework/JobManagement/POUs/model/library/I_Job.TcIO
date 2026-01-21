@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <Itf Name="I_Job" Id="{c241c129-013a-48a7-8f50-a46604fd73e8}">
     <Declaration><![CDATA[INTERFACE I_Job  EXTENDS __SYSTEM.IQueryInterface 
 ]]></Declaration>
@@ -20,7 +20,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="children" Id="{22f1430e-f0f4-41f2-b46c-84e39d72eef9}">
-      <Declaration><![CDATA[PROPERTY children : InterfaceContainer // Accesser for interface pointer to child container instance.]]></Declaration>
+      <Declaration><![CDATA[PROPERTY children : I_Container // Accesser for interface pointer to child container instance.]]></Declaration>
       <Get Name="Get" Id="{15e6d966-0d98-49a3-b8d2-a7b46a69e496}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -32,7 +32,7 @@ END_VAR
       </Set>
     </Property>
     <Method Name="create_container" Id="{ef3659a9-663f-436e-aba6-183a0f497e09}">
-      <Declaration><![CDATA[METHOD create_container : InterfaceContainer // Make container object onto child.
+      <Declaration><![CDATA[METHOD create_container : I_Container // Make container object onto child.
 VAR_INPUT
 	container_type : ContainerType; // specify container type
 	name: STRING;	// specify future name
@@ -40,9 +40,9 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="create_future" Id="{b2304e27-07e6-4812-a102-238f555d4211}">
-      <Declaration><![CDATA[METHOD create_future : InterfaceFuture // Create future dynamically.
+      <Declaration><![CDATA[METHOD create_future : I_Future // Create future dynamically.
 VAR_INPUT
-	creator : InterfaceTaskCreator; // Specify creator object by which Interface Task Creator implemented.
+	creator : I_TaskCreator; // Specify creator object by which Interface Task Creator implemented.
 	future_name: STRING; // Spcfigy future name.
 END_VAR
 ]]></Declaration>
@@ -82,7 +82,7 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Property Name="future" Id="{7eb38465-3b0f-45b2-8963-3234ef5b537d}">
-      <Declaration><![CDATA[PROPERTY future : InterfaceFuture // Set future instance direct.]]></Declaration>
+      <Declaration><![CDATA[PROPERTY future : I_Future // Set future instance direct.]]></Declaration>
       <Get Name="Get" Id="{b2111c34-68f3-4c57-8cbb-f8aca8c3cab9}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
@@ -91,7 +91,7 @@ END_VAR
       </Set>
     </Property>
     <Property Name="future_creator" Id="{4453c69f-5993-4e32-aa6b-70c0a3524612}">
-      <Declaration><![CDATA[PROPERTY future_creator : InterfaceTaskCreator // Set creator instance.]]></Declaration>
+      <Declaration><![CDATA[PROPERTY future_creator : I_TaskCreator // Set creator instance.]]></Declaration>
       <Set Name="Set" Id="{4c5d6441-82c1-43cc-a85e-15d729c30d05}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>

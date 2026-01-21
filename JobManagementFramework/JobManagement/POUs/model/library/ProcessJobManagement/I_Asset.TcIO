@@ -46,19 +46,18 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Method Name="execute_job" Id="{dc80ce92-6ddb-4acd-b37b-3f2900d56045}">
-      <Declaration><![CDATA[METHOD execute_job : BOOL;
-VAR_INPUT
-	template_name : T_MaxString;
-END_VAR
-]]></Declaration>
-    </Method>
     <Property Name="iter_process_jobs" Id="{7109d664-7ce1-4fe0-886e-bf8e706f61a3}">
       <Declaration><![CDATA[PROPERTY iter_process_jobs : I_JobCatalogue]]></Declaration>
       <Get Name="Get" Id="{e6044fb6-ed53-4327-85dc-8f6ad671ea19}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
+    <Method Name="process_job_start" Id="{684b9a85-e17f-4e1e-9a23-ae4a88fa35be}">
+      <Declaration><![CDATA[METHOD process_job_start : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
     <Method Name="remove_template_job_by_name" Id="{17291b40-2ac9-483d-8762-5d3ace7184cb}">
       <Declaration><![CDATA[METHOD remove_template_job_by_name : BOOL
 VAR_INPUT
@@ -73,11 +72,24 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
     </Method>
+    <Method Name="select_process_job" Id="{dc80ce92-6ddb-4acd-b37b-3f2900d56045}">
+      <Declaration><![CDATA[METHOD select_process_job : BOOL;
+VAR_INPUT
+	template_name : T_MaxString;
+END_VAR
+]]></Declaration>
+    </Method>
     <Property Name="selected_process_job" Id="{a3431bac-dd92-47ec-8489-56c0f1e36cde}">
       <Declaration><![CDATA[PROPERTY selected_process_job : I_Job]]></Declaration>
       <Get Name="Get" Id="{1b07124f-bdef-4872-8368-148cea1db887}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
+    <Method Name="set_parameters" Id="{fc43c4b4-f32f-496c-9367-1e89e763c2d2}">
+      <Declaration><![CDATA[METHOD set_parameters : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
   </Itf>
 </TcPlcObject>

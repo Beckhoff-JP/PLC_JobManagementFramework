@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+  <Itf Name="I_AssetState" Id="{ec05e055-f1f5-494a-9dff-ceb0dd092a60}">
+    <Declaration><![CDATA[INTERFACE I_AssetState EXTENDS I_Observer
+]]></Declaration>
+    <Method Name="execute_on_state" Id="{2abae85d-9c48-4462-a344-622519f466d9}">
+      <Declaration><![CDATA[METHOD execute_on_state : BOOL
+VAR_INPUT
+END_VAR
+]]></Declaration>
+    </Method>
+  </Itf>
+</TcPlcObject>

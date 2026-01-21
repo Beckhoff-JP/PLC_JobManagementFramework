@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FutureMCMoveAbsoluteCreator" Id="{c6c4289a-7217-4966-b462-57230d558786}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCMoveAbsoluteCreator IMPLEMENTS InterfaceTaskCreator
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCMoveAbsoluteCreator IMPLEMENTS I_TaskCreator
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -21,7 +21,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="create_future" Id="{21eef5d1-2501-4f7c-b086-fb969f968594}">
-      <Declaration><![CDATA[METHOD create_future : InterfaceFuture
+      <Declaration><![CDATA[METHOD create_future : I_Future
 VAR_INPUT
 	(* Specify future name*)
 	future_name	: STRING;
@@ -39,10 +39,10 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{5f5eec34-2256-4715-b6f4-85c5429d303d}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : InterfaceFuture
+METHOD destroy_future : I_Future
 VAR_INPUT
 	(* Specify future instance whtat you want to delete.*)
-	future	: InterfaceFuture;
+	future	: I_Future;
 END_VAR
 VAR
 	_p_future : POINTER TO FutureMCMoveAbsolute;
@@ -88,24 +88,5 @@ _jerk := jerk;
 _buffer_mode := buffer_mode;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureMCMoveAbsoluteCreator">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCMoveAbsoluteCreator.create_future">
-      <LineId Id="11" Count="2" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCMoveAbsoluteCreator.destroy_future">
-      <LineId Id="9" Count="4" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCMoveAbsoluteCreator.set_options">
-      <LineId Id="19" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCMoveAbsoluteCreator.set_parameters">
-      <LineId Id="80" Count="5" />
-      <LineId Id="56" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

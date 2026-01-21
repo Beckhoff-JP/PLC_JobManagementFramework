@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FutureSleepCreator" Id="{e51ff537-6a6c-441a-9c50-d053b3ef0e7c}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FutureSleepCreator IMPLEMENTS InterfaceTaskCreator
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureSleepCreator IMPLEMENTS I_TaskCreator
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -16,7 +16,7 @@ END_VAR
     </Implementation>
     <Method Name="create_future" Id="{68dc0f33-3150-469d-afb6-499fce7ee32e}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : InterfaceFuture
+METHOD create_future : I_Future
 VAR_INPUT
 	(* Specify future name*)
 	future_name	: STRING;
@@ -31,10 +31,10 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{19ea5f74-a9a0-47e9-8242-8d8c60f039bb}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : InterfaceFuture
+METHOD destroy_future : I_Future
 VAR_INPUT
 	(* Specify future instance whtat you want to delete.*)
-	future	: InterfaceFuture;
+	future	: I_Future;
 END_VAR
 VAR
 	_p_future : POINTER TO FutureSleep;
@@ -67,22 +67,5 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <LineIds Name="FutureSleepCreator">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureSleepCreator.create_future">
-      <LineId Id="11" Count="2" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureSleepCreator.destroy_future">
-      <LineId Id="9" Count="4" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureSleepCreator.sleep_time.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureSleepCreator.sleep_time.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

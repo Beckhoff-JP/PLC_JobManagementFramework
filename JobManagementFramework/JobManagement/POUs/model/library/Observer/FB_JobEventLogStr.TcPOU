@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_JobEventLogStr" Id="{ba91026f-1b14-496b-9bee-5db4c9acb690}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_JobEventLogStr IMPLEMENTS I_Observer
 ]]></Declaration>
@@ -18,40 +18,40 @@ VAR_INST
 	text : T_MaxString;
 END_VAR
 VAR
-	job_report : I_JobInfo;
-	container : InterfaceContainer;
+	job_info : I_JobInfo;
+	container : I_Container;
 	num_of_jobs : UDINT;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[
-IF NOT __QUERYINTERFACE(publisher, job_report) THEN
+IF NOT __QUERYINTERFACE(publisher, job_info) THEN
 	RETURN;
 END_IF
 
-IF job_report.job <> 0 AND_THEN __QUERYINTERFACE(job_report.job.future, container) THEN
-	num_of_jobs := container.num_of_jobs;
+IF job_info.job.children <> 0 THEN
+	num_of_jobs := job_info.job.children.num_of_jobs;
 ELSE
 	num_of_jobs := 0;
 END_IF
 
-IF job_report.job <> 0 THEN
+IF job_info.job <> 0 THEN
 	text := '';
 	//fb_timezone_info();
 	//text := FILETIME64_TO_ISO8601(fileTime := job_report.record_time, nBias := DINT_TO_INT(fb_timezone_info.tzInfo.bias), bUTC := TRUE,nPrecision := 6);
 	//text := CONCAT(text, ' ');
 	//text := CONCAT(text, job_report.title);
 	text := CONCAT(text, '		');
-	text := CONCAT(text, job_report.job.uid);
+	text := CONCAT(text, job_info.job.uid);
 	text := CONCAT(text, '		');
-	text := CONCAT(text, job_report.job.namespace);
+	text := CONCAT(text, job_info.job.namespace);
 	text := CONCAT(text, '		');
 	text := CONCAT(text, TO_STRING(num_of_jobs));
 	text := CONCAT(text, '		');
-	text := CONCAT(text, TO_STRING(job_report.new_state));
+	text := CONCAT(text, TO_STRING(job_info.new_state));
 	text := CONCAT(text, '		');
-	text := CONCAT(text, TO_STRING(job_report.job.nErrorID));
+	text := CONCAT(text, TO_STRING(job_info.job.nErrorID));
 	text := CONCAT(text, '		');
-	text := CONCAT(text, job_report.job.future.future_name);
+	text := CONCAT(text, job_info.job.future.future_name);
 	
 	ADSLOGSTR(msgCtrlMask := ADSLOG_MSGTYPE_LOG,
  			 msgFmtStr := text, 

@@ -9,7 +9,7 @@
     <WriteProductVersion>true</WriteProductVersion>
     <GenerateTpy>false</GenerateTpy>
     <Name>JobManagement</Name>
-    <ProgramVersion>3.1.4026.19</ProgramVersion>
+    <ProgramVersion>3.1.4026.20</ProgramVersion>
     <Application>{caeb601e-ddd9-492f-b3ff-a6d992f5797a}</Application>
     <TypeSystem>{56c66bb5-ad95-4fd1-aa91-a1b3c39295da}</TypeSystem>
     <Implicit_Task_Info>{6981dcc3-170d-42ba-b750-2cf25a048c19}</Implicit_Task_Info>
@@ -225,12 +225,6 @@
     <Compile Include="POUs\model\library\FB_AbstructContainer.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\library\FB_JobCreationPublisher.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\model\library\FB_JobInfoPublisher.TcPOU">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="POUs\model\library\FB_ParallelJobContainerCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -255,22 +249,19 @@
     <Compile Include="POUs\model\library\FB_TaskRunner.TcPOU">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\library\InterfaceContainer.TcIO">
+    <Compile Include="POUs\model\library\I_Container.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\library\InterfaceFuture.TcIO">
+    <Compile Include="POUs\model\library\I_Future.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\library\InterfaceObservable.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\model\library\InterfaceTaskCreator.TcIO">
+    <Compile Include="POUs\model\library\I_TaskCreator.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\I_Job.TcIO">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="POUs\model\library\Observer\FB_JobRelayObserver.TcPOU">
+    <Compile Include="POUs\model\library\Observer\FB_JobInfoPublisher.TcPOU">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\Observer\FB_JobEventLogStr.TcPOU">
@@ -280,9 +271,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\Observer\I_JobInfo.TcIO">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="POUs\model\library\Observer\I_JobEventCreation.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\Observer\I_Observer.TcIO">
@@ -304,6 +292,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\ProcessJobManagement\I_Asset.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\ProcessJobManagement\I_AssetState.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\ProcessJobManagement\I_JobCatalogue.TcIO">
@@ -496,6 +487,15 @@
         <v>{8F99A816-E488-41E4-9FA3-846536012284}</v>
         <o>
           <v n="Name">"{8F99A816-E488-41E4-9FA3-846536012284}"</v>
+          <d n="SubKeys" t="Hashtable" />
+          <d n="Values" t="Hashtable" ckt="String" cvt="String">
+            <v>DisabledWarningIds</v>
+            <v>5410</v>
+          </d>
+        </o>
+        <v>{eeeeeeee-3909-4298-8022-501ac3238667}</v>
+        <o>
+          <v n="Name">"{eeeeeeee-3909-4298-8022-501ac3238667}"</v>
           <d n="SubKeys" t="Hashtable" />
           <d n="Values" t="Hashtable" />
         </o>

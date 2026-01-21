@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FutureCounterBlinkCreator" Id="{0aed4266-d9e2-40be-bcde-9c04d0aa9d0a}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FutureCounterBlinkCreator IMPLEMENTS InterfaceTaskCreator
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureCounterBlinkCreator IMPLEMENTS I_TaskCreator
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -18,7 +18,7 @@ END_VAR
     </Implementation>
     <Method Name="create_future" Id="{58d1e4fb-374b-4c0d-8dc2-d3a37f94d8ac}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : InterfaceFuture
+METHOD create_future : I_Future
 VAR_INPUT
 	future_name :STRING;
 END_VAR
@@ -35,9 +35,9 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{a7115440-52e4-4ce1-8ece-dcac8485997a}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : InterfaceFuture
+METHOD destroy_future : I_Future
 VAR_INPUT
-	future : InterfaceFuture;
+	future : I_Future;
 END_VAR
 VAR
 	_p_future : POINTER TO FutureCounterBlink;
@@ -76,29 +76,5 @@ _output REF= output;
 _target_count := target_count;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureCounterBlinkCreator">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlinkCreator.create_future">
-      <LineId Id="4" Count="0" />
-      <LineId Id="24" Count="1" />
-      <LineId Id="36" Count="0" />
-      <LineId Id="23" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlinkCreator.destroy_future">
-      <LineId Id="36" Count="1" />
-      <LineId Id="40" Count="0" />
-      <LineId Id="43" Count="0" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="39" Count="0" />
-      <LineId Id="20" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlinkCreator.set_options">
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureCounterBlinkCreator.set_parameter">
-      <LineId Id="9" Count="1" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

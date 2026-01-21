@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
-  <Itf Name="InterfaceContainer" Id="{24bfec70-0f3a-4ec1-a89e-5407d9c94d6d}">
-    <Declaration><![CDATA[INTERFACE InterfaceContainer EXTENDS __SYSTEM.IQueryInterface 
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+  <Itf Name="I_Container" Id="{24bfec70-0f3a-4ec1-a89e-5407d9c94d6d}">
+    <Declaration><![CDATA[INTERFACE I_Container EXTENDS __SYSTEM.IQueryInterface 
 ]]></Declaration>
     <Method Name="_index_generator_" Id="{9ec47763-c977-452b-946a-3a4851940c77}">
       <Declaration><![CDATA[(* This is the generator that iteratively generates references to FB_executor instances*)
@@ -43,7 +43,7 @@ END_VAR
     <Method Name="create_job" Id="{65cf060d-dd4c-4119-bcf8-79a9d41aeea7}">
       <Declaration><![CDATA[METHOD create_job : I_Job
 VAR_INPUT
-	creator : InterfaceTaskCreator;
+	creator : I_TaskCreator;
 	future_name: STRING;
 END_VAR
 ]]></Declaration>
@@ -76,7 +76,7 @@ END_VAR
     <Method Name="spawn_job" Id="{d49e697a-f8c3-49c2-92d4-238e4a1c4453}">
       <Declaration><![CDATA[METHOD spawn_job : I_Job
 VAR_INPUT
-	future : InterfaceFuture;
+	future : I_Future;
 END_VAR
 ]]></Declaration>
     </Method>

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FutureMCGearOutCreator" Id="{4f5e0dea-75bb-4c96-a76e-81abf884507a}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCGearOutCreator IMPLEMENTS InterfaceTaskCreator
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCGearOutCreator IMPLEMENTS I_TaskCreator
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -16,7 +16,7 @@ END_VAR
     </Implementation>
     <Method Name="create_future" Id="{475698ab-0737-47d6-8622-d026d33ab716}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : InterfaceFuture
+METHOD create_future : I_Future
 VAR_INPUT
 	(* Specify future name*)
 	future_name	: STRING;
@@ -34,10 +34,10 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{8742e7d8-6813-4916-908a-50d4451908ac}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : InterfaceFuture
+METHOD destroy_future : I_Future
 VAR_INPUT
 	(* Specify future instance whtat you want to delete.*)
-	future	: InterfaceFuture;
+	future	: I_Future;
 END_VAR
 VAR
 	_p_future : POINTER TO FutureMCGearOut;
@@ -75,27 +75,5 @@ END_VAR
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureMCGearOutCreator">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearOutCreator.create_future">
-      <LineId Id="11" Count="2" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearOutCreator.destroy_future">
-      <LineId Id="9" Count="4" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearOutCreator.set_options">
-      <LineId Id="19" Count="0" />
-      <LineId Id="27" Count="0" />
-      <LineId Id="11" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCGearOutCreator.set_parameters">
-      <LineId Id="51" Count="0" />
-      <LineId Id="42" Count="0" />
-      <LineId Id="17" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

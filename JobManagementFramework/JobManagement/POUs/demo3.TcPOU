@@ -111,8 +111,6 @@ END_CASE
 //END_IF
 
 runner(root_job_id := '#1', root_job_name := 'ROOT');
-
-
 ]]></ST>
     </Implementation>
     <Method Name="JobCreateDemo" Id="{c6c18e30-8bba-4c6d-806d-02b28dd2a277}">

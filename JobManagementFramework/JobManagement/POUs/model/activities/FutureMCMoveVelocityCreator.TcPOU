@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FutureMCMoveVelocityCreator" Id="{0226b6a5-9c40-45b1-9ab7-aa62cfa21d1f}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCMoveVelocityCreator IMPLEMENTS InterfaceTaskCreator
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureMCMoveVelocityCreator IMPLEMENTS I_TaskCreator
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -22,7 +22,7 @@ END_VAR
     </Implementation>
     <Method Name="create_future" Id="{0751c4b9-03f9-41bd-94c7-47223d65e5df}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : InterfaceFuture
+METHOD create_future : I_Future
 VAR_INPUT
 	(* Specify future name*)
 	future_name	: STRING;
@@ -40,10 +40,10 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{2ed67d94-ab07-41da-b34d-76a5fc1863aa}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : InterfaceFuture
+METHOD destroy_future : I_Future
 VAR_INPUT
 	(* Specify future instance whtat you want to delete.*)
-	future	: InterfaceFuture;
+	future	: I_Future;
 END_VAR
 VAR
 	_p_future : POINTER TO FutureMCMoveVelocity;
@@ -89,27 +89,5 @@ _jerk := jerk;
 _buffer_mode := buffer_mode;]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureMCMoveVelocityCreator">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCMoveVelocityCreator.create_future">
-      <LineId Id="11" Count="2" />
-      <LineId Id="22" Count="0" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCMoveVelocityCreator.destroy_future">
-      <LineId Id="9" Count="4" />
-      <LineId Id="8" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCMoveVelocityCreator.set_options">
-      <LineId Id="19" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureMCMoveVelocityCreator.set_parameters">
-      <LineId Id="80" Count="0" />
-      <LineId Id="82" Count="0" />
-      <LineId Id="96" Count="0" />
-      <LineId Id="83" Count="2" />
-      <LineId Id="56" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

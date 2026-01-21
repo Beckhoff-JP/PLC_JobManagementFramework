@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_Executor" Id="{09518444-1d1d-452e-9e8f-647b2f8c5e33}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_Executor IMPLEMENTS I_Job
@@ -26,10 +26,10 @@ VAR
 	_error_id : HRESULT;
 	_aborting :BOOL;
 	_quitting :BOOL;
-	_interface_container : InterfaceContainer := 0;
+	_interface_container : I_Container := 0;
 	_job_event_observable : I_Observable;
-	_future_creator : InterfaceTaskCreator;
-	_future : InterfaceFuture;
+	_future_creator : I_TaskCreator;
+	_future : I_Future;
 	_parent_job : I_Job := 0;
 	_persistent_job : BOOL;
 	_current_timestamp : POINTER TO T_FILETIME64 := 0;
@@ -79,7 +79,7 @@ END_VAR
       </Get>
     </Property>
     <Property Name="children" Id="{db662496-7037-4faa-b7c6-23f2d18395d1}">
-      <Declaration><![CDATA[PROPERTY children : InterfaceContainer // Accesser for interface pointer to child container instance.]]></Declaration>
+      <Declaration><![CDATA[PROPERTY children : I_Container // Accesser for interface pointer to child container instance.]]></Declaration>
       <Get Name="Get" Id="{b5bd3ec9-ba69-4ba1-8ec7-43c8c7dc9772}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -104,14 +104,14 @@ END_IF
       </Set>
     </Property>
     <Method Name="create_container" Id="{3ee4e0b3-d5fa-4216-b2fc-b9b451f3b414}">
-      <Declaration><![CDATA[METHOD create_container : InterfaceContainer // Make container object onto child.
+      <Declaration><![CDATA[METHOD create_container : I_Container // Make container object onto child.
 VAR_INPUT
 	container_type : ContainerType; // specify container type
 	name: STRING;	// specify future name
 END_VAR
 VAR
 	delete_existing_container : BOOL;
-	created_future : InterfaceFuture;
+	created_future : I_Future;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _interface_container <> 0 THEN
@@ -146,9 +146,9 @@ END_IF
       </Implementation>
     </Method>
     <Method Name="create_future" Id="{4dbfc7cf-833f-45fc-a4dd-f4a1587ef4ef}">
-      <Declaration><![CDATA[METHOD create_future : InterfaceFuture // Create future dynamically.
+      <Declaration><![CDATA[METHOD create_future : I_Future // Create future dynamically.
 VAR_INPUT
-	creator : InterfaceTaskCreator; // Specify creator object by which Interface Task Creator implemented.
+	creator : I_TaskCreator; // Specify creator object by which Interface Task Creator implemented.
 	future_name: STRING; // Spcfigy future name.
 END_VAR
 ]]></Declaration>
@@ -368,7 +368,7 @@ END_IF
       </Implementation>
     </Method>
     <Property Name="future" Id="{a5f34e34-fd86-442a-a2b3-dcfdacffba84}">
-      <Declaration><![CDATA[PROPERTY future : InterfaceFuture // Set future instance direct.]]></Declaration>
+      <Declaration><![CDATA[PROPERTY future : I_Future // Set future instance direct.]]></Declaration>
       <Get Name="Get" Id="{ea3475fd-42f3-40d5-80b9-94fefa3dce7f}">
         <Declaration><![CDATA[
 VAR
@@ -393,7 +393,7 @@ END_IF]]></ST>
       </Set>
     </Property>
     <Property Name="future_creator" Id="{4ef3d23b-70fc-42e7-92d1-5df42cf5ccf9}">
-      <Declaration><![CDATA[PROPERTY future_creator : InterfaceTaskCreator // Set creator instance.]]></Declaration>
+      <Declaration><![CDATA[PROPERTY future_creator : I_TaskCreator // Set creator instance.]]></Declaration>
       <Set Name="Set" Id="{73c997cd-b03a-40d8-97e1-94183b40cdc9}">
         <Declaration><![CDATA[VAR
 END_VAR
@@ -406,9 +406,9 @@ END_VAR
     <Method Name="get_job_info" Id="{776089a7-403b-4f19-b673-2cf0c4b27716}">
       <Declaration><![CDATA[METHOD get_job_info : BOOL
 VAR_INPUT
-	title		: T_MaxString;
-	observable 	: I_Observable;
-	recursive	: BOOL := FALSE;
+	title		: T_MaxString; // Observable object title
+	observable 	: I_Observable; // Observable object
+	recursive	: BOOL := FALSE; // Set observable to child job recursively or not
 END_VAR
 VAR
 	_info : I_JobInfo;

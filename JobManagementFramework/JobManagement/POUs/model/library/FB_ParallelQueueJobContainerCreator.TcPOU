@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_ParallelQueueJobContainerCreator" Id="{9847853e-73aa-464f-b434-9aaf175e4eeb}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_ParallelQueueJobContainerCreator IMPLEMENTS InterfaceTaskCreator
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_ParallelQueueJobContainerCreator IMPLEMENTS I_TaskCreator
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -13,7 +13,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="create_future" Id="{9e874ed2-08b5-43dd-999f-e7f9cf182846}">
-      <Declaration><![CDATA[METHOD create_future : InterfaceFuture
+      <Declaration><![CDATA[METHOD create_future : I_Future
 VAR_INPUT
 	future_name	: STRING;
 END_VAR
@@ -27,9 +27,9 @@ create_future := _p_future^;]]></ST>
       </Implementation>
     </Method>
     <Method Name="destroy_future" Id="{57fce153-6118-4cd5-aa4d-c65d04a504f1}">
-      <Declaration><![CDATA[METHOD destroy_future : InterfaceFuture
+      <Declaration><![CDATA[METHOD destroy_future : I_Future
 VAR_INPUT
-	future	: InterfaceFuture;
+	future	: I_Future;
 END_VAR
 VAR
 	_p_future : POINTER TO FB_ParallelQueueJobContainer;

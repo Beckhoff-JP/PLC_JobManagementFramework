@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_AbstructAsset" Id="{d4d0355c-79fc-4600-bee5-c78f62e48799}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructAsset IMPLEMENTS I_Asset
 VAR CONSTANT
@@ -10,7 +10,7 @@ END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_driver		: InterfaceContainer;
+	_driver		: I_Container;
 	_template_jobs : ARRAY [1..MAX_TEMPLATE_JOBS] OF I_JobCatalogue;
 	_num_of_jobs : UDINT;
 	_batch_job   : FB_Executor;
@@ -171,30 +171,6 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Method Name="execute_job" Id="{952130f9-79a5-406f-adc7-5c023024fd68}">
-      <Declaration><![CDATA[METHOD execute_job : BOOL
-VAR_INPUT
-	template_name : T_MaxString;
-END_VAR
-VAR
-	job_template : I_JobCatalogue;
-END_VAR]]></Declaration>
-      <Implementation>
-        <ST><![CDATA[_error_id := -9;
-REPEAT
-	job_template := THIS^.iter_process_jobs;
-	IF job_template <> 0 AND_THEN job_template.template_name = template_name THEN
-		_selected_process_job := job_template.template_job_object;
-		_batch_job.children.append_job(_selected_process_job);
-		_error_id := S_OK;
-	END_IF
-UNTIL
-	job_template = 0
-END_REPEAT
-
-execute_job := TRUE;]]></ST>
-      </Implementation>
-    </Method>
     <Method Name="FB_Init" Id="{21cee4a2-3874-4f37-96ac-b683cedadefa}">
       <Declaration><![CDATA[//FB_Init is always available implicitly and it is used primarily for initialization.
 //The return value is not evaluated. For a specific influence, you can also declare the
@@ -204,7 +180,7 @@ METHOD FB_Init: BOOL
 VAR_INPUT
     bInitRetains: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
     bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)   
-	driver : InterfaceContainer;
+	driver : I_Container;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_batch_job.create_container(ContainerType.QUEUE, '');
@@ -243,6 +219,21 @@ END_IF
         </Implementation>
       </Get>
     </Property>
+    <Method Name="process_job_start" Id="{f7baef1b-480f-42d3-9246-dd99ce0e32ce}">
+      <Declaration><![CDATA[METHOD process_job_start : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF _selected_process_job = 0 THEN
+	process_job_start := TRUE;
+	_error_id := -1;
+	RETURN;
+END_IF
+_batch_job.children.append_job(_selected_process_job);
+_error_id := S_OK;
+process_job_start := TRUE;
+]]></ST>
+      </Implementation>
+    </Method>
     <Method Name="remove_template_job_by_name" Id="{92eecbd9-ae24-4ab4-bbe7-285e5a8204ba}">
       <Declaration><![CDATA[{warning 'Add method implementation '}
 METHOD remove_template_job_by_name : BOOL
@@ -288,6 +279,29 @@ _error_id := -2;
 remove_template_job_by_object := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Method Name="select_process_job" Id="{952130f9-79a5-406f-adc7-5c023024fd68}">
+      <Declaration><![CDATA[METHOD select_process_job : BOOL
+VAR_INPUT
+	template_name : T_MaxString;
+END_VAR
+VAR
+	job_template : I_JobCatalogue;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_error_id := -9;
+REPEAT
+	job_template := THIS^.iter_process_jobs;
+	IF job_template <> 0 AND_THEN job_template.template_name = template_name THEN
+		_selected_process_job := job_template.template_job_object;
+		_error_id := S_OK;
+	END_IF
+UNTIL
+	job_template = 0
+END_REPEAT
+
+select_process_job := TRUE;]]></ST>
+      </Implementation>
+    </Method>
     <Property Name="selected_process_job" Id="{8b6d2da2-21cf-48f4-a563-68ecc4301090}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY selected_process_job : I_Job
@@ -301,62 +315,13 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <LineIds Name="FB_AbstructAsset">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset._index_generator_">
-      <LineId Id="3" Count="28" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.add_template_job">
-      <LineId Id="3" Count="12" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.asset_kind.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.asset_kind.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.asset_name.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.asset_name.Set">
-      <LineId Id="3" Count="0" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.asset_start">
-      <LineId Id="3" Count="5" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.driver.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.error_id.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.execute_job">
-      <LineId Id="3" Count="11" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.FB_Init">
-      <LineId Id="3" Count="7" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.iter_process_jobs.Get">
-      <LineId Id="3" Count="11" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.remove_template_job_by_name">
-      <LineId Id="3" Count="8" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.remove_template_job_by_object">
-      <LineId Id="3" Count="9" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_AbstructAsset.selected_process_job.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
+    <Method Name="set_parameters" Id="{e09870f8-3242-492f-9edb-7fb09b9795e8}">
+      <Declaration><![CDATA[{warning 'Add method implementation '}
+METHOD set_parameters : BOOL
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
   </POU>
 </TcPlcObject>

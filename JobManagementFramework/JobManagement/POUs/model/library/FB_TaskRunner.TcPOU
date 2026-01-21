@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_TaskRunner" Id="{edfadf07-67d2-4234-8c66-349c9bc50ad5}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_TaskRunner
 VAR_INPUT
@@ -79,7 +79,7 @@ abort := all_aborted;
     <Method Name="append_future" Id="{c8cf10ac-651e-4b55-936b-7741712b04f9}">
       <Declaration><![CDATA[METHOD append_future : I_Job
 VAR_INPUT
-	future : InterfaceFuture;
+	future : I_Future;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -112,7 +112,7 @@ END_IF]]></ST>
     <Method Name="create_job" Id="{a15036f3-9f48-47bc-9e23-41ed0b98d15a}">
       <Declaration><![CDATA[METHOD create_job : I_Job
 VAR_INPUT
-	creator : InterfaceTaskCreator;
+	creator : I_TaskCreator;
 	name : STRING;
 END_VAR
 ]]></Declaration>

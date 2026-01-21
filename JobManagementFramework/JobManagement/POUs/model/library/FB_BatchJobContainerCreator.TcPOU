@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_BatchJobContainerCreator" Id="{cc44dec9-caab-4c2a-8bde-99d401648394}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FB_BatchJobContainerCreator IMPLEMENTS InterfaceTaskCreator
+    <Declaration><![CDATA[FUNCTION_BLOCK FB_BatchJobContainerCreator IMPLEMENTS I_TaskCreator
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -13,7 +13,7 @@ END_VAR
       <ST><![CDATA[]]></ST>
     </Implementation>
     <Method Name="create_future" Id="{2a5ce7c8-44bb-4ea8-88ae-9f8a9b48cc13}">
-      <Declaration><![CDATA[METHOD create_future : InterfaceFuture
+      <Declaration><![CDATA[METHOD create_future : I_Future
 VAR_INPUT
 	future_name :STRING;
 END_VAR
@@ -28,9 +28,9 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{af7c8340-e0c5-499c-81af-0833eba2fa7d}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : InterfaceFuture
+METHOD destroy_future : I_Future
 VAR_INPUT
-	future	: InterfaceFuture;
+	future	: I_Future;
 END_VAR
 VAR
 	_p_future : POINTER TO FB_BatchJobContainer;
@@ -45,16 +45,5 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FB_BatchJobContainerCreator">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_BatchJobContainerCreator.create_future">
-      <LineId Id="11" Count="1" />
-      <LineId Id="4" Count="0" />
-    </LineIds>
-    <LineIds Name="FB_BatchJobContainerCreator.destroy_future">
-      <LineId Id="24" Count="5" />
-      <LineId Id="7" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

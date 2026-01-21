@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_AbstructContainer" Id="{46d2dd9f-d184-4cfa-9aff-69a59f15f058}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructContainer IMPLEMENTS InterfaceFuture, InterfaceContainer
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructContainer IMPLEMENTS I_Future, I_Container
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -134,11 +134,11 @@ END_CASE
     <Method Name="create_job" Id="{21724226-f623-4c15-a6ab-72a64d79a6ba}">
       <Declaration><![CDATA[METHOD create_job : I_Job
 VAR_INPUT
-	creator	: InterfaceTaskCreator;
+	creator	: I_TaskCreator;
 	future_name	: STRING;
 END_VAR
 VAR
-	future : InterfaceFuture;
+	future : I_Future;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
@@ -365,7 +365,7 @@ resume := _all_done;]]></ST>
     <Method Name="spawn_job" Id="{851bbe10-8432-4972-a365-3ae0b2c9678a}">
       <Declaration><![CDATA[METHOD spawn_job : I_Job
 VAR_INPUT
-	future : InterfaceFuture;
+	future : I_Future;
 END_VAR
 VAR
 	_spawned_executor : POINTER TO FB_Executor;

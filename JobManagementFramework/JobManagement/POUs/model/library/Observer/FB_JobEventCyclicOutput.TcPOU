@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_JobEventCyclicOutput" Id="{9c0d3885-b004-4a83-92db-ed3f004b38ca}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_JobEventCyclicOutput IMPLEMENTS I_Observer
 VAR_OUTPUT
@@ -27,28 +27,28 @@ VAR_INST
 	_event_message : ST_JobEventMessage;
 END_VAR
 VAR
-	job_report : I_JobInfo;
-	container : InterfaceContainer;
+	job_info : I_JobInfo;
+	container : I_Container;
 	num_of_jobs : UDINT;
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[IF NOT __QUERYINTERFACE(publisher, job_report) THEN
+        <ST><![CDATA[IF NOT __QUERYINTERFACE(publisher, job_info) THEN
 	RETURN;
 END_IF
 
-IF job_report.job <> 0 AND_THEN __QUERYINTERFACE(job_report.job.future, container) THEN
-	num_of_jobs := container.num_of_jobs;
+IF job_info.job.children <> 0 THEN
+	num_of_jobs := job_info.job.children.num_of_jobs;
 ELSE
 	num_of_jobs := 0;
 END_IF
 
-_event_message.job_id := job_report.job.uid;
-_event_message.job_namespace := job_report.job.namespace;
+_event_message.job_id := job_info.job.uid;
+_event_message.job_namespace := job_info.job.namespace;
 _event_message.num_of_job := num_of_jobs;
-_event_message.new_state := TO_STRING(job_report.new_state);
-_event_message.old_state := TO_STRING(job_report.last_state);
-_event_message.record_time := job_report.record_time;
-_event_message.subject := job_report.job.future.future_name;
+_event_message.new_state := TO_STRING(job_info.new_state);
+_event_message.old_state := TO_STRING(job_info.last_state);
+_event_message.record_time := job_info.record_time;
+_event_message.subject := job_info.job.future.future_name;
 queue.put(_event_message);
 notify := TRUE;]]></ST>
       </Implementation>

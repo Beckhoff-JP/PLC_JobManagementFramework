@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.12">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FutureTimerBlinkCreator" Id="{00c322af-7185-4704-ac60-e866f729070a}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK FutureTimerBlinkCreator IMPLEMENTS InterfaceTaskCreator
+    <Declaration><![CDATA[FUNCTION_BLOCK FutureTimerBlinkCreator IMPLEMENTS I_TaskCreator
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -17,7 +17,7 @@ END_VAR
     </Implementation>
     <Method Name="create_future" Id="{c5f621b6-790c-46bd-9a64-81cacb02a61b}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : InterfaceFuture
+METHOD create_future : I_Future
 VAR_INPUT
 	future_name	: STRING;
 END_VAR
@@ -34,9 +34,9 @@ create_future := _p_future^;]]></ST>
     </Method>
     <Method Name="destroy_future" Id="{5877055a-7212-48f8-b84d-84493e758d01}">
       <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : InterfaceFuture
+METHOD destroy_future : I_Future
 VAR_INPUT
-	future	: InterfaceFuture;
+	future	: I_Future;
 END_VAR
 VAR
 	_p_future : POINTER TO FutureTimerBlink;
@@ -74,25 +74,5 @@ _output REF= output;
 ]]></ST>
       </Implementation>
     </Method>
-    <LineIds Name="FutureTimerBlinkCreator">
-      <LineId Id="9" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlinkCreator.create_future">
-      <LineId Id="8" Count="1" />
-      <LineId Id="11" Count="0" />
-      <LineId Id="21" Count="0" />
-      <LineId Id="7" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlinkCreator.destroy_future">
-      <LineId Id="24" Count="5" />
-      <LineId Id="7" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlinkCreator.set_options">
-      <LineId Id="5" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureTimerBlinkCreator.set_parameter">
-      <LineId Id="9" Count="1" />
-      <LineId Id="5" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>

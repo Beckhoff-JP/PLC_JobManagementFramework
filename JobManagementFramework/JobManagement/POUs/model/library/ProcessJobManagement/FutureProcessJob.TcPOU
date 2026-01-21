@@ -1,16 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4024.15">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FutureProcessJob" Id="{1a36e9e9-ab13-4441-b361-f9d5d764096a}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
-FUNCTION_BLOCK FutureProcessJob EXTENDS FB_AbstructFuture
+FUNCTION_BLOCK ABSTRACT FutureProcessJob EXTENDS FB_AbstructFuture IMPLEMENTS I_Observer
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
-	_error_id 				:HRESULT;
 	_selected_future_name 	: STRING;
 	_asset					: I_Asset;
+	_process_job_name		: T_MaxString;
+	_start_trigger_job_id	: T_MaxString;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -44,6 +45,9 @@ END_VAR
 	RETURN;
 END_IF
 
+_asset.select_process_job(_process_job_name);
+_asset.set_parameters();
+_asset.process_job_start();
 ]]></ST>
       </Implementation>
     </Method>
@@ -51,43 +55,57 @@ END_IF
       <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[ IF fbXtsEnvironment.Init(TRUE) THEN
-	  fbXtsEnvironment.Init(FALSE);
-	  init:=TRUE;
- END_IF
+        <ST><![CDATA[IF _asset = 0 THEN
+	_error_id := -1;
+	RETURN;
+END_IF
+
+IF _asset.set_parameters() THEN
+	init := TRUE;
+END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="nErrorID" Id="{8523fb2d-f1e7-45d6-b5c4-ed468830d2f4}">
-      <Declaration><![CDATA[PROPERTY nErrorID : UDINT]]></Declaration>
-      <Get Name="Get" Id="{9365096f-9658-4fae-a12f-6d907d68fce5}">
+    <Method Name="notify" Id="{314a7d2b-c7ef-495b-ac65-c73439239b8b}">
+      <Declaration><![CDATA[METHOD notify : BOOL
+VAR_INPUT
+	publisher	: I_Observable;
+END_VAR
+VAR_INST
+	fb_timezone_info : FB_GetTimeZoneInformation := (bExecute := TRUE);
+	text : T_MaxString;
+END_VAR
+VAR
+	job_info : I_JobInfo;
+	container : I_Container;
+END_VAR]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF NOT __QUERYINTERFACE(publisher, job_info) THEN
+	RETURN;
+END_IF
+
+IF 
+_asset.selected_process_job.start();]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="process_job_name" Id="{7d84888d-8d41-4115-9b95-b52a582ecdf1}">
+      <Declaration><![CDATA[PROPERTY process_job_name : T_MaxString]]></Declaration>
+      <Get Name="Get" Id="{23d97b10-3316-43fb-b197-ded4fe8442d1}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
         <Implementation>
-          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+          <ST><![CDATA[]]></ST>
         </Implementation>
       </Get>
+      <Set Name="Set" Id="{c7b02d43-d647-4f73-9553-ebc04b51e0f7}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[]]></ST>
+        </Implementation>
+      </Set>
     </Property>
-    <LineIds Name="FutureProcessJob">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureProcessJob.asset.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureProcessJob.asset.Set">
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureProcessJob.execute">
-      <LineId Id="3" Count="4" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureProcessJob.init">
-      <LineId Id="3" Count="3" />
-      <LineId Id="2" Count="0" />
-    </LineIds>
-    <LineIds Name="FutureProcessJob.nErrorID.Get">
-      <LineId Id="2" Count="0" />
-    </LineIds>
   </POU>
 </TcPlcObject>
