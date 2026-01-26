@@ -191,7 +191,7 @@ IF driver = 0 THEN
 	RETURN;
 END_IF
 _driver := driver;
-_driver.append_job(_batch_job);]]></ST>
+_batch_job := _driver.append_job(_batch_job);]]></ST>
       </Implementation>
     </Method>
     <Property Name="iter_process_jobs" Id="{b94bd61e-9e02-46f0-bbcc-25c594961268}">
@@ -228,7 +228,7 @@ END_IF
 	_error_id := -1;
 	RETURN;
 END_IF
-_batch_job.children.append_job(_selected_process_job);
+_selected_process_job := _batch_job.children.append_job(_selected_process_job);
 _error_id := S_OK;
 process_job_start := TRUE;
 ]]></ST>

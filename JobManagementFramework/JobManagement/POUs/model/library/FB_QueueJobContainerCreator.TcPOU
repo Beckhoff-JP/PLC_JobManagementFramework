@@ -14,8 +14,7 @@ END_VAR
 ]]></ST>
     </Implementation>
     <Method Name="create_future" Id="{bac6e106-0b4e-45d4-8918-c7e9f3ec886e}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD create_future : I_Future
+      <Declaration><![CDATA[METHOD create_future : I_Future
 VAR_INPUT
 	future_name	: STRING;
 END_VAR
@@ -29,8 +28,7 @@ create_future := _p_future^;]]></ST>
       </Implementation>
     </Method>
     <Method Name="destroy_future" Id="{fe84d8ae-214c-473c-b48f-e5e0453688cb}">
-      <Declaration><![CDATA[{warning 'add method implementation '}
-METHOD destroy_future : I_Future
+      <Declaration><![CDATA[METHOD destroy_future : I_Future
 VAR_INPUT
 	future	: I_Future;
 END_VAR

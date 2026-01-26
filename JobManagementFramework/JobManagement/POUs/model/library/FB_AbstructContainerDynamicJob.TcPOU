@@ -1,25 +1,30 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
-  <POU Name="FB_AbstructContainer" Id="{46d2dd9f-d184-4cfa-9aff-69a59f15f058}" SpecialFunc="None">
-    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructContainer EXTENDS FB_AbstructFuture IMPLEMENTS I_Container
+  <POU Name="FB_AbstructContainerDynamicJob" Id="{b670b0ef-80fd-4471-bcf6-273d9d0112e2}" SpecialFunc="None">
+    <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructContainerDynamicJob IMPLEMENTS I_Future, I_Container
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
 END_VAR
 VAR
+	_executor : I_Job;
+	{attribute 'TcEncoding':='UTF-8'}
+	_name 	: STRING := 'BATCH JOB';
 	_executors : ARRAY [1..ParamFuturesLib.MAX_TASK_NUM] OF I_Job;
 	_start :BOOL;
 	_auto_start : BOOL := TRUE;
 	_abort : BOOL;
 	_num_of_jobs: UDINT;
 	_continuous_mode : BOOL;
+	_error_id :HRESULT;
+	_state :E_FutureExecutionState;
 	_job_event_reporter : I_JobInfo;
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
-    <Method Name="_append_job" Id="{315df683-52d1-4e5d-86b1-6ab553e8e166}">
+    <Method Name="_append_job" Id="{d4d7e6e3-b98b-4b63-9ff1-5d7eecbfe649}">
       <Declaration><![CDATA[METHOD PROTECTED _append_job : BOOL
 VAR_INPUT
 	executor	: I_Job;
@@ -29,7 +34,7 @@ END_VAR
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
-    <Method Name="_index_generator_" Id="{0b7627ee-07d1-41a3-a3fd-74c088c2456f}">
+    <Method Name="_index_generator_" Id="{db255ff0-959a-4e60-aa5a-e2c61cb1e8de}">
       <Declaration><![CDATA[(* This is the generator that iteratively generates references to FB_executor instances*)
 METHOD _index_generator_ : UINT
 VAR_INST
@@ -44,30 +49,29 @@ _index_generator_ := _index;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="abort" Id="{23665256-0f2f-44c3-be2f-ee678ea49cf6}">
+    <Method Name="abort" Id="{f45b039d-c15f-4eae-8016-a9f5a458d8d3}">
       <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[]]></ST>
       </Implementation>
     </Method>
-    <Method Name="append_job" Id="{0a19466a-05de-4dc5-9d2f-632032e1c8b9}">
-      <Declaration><![CDATA[METHOD append_job : I_Job
+    <Method Name="append_job" Id="{cb2a0d16-d4ad-452d-8f0f-aa58703f0d60}">
+      <Declaration><![CDATA[METHOD append_job : BOOL
 VAR_INPUT
 	executor	: I_Job;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[executor.persistent_job := TRUE;
-THIS^._append_job(executor);
-append_job := executor;]]></ST>
+THIS^._append_job(executor);]]></ST>
       </Implementation>
     </Method>
-    <Property Name="auto_start" Id="{f841be87-7a96-47cf-9cba-0bbcca93df8a}">
+    <Property Name="auto_start" Id="{a4d668e2-2876-4149-82f4-6184faf6aa75}">
       <Declaration><![CDATA[{warning 'Add property implementation'}
 PROPERTY auto_start : BOOL
 ]]></Declaration>
-      <Get Name="Get" Id="{d8b84932-c4d3-483e-8248-028427da2f13}">
+      <Get Name="Get" Id="{8a55e905-c1ad-4870-a63a-fbd6945dc10b}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
@@ -75,7 +79,7 @@ END_VAR
           <ST><![CDATA[auto_start := _auto_start;]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{0124f128-7875-4c8d-b9a7-bd0d51756c12}">
+      <Set Name="Set" Id="{7678fa7d-ae92-4fc5-bc1d-66bf25141c88}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
@@ -84,10 +88,10 @@ END_VAR
         </Implementation>
       </Set>
     </Property>
-    <Property Name="continuous_mode" Id="{3a1353f8-fa48-4a3b-b301-66f41b3b7d2d}">
+    <Property Name="continuous_mode" Id="{3c2e5149-af3c-4d7a-a5d6-b5f93fde7ff0}">
       <Declaration><![CDATA[PROPERTY continuous_mode : BOOL
 ]]></Declaration>
-      <Set Name="Set" Id="{815a2f7d-2b27-44c6-8840-db690ef90089}">
+      <Set Name="Set" Id="{15e7a70f-2a85-4994-83b2-d2334b8070fc}">
         <Declaration><![CDATA[VAR
 	_executor : I_Job;
 END_VAR
@@ -106,7 +110,7 @@ END_REPEAT
         </Implementation>
       </Set>
     </Property>
-    <Method Name="create_container" Id="{7216e074-e567-4ea0-8a8c-8dd59265c004}">
+    <Method Name="create_container" Id="{dfd7dce2-6d2c-4ad3-b58b-28fc111968f3}">
       <Declaration><![CDATA[METHOD create_container : I_Job
 VAR_INPUT
 	container_type	: ContainerType;
@@ -127,7 +131,7 @@ END_CASE
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="create_job" Id="{21724226-f623-4c15-a6ab-72a64d79a6ba}">
+    <Method Name="create_job" Id="{6e2d3e38-0c5d-46f5-b4f8-ee01bcd4f24d}">
       <Declaration><![CDATA[METHOD create_job : I_Job
 VAR_INPUT
 	creator	: I_TaskCreator;
@@ -140,7 +144,6 @@ END_VAR]]></Declaration>
         <ST><![CDATA[IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	future := creator.create_future(future_name);
 	create_job := THIS^.spawn_job(future);
-	create_job.persistent_job := FALSE;
 	IF create_job <> 0 THEN
 		create_job.future_creator := creator;
 	ELSE
@@ -150,10 +153,10 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="each_executor" Id="{8453469b-ea46-4491-b954-4ed28a7a542c}">
+    <Property Name="each_executor" Id="{3dcd0647-7122-40e7-96be-29746514bf0d}">
       <Declaration><![CDATA[PROPERTY each_executor : I_Job
 ]]></Declaration>
-      <Get Name="Get" Id="{49e3e8d4-cf33-4142-90c3-c2fc47108f60}">
+      <Get Name="Get" Id="{1b542c98-0d01-48d6-bb16-6a442ffc0e43}">
         <Declaration><![CDATA[VAR
 	_index : UINT;
 END_VAR
@@ -175,7 +178,7 @@ END_IF
         </Implementation>
       </Get>
     </Property>
-    <Method Name="error_reset" Id="{f07bf105-b4dd-40f2-a358-122c05ce0eca}">
+    <Method Name="error_reset" Id="{103e8728-adc1-4801-ac51-6d8bf2e3e385}">
       <Declaration><![CDATA[METHOD error_reset : BOOL
 VAR
 	_executor : I_Job;
@@ -199,7 +202,56 @@ END_IF
 error_reset := complete;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="init" Id="{8b026f10-89d6-40c5-a4e1-421de953942d}">
+    <Method Name="execute" Id="{e6ad1c69-a35c-402b-b841-0ed974c585de}">
+      <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
+
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[]]></ST>
+      </Implementation>
+    </Method>
+    <Property Name="executor" Id="{3b8baf7d-561a-4d10-8efb-1ae3d62c407a}">
+      <Declaration><![CDATA[PROPERTY executor : I_Job
+]]></Declaration>
+      <Get Name="Get" Id="{738c4369-32ff-4055-b220-d86316d09cb8}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[executor := _executor;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{efb40c42-376b-4ea8-aed4-6fe4a1d53cef}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_executor := executor;
+]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Property Name="future_name" Id="{5f975bd9-62df-4754-bbc5-1459be061c94}">
+      <Declaration><![CDATA[PROPERTY future_name : STRING// Name of future.
+]]></Declaration>
+      <Get Name="Get" Id="{b4751c18-e95f-4c58-b987-0c5e90fe80e3}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[future_name := _name;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{66b13ece-63e1-449e-aaff-d26bdd78023d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_name := future_name;]]></ST>
+        </Implementation>
+      </Set>
+    </Property>
+    <Method Name="init" Id="{12b7c49c-e051-46ee-b3a8-dbe1f20bf366}">
       <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
 VAR
 	_each_executor : i_Job;
@@ -222,9 +274,21 @@ _error_id := 0;
 init := _init_done;]]></ST>
       </Implementation>
     </Method>
-    <Property Name="num_of_jobs" Id="{67188b4f-1a89-4b9f-b67d-5081688517b7}">
+    <Property Name="nErrorID" Id="{d16d58c9-b0d2-4458-8e73-64e35e480136}">
+      <Declaration><![CDATA[PROPERTY nErrorID : HRESULT
+]]></Declaration>
+      <Get Name="Get" Id="{13532608-6057-4343-9e7a-e7fddd1ab8ef}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[nErrorID := _error_id;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
+    <Property Name="num_of_jobs" Id="{29f71da5-b307-4261-85b8-e456a260849a}">
       <Declaration><![CDATA[PROPERTY num_of_jobs : UDINT]]></Declaration>
-      <Get Name="Get" Id="{ab866391-1024-4dc6-8119-247b033456f6}">
+      <Get Name="Get" Id="{d733b605-14a6-450b-96a0-439bb558ddef}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
@@ -233,7 +297,14 @@ END_VAR
         </Implementation>
       </Get>
     </Property>
-    <Method Name="reset" Id="{8f009588-0c4c-4f1d-af0d-5fccbdecc225}">
+    <Method Name="quit" Id="{01690ddf-2fd1-42a0-b9cb-c5e873bd91b2}">
+      <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[quit := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="reset" Id="{72ea1b7b-30d6-40f9-87bd-bc754c843ab3}">
       <Declaration><![CDATA[METHOD reset : BOOL // Return TRUE if finish.
 VAR_INPUT
 	deep : BOOL := FALSE;
@@ -251,10 +322,10 @@ REPEAT
 	IF _num_of_jobs > _delete_counter AND i > 0 THEN
 		IF _executors[i] <> 0 THEN
 			IF _executors[i].reset(deep) THEN
-				IF __QUERYPOINTER(_executors[i],_p_executor) THEN
-					__DELETE(_p_executor);
-				ELSE
+				IF _executors[i].persistent_job THEN
 					_executors[i] := 0;
+				ELSIF __QUERYPOINTER(_executors[i],_p_executor) THEN
+					__DELETE(_p_executor);
 				END_IF
 				_delete_counter := _delete_counter + 1;
 			END_IF
@@ -268,7 +339,7 @@ reset := _num_of_jobs = 0;
 ]]></ST>
       </Implementation>
     </Method>
-    <Method Name="resume" Id="{70ea49d5-1b0f-4247-9f85-25d56c070d0b}">
+    <Method Name="resume" Id="{cc30cf46-7981-43e6-8b94-9b85af441cf3}">
       <Declaration><![CDATA[METHOD resume : BOOL
 VAR
 	_all_done : BOOL;
@@ -291,20 +362,20 @@ END_REPEAT
 resume := _all_done;]]></ST>
       </Implementation>
     </Method>
-    <Method Name="spawn_job" Id="{851bbe10-8432-4972-a365-3ae0b2c9678a}">
+    <Method Name="spawn_job" Id="{638bf563-4ad7-49bb-b39c-ac9d7646466f}">
       <Declaration><![CDATA[METHOD spawn_job : I_Job
 VAR_INPUT
 	future : I_Future;
-	job_persistence : BOOL := FALSE;
 END_VAR
 VAR
 	_spawned_executor : POINTER TO FB_Executor;
-END_VAR]]></Declaration>
+END_VAR
+]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF future <> 0 THEN
 	_spawned_executor := __NEW(FB_Executor);
 	_spawned_executor^.future := future;
-	_spawned_executor^.persistent_job := job_persistence;
+	_spawned_executor^.persistent_job := FALSE;
 	_append_job(_spawned_executor^);
 	spawn_job := _spawned_executor^;
 ELSE
@@ -313,10 +384,10 @@ END_IF
 ]]></ST>
       </Implementation>
     </Method>
-    <Property Name="state" Id="{0787333d-d78b-47c5-ae65-96c128c18d53}">
+    <Property Name="state" Id="{7e6bca75-e6e9-43a5-96e4-74eefdde8672}">
       <Declaration><![CDATA[PROPERTY state : E_FutureExecutionState
 ]]></Declaration>
-      <Get Name="Get" Id="{57b84c55-b41a-4b81-9343-8cda5eb0e5d2}">
+      <Get Name="Get" Id="{9bca2c78-9788-4055-8249-802a71c99c79}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>
@@ -325,7 +396,7 @@ END_VAR
 ]]></ST>
         </Implementation>
       </Get>
-      <Set Name="Set" Id="{eddff30a-e2d0-43a8-a3c6-2e3626040266}">
+      <Set Name="Set" Id="{98b60d06-5786-47e1-879d-b914f0519e29}">
         <Declaration><![CDATA[VAR
 END_VAR
 ]]></Declaration>

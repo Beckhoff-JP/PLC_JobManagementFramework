@@ -11,7 +11,7 @@ END_VAR
 ]]></Declaration>
     </Method>
     <Method Name="append_job" Id="{3242dd7f-8422-475c-9ef2-fac3e07fa8b2}">
-      <Declaration><![CDATA[METHOD append_job : BOOL
+      <Declaration><![CDATA[METHOD append_job : I_Job
 VAR_INPUT
 	executor	: I_Job;
 END_VAR
@@ -77,6 +77,7 @@ END_VAR
       <Declaration><![CDATA[METHOD spawn_job : I_Job
 VAR_INPUT
 	future : I_Future;
+	job_persistence : BOOL := FALSE;
 END_VAR
 ]]></Declaration>
     </Method>

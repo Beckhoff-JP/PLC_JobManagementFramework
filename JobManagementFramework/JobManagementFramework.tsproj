@@ -1441,14 +1441,24 @@ External Setpoint Generation:
 				<Elements>14</Elements>
 			</ArrayInfo>
 		</DataType>
+		<DataType>
+			<Name GUID="{18071995-0000-0000-0000-002000000008}" IecBaseType="true" AutoDeleteType="true" HideSubItems="true">ARRAY [0..0] OF BYTE</Name>
+			<BitSize>8</BitSize>
+			<BaseType GUID="{18071995-0000-0000-0000-000000000001}">BYTE</BaseType>
+			<ArrayInfo>
+				<LBound>0</LBound>
+				<Elements>1</Elements>
+			</ArrayInfo>
+		</DataType>
 	</DataTypes>
 	<ImageDatas>
 		<ImageData Id="1000">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000bfff00bfffc0c0c0808080c0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
 		<ImageData Id="1001">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000120b0000120b00000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ff808080808080808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c000ffffc0c0c000ffff808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0ff0000c0c0c0ff0000808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff0000ff0000ff0000ff0000ff0000ff0000ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff0000ff0000ff0000ff0000ff0000ff0000ffc0c0c00000ffc0c0c00000ff808080ff00ffff00ffff00ffff00ffff00ff0000ff0000ff0000ff0000ff0000ff0000ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff0000ff0000ff0000ff0000ff0000ff0000ffc0c0c0000000c0c0c0000000808080ff00ffff00ffff00ffff00ffff00ff0000ff0000ff0000ff0000ff0000ff0000ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff0000ff0000ff0000ff0000ff0000ff0000ffc0c0c0008000c0c0c0008000808080ff00ffff00ffff00ffff00ffff00ff0000ff0000ff0000ff0000ff0000ff0000ffc0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ff</ImageData>
 		<ImageData Id="1002">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffff00ffff00ffff00ff808080808080808080808080808080808080808080808080808080808080808080808080ff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0000000c0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffc0c0c0c0c0c0000000000000000000000000000000000000000000c0c0c0c0c0c0808080007fff007fff007fff007fffc0c0c0c0c0c00000000000000000000000000000000000000000000000ffc0c0c0808080007fff007fff007fff007fffc0c0c0c0c0c0000000000000000000000000000000000000000000c0c0c0c0c0c0808080007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0000000c0c0c0c0c0c0000000c0c0c0c0c0c0808080007fff007fff007fff007fffc0c0c0c0c0c0000000000000000000000000c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0808080007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0808080007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0808080007fff007fff007fff007fffc0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0c0808080</ImageData>
 		<ImageData Id="1003">424dd6020000000000003600000028000000100000000e0000000100180000000000a0020000c40e0000c40e00000000000000000000ff00ffff00ffff00ffff00ffff00ffff00ff808080808080808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffff00ffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff007fff007fff007fff007fff007fff007fffc0c0c0c0c0c0808080ff00ffff00ffff00ffff00ffff00ffff00ffff00ff</ImageData>
+		<ImageData Id="1004">424d16050000000000003604000028000000100000000e0000000100080000000000e0000000c40e0000c40e0000000000000000000000000000000080000080000000808000800000008000800080800000c0c0c000c0dcc000f0caa6000020400000206000002080000020a0000020c0000020e00000400000004020000040400000406000004080000040a0000040c0000040e00000600000006020000060400000606000006080000060a0000060c0000060e00000800000008020000080400000806000008080000080a0000080c0000080e00000a0000000a0200000a0400000a0600000a0800000a0a00000a0c00000a0e00000c0000000c0200000c0400000c0600000c0800000c0a00000c0c00000c0e00000e0000000e0200000e0400000e0600000e0800000e0a00000e0c00000e0e00040000000400020004000400040006000400080004000a0004000c0004000e00040200000402020004020400040206000402080004020a0004020c0004020e00040400000404020004040400040406000404080004040a0004040c0004040e00040600000406020004060400040606000406080004060a0004060c0004060e00040800000408020004080400040806000408080004080a0004080c0004080e00040a0000040a0200040a0400040a0600040a0800040a0a00040a0c00040a0e00040c0000040c0200040c0400040c0600040c0800040c0a00040c0c00040c0e00040e0000040e0200040e0400040e0600040e0800040e0a00040e0c00040e0e00080000000800020008000400080006000800080008000a0008000c0008000e00080200000802020008020400080206000802080008020a0008020c0008020e00080400000804020008040400080406000804080008040a0008040c0008040e00080600000806020008060400080606000806080008060a0008060c0008060e00080800000808020008080400080806000808080008080a0008080c0008080e00080a0000080a0200080a0400080a0600080a0800080a0a00080a0c00080a0e00080c0000080c0200080c0400080c0600080c0800080c0a00080c0c00080c0e00080e0000080e0200080e0400080e0600080e0800080e0a00080e0c00080e0e000c0000000c0002000c0004000c0006000c0008000c000a000c000c000c000e000c0200000c0202000c0204000c0206000c0208000c020a000c020c000c020e000c0400000c0402000c0404000c0406000c0408000c040a000c040c000c040e000c0600000c0602000c0604000c0606000c0608000c060a000c060c000c060e000c0800000c0802000c0804000c0806000c0808000c080a000c080c000c080e000c0a00000c0a02000c0a04000c0a06000c0a08000c0a0a000c0a0c000c0a0e000c0c00000c0c02000c0c04000c0c06000c0c08000c0c0a000f0fbff00a4a0a000808080000000ff0000ff000000ffff00ff000000ff00ff00ffff0000ffffff00ffffffed0708f7ffffffffffffffffffff5ba4adf6f6b6b6b6adffffffffffffff9ba4adf6f6b6b6b6b6b6b6aea4ffff07f79bf6f652b6b6b6b6b6b6b6b6ffff07f75bf6f652b6b6b6b6b6b6b6b6ffffffa45bf6f6f6b6b6b6b6b6b6b6b6ffffffa45bf6f6f6b6b6b6b6b6b6b6b6ffffffa45bf6f607b6b6b6b6b6b6b6b6fffffffff6f6f6f7b6b6b6b6b6b6b6b6fffffffff6f6f6f6b6b6b6b6b6b6b6b6fffffffff65a4159b6b6b6b6b6b6b6b6fffffffff6f6f6f6f6f607b6b6b6b6b6fffffffffffffff60707f6f607b6f6f6fffffffffffffffffffffff607f508ffffff</ImageData>
 	</ImageDatas>
-	<Project ProjectGUID="{58F13914-585B-43B7-BEB4-87C45D7400FF}" TargetNetId="15.15.15.15.1.1" Target64Bit="true" AutoPrioManagement="true" ShowHideConfigurations="#x6">
+	<Project ProjectGUID="{58F13914-585B-43B7-BEB4-87C45D7400FF}" TargetNetId="199.4.42.250.1.1" Target64Bit="true" AutoPrioManagement="true" ShowHideConfigurations="#x6">
 		<System>
 			<Settings MaxCpus="64" NonWinCpus="62" RouterMemory="67108864">
 				<Cpu/>
@@ -1624,7 +1634,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{14A16199-AC25-482B-A6DB-DF484965E4FB}" Name="JobManagement" PrjFilePath="JobManagement\JobManagement.plcproj" TmcFilePath="JobManagement\JobManagement.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{7CF9B3AD-E8AD-8F8B-FFA3-D4DC8315CD97}" TmcPath="JobManagement\JobManagement.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{8FEA0551-AD5B-B8D4-C515-F2A64FB4A87C}" TmcPath="JobManagement\JobManagement.tmc">
 					<Name>JobManagement Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="2" AreaNo="1">
@@ -1670,7 +1680,7 @@ External Setpoint Generation:
 			<PlcAuxTask Affinity="#x00000001"/>
 		</Plc>
 		<Io>
-			<Device Id="1" Disabled="true" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="15.15.15.15.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="3">
+			<Device Id="1" Disabled="true" DevType="111" DevFlags="#x0003" AmsPort="28673" AmsNetId="199.4.42.250.2.1" RemoteName="Device 1 (EtherCAT)" InfoImageId="3">
 				<Name>Device 1 (EtherCAT)</Name>
 				<AddressInfo>
 					<Pnp>
@@ -1901,6 +1911,238 @@ Bit 8 - 15 : reserved]]></Comment>
 						<EtherCAT CycleMBoxPollingTime="0" VendorId="#x00000002" ProductCode="#x23333050" InfoDataState="false" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="EL9011 End Terminal" Desc="EL9011" PortABoxInfo="#x01000003"/>
 					</Box>
 				</Box>
+				<Box Id="5" BoxType="9099" BoxFlags="#x00000020">
+					<Name>Drive 5 (SGDXW-xxxxA0xxxxx70 CoE Drive)</Name>
+					<ImageId>1004</ImageId>
+					<EtherCAT SlaveType="2" PdiType="#x0c8d" MboxDataLinkLayer="true" StateMBoxPolling="true" CfgModeSafeOp="true" CycleMBoxPollingTime="0" CoeType="45" EoeType="1" FoeType="1" VendorId="#x00000539" ProductCode="#x02200902" RevisionNo="#x0108f702" InfoDataAddr="true" InfoDataSoeDS401="true" InfoDataDcTimes="true" TimeoutMailbox1="5000" TimeoutMailbox2="10000" PortPhys="17" IdentificationAdo="308" MaxSlotCount="256" MaxSlotGroupCount="1" SlotPdoIncrement="1" SlotIndexIncrement="16" Type="SGDXW-xxxxA0xxxxx70 EtherCAT(CoE) SERVOPACK Rev01.08" Desc="SGDXW-xxxxA0xxxxx70 CoE Drive" PortABoxInfo="#x02000001">
+						<SyncMan>001080002600010001000000800080008000001026010000</SyncMan>
+						<SyncMan>801080002200010002000000800080008000801022010000</SyncMan>
+						<SyncMan>00110c007400010003000000000000000c00001174010000</SyncMan>
+						<SyncMan>00140c003000010004000000000000000c00001430010000</SyncMan>
+						<Fmmu>0000000000000000000000020000000001000000000000000000000000000000</Fmmu>
+						<Fmmu>0000000000000000000000010000000002000000000000000000000000000000</Fmmu>
+						<Fmmu>00000000000000000d0800010100000003000000000000000000000000000000</Fmmu>
+						<SwitchPortData>00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000</SwitchPortData>
+						<BootStrapData>0010800000118000</BootStrapData>
+						<DcData>00030000000000000000000000000000010000000000feff0000000000000000</DcData>
+						<DcMode>44432053796e63300000000000000000444320666f722073796e6368726f6e697a6174696f6e0000000000000000000000000000000000000000000000000003010000000000feff000000000000000000000000000000000000000000000000</DcMode>
+						<DcMode>467265652d72756e0000000000000000444320756e757365640000000000000000000000000000000000000000000000000000000000000000000000000000000100000000000000000000000000000000000000000000000000000000000000</DcMode>
+						<MBoxUserCmdData>02000300090000000700000003000000000000000000000000000000000000002060600001000000084f70206d6f646500</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000900000019000000030000000000000000000000000000000000000020c260010100000001496e746572706f6c6174696f6e2074696d6520706572696f6400</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000900000018000000030000000000000000000000000000000000000020c2600201000000fd496e746572706f6c6174696f6e2074696d6520696e64657800</MBoxUserCmdData>
+						<MBoxUserCmdData>02000300090000000700000003000000000000000000000000000000000000002060680001000000084f70206d6f646500</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000900000019000000030000000000000000000000000000000000000020c268010100000001496e746572706f6c6174696f6e2074696d6520706572696f6400</MBoxUserCmdData>
+						<MBoxUserCmdData>020003000900000018000000030000000000000000000000000000000000000020c2680201000000fd496e746572706f6c6174696f6e2074696d6520696e64657800</MBoxUserCmdData>
+						<Pdo Name="1st Transmit PDO mapping - Ch.A" Index="#x1a00" Flags="#x0000">
+							<Entry Name="Status word" Index="#x6041">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Position actual value" Index="#x6064">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Torque actual value" Index="#x6077">
+								<Type>INT</Type>
+							</Entry>
+							<Entry Name="Following error actual value" Index="#x60f4">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Modes of operation display" Index="#x6061">
+								<Type>SINT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-002000000008}">ARRAY [0..0] OF BYTE</Type>
+							</Entry>
+							<Entry Name="Touch probe status" Index="#x60b9">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Touch probe 1 position value" Index="#x60ba">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="2nd Transmit PDO mapping - Ch.A" Index="#x1a01" Flags="#x0000" SyncMan="3">
+							<Entry Name="Status word" Index="#x6041">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Position actual value" Index="#x6064">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="3rd Transmit PDO mapping - Ch.A" Index="#x1a02" Flags="#x0000">
+							<Entry Name="Status word" Index="#x6041">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Position actual value" Index="#x6064">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="4th Transmit PDO mapping - Ch.A" Index="#x1a03" Flags="#x0000">
+							<Entry Name="Status word" Index="#x6041">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Position actual value" Index="#x6064">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Torque actual value" Index="#x6077">
+								<Type>INT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="1st Transmit PDO mapping - Ch.B" Index="#x1a10" Flags="#x0000">
+							<Entry Name="Status word" Index="#x6841">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Position actual value" Index="#x6864">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Torque actual value" Index="#x6877">
+								<Type>INT</Type>
+							</Entry>
+							<Entry Name="Following error actual value" Index="#x68f4">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Modes of operation display" Index="#x6861">
+								<Type>SINT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-002000000008}">ARRAY [0..0] OF BYTE</Type>
+							</Entry>
+							<Entry Name="Touch probe status" Index="#x68b9">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Touch probe 1 position value" Index="#x68ba">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="2nd Transmit PDO mapping - Ch.B" Index="#x1a11" Flags="#x0000" SyncMan="3">
+							<Entry Name="Status word" Index="#x6841">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Position actual value" Index="#x6864">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="3rd Transmit PDO mapping - Ch.B" Index="#x1a12" Flags="#x0000">
+							<Entry Name="Status word" Index="#x6841">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Position actual value" Index="#x6864">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="4th Transmit PDO mapping - Ch.B" Index="#x1a13" Flags="#x0000">
+							<Entry Name="Status word" Index="#x6841">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Position actual value" Index="#x6864">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Torque actual value" Index="#x6877">
+								<Type>INT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="1st Receive PDO mapping - Ch.A" Index="#x1600" InOut="1" Flags="#x0000">
+							<Entry Name="Control word" Index="#x6040">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Target position" Index="#x607a">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Target velocity" Index="#x60ff">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Target torque" Index="#x6071">
+								<Type>INT</Type>
+							</Entry>
+							<Entry Name="Max torque" Index="#x6072">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Modes of operation" Index="#x6060">
+								<Type>SINT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-002000000008}">ARRAY [0..0] OF BYTE</Type>
+							</Entry>
+							<Entry Name="Touch probe function" Index="#x60b8">
+								<Type>UINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="2nd Receive PDO mapping - Ch.A" Index="#x1601" InOut="1" Flags="#x0000" SyncMan="2">
+							<Entry Name="Control word" Index="#x6040">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Target position" Index="#x607a">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="3rd Receive PDO mapping - Ch.A" Index="#x1602" InOut="1" Flags="#x0000">
+							<Entry Name="Control word" Index="#x6040">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Target velocity" Index="#x60ff">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="4th Receive PDO mapping - Ch.A" Index="#x1603" InOut="1" Flags="#x0000">
+							<Entry Name="Control word" Index="#x6040">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Target torque" Index="#x6071">
+								<Type>INT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="1st Receive PDO mapping - Ch.B" Index="#x1610" InOut="1" Flags="#x0000">
+							<Entry Name="Control word" Index="#x6840">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Target position" Index="#x687a">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Target velocity" Index="#x68ff">
+								<Type>DINT</Type>
+							</Entry>
+							<Entry Name="Target torque" Index="#x6871">
+								<Type>INT</Type>
+							</Entry>
+							<Entry Name="Max torque" Index="#x6872">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Modes of operation" Index="#x6860">
+								<Type>SINT</Type>
+							</Entry>
+							<Entry>
+								<Type GUID="{18071995-0000-0000-0000-002000000008}">ARRAY [0..0] OF BYTE</Type>
+							</Entry>
+							<Entry Name="Touch probe function" Index="#x68b8">
+								<Type>UINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="2nd Receive PDO mapping - Ch.B" Index="#x1611" InOut="1" Flags="#x0000" SyncMan="2">
+							<Entry Name="Control word" Index="#x6840">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Target position" Index="#x687a">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="3rd Receive PDO mapping - Ch.B" Index="#x1612" InOut="1" Flags="#x0000">
+							<Entry Name="Control word" Index="#x6840">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Target velocity" Index="#x68ff">
+								<Type>DINT</Type>
+							</Entry>
+						</Pdo>
+						<Pdo Name="4th Receive PDO mapping - Ch.B" Index="#x1613" InOut="1" Flags="#x0000">
+							<Entry Name="Control word" Index="#x6840">
+								<Type>UINT</Type>
+							</Entry>
+							<Entry Name="Target torque" Index="#x6871">
+								<Type>INT</Type>
+							</Entry>
+						</Pdo>
+						<CoeProfile ProfileNo="402"/>
+						<CoeProfile ProfileNo="402"/>
+					</EtherCAT>
+				</Box>
 				<EtherCAT DcSyncMode="3"/>
 			</Device>
 		</Io>
@@ -1908,16 +2150,16 @@ Bit 8 - 15 : reserved]]></Comment>
 	<Mappings>
 		<MappingInfo Identifier="{05000010-2003-0850-1000-040300205008}" Id="#x02030010" Watchdog="28000000040000000400000004000000"/>
 		<OwnerA Name="TINC^NC-Task 1 SAF^Axes^Axis 1">
-			<OwnerB Name="TIID^Device 1 (EtherCAT)^Term 1 (EK1100)^Drive 3 (EL7201-9015)">
+			<OwnerB Name="TIID^Device 1 (EtherCAT)^Drive 5 (SGDXW-xxxxA0xxxxx70 CoE Drive)">
 				<Link VarA="Drive^Inputs^In^nDcOutputTime" VarB="InfoData^DcOutputShift"/>
-				<Link VarA="Drive^Inputs^In^nState1" VarB="DS402 Statusword^Statusword"/>
-				<Link VarA="Drive^Inputs^In^nState2" VarB="DS402 Statusword^Statusword" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Inputs^In^nState1" VarB="2nd Transmit PDO mapping - Ch.B^Status word"/>
+				<Link VarA="Drive^Inputs^In^nState2" VarB="2nd Transmit PDO mapping - Ch.B^Status word" Size="8" OffsB="8"/>
 				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
 				<Link VarA="Drive^Inputs^In^nState4" VarB="WcState^WcState"/>
-				<Link VarA="Drive^Outputs^Out^nCtrl1" VarB="DS402 Controlword^Controlword"/>
-				<Link VarA="Drive^Outputs^Out^nCtrl2" VarB="DS402 Controlword^Controlword" Size="8" OffsB="8"/>
-				<Link VarA="Drive^Outputs^Out^nDataOut2" VarB="DS402 Target velocity^Target velocity"/>
-				<Link VarA="Enc^Inputs^In^nDataIn1" VarB="DS402 Position actual value^Position actual value"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl1" VarB="2nd Receive PDO mapping - Ch.B^Control word"/>
+				<Link VarA="Drive^Outputs^Out^nCtrl2" VarB="2nd Receive PDO mapping - Ch.B^Control word" Size="8" OffsB="8"/>
+				<Link VarA="Drive^Outputs^Out^nDataOut1" VarB="2nd Receive PDO mapping - Ch.B^Target position"/>
+				<Link VarA="Enc^Inputs^In^nDataIn1" VarB="2nd Transmit PDO mapping - Ch.B^Position actual value"/>
 				<Link VarA="Enc^Inputs^In^nDcInputTime" VarB="InfoData^DcInputShift"/>
 				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^InputToggle" Size="1" OffsA="1"/>
 				<Link VarA="Enc^Inputs^In^nState4" VarB="WcState^WcState"/>

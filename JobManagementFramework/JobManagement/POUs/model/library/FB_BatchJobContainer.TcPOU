@@ -2,7 +2,7 @@
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_BatchJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
-FUNCTION_BLOCK FB_BatchJobContainer EXTENDS FB_AbstructContainer
+FUNCTION_BLOCK FB_BatchJobContainer EXTENDS FB_AbstructContainer IMPLEMENTS I_SerialContainer
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -27,8 +27,12 @@ END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	executor.init();
+	IF _num_of_jobs > 0 THEN
+		_executors[_num_of_jobs].next_job := executor;
+		executor.previous_job := _executors[_num_of_jobs];
+	END_IF
 	_num_of_jobs := _num_of_jobs + 1;
-	executor.id := UDINT_TO_STRING(_num_of_jobs);
+	executor.serial := TO_ULINT(_num_of_jobs);
 	_executors[_num_of_jobs] := executor;
 	IF  _executor <> 0 THEN
 		// Propergate task creator object
@@ -66,6 +70,17 @@ END_VAR]]></Declaration>
 abort := TRUE;]]></ST>
       </Implementation>
     </Method>
+    <Property Name="current_job" Id="{9c2eda39-4344-41cd-aa92-800b9c8573f6}">
+      <Declaration><![CDATA[PROPERTY current_job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{5009cefa-e37e-46c1-8060-2ec01ecad11d}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[current_job := _executors[current_executing_future_id];]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="execute" Id="{3a50f198-985b-4ce4-97c9-3b4f8b04dcb5}">
       <Declaration><![CDATA[METHOD execute : BOOL // Return TRUE if finish.
 VAR_INST

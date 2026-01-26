@@ -11,6 +11,7 @@ VAR
 	{attribute 'TcEncoding':='UTF-8'}
 	_future_name :STRING := 'NO_NAME';
 	_busy : BOOL; 
+	_persistent_future : BOOL;
 	_state : E_FutureExecutionState;
 	_error_id : HRESULT;
 END_VAR
@@ -98,6 +99,26 @@ END_VAR
           <ST><![CDATA[nErrorID := _error_id;]]></ST>
         </Implementation>
       </Get>
+    </Property>
+    <Property Name="persistent_future" Id="{2d7f1f2d-36e1-4f1c-86db-33146509f2fb}">
+      <Declaration><![CDATA[PROPERTY persistent_future : BOOL
+]]></Declaration>
+      <Get Name="Get" Id="{84f0b171-129b-49fe-9eda-8f4bff302259}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[persistent_future := _persistent_future;]]></ST>
+        </Implementation>
+      </Get>
+      <Set Name="Set" Id="{6be9cdd3-6d25-41e4-9807-947d2f2d5ea9}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[_persistent_future := persistent_future;]]></ST>
+        </Implementation>
+      </Set>
     </Property>
     <Method Name="quit" Id="{0f34e09c-f5ef-4bf1-a724-c006af3b609d}">
       <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.

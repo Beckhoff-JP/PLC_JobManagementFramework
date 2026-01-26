@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+  <Itf Name="I_SerialContainer" Id="{4c65f897-d11d-4e84-9566-7ef94a434a79}">
+    <Declaration><![CDATA[INTERFACE I_SerialContainer EXTENDS __SYSTEM.IQueryInterface 
+]]></Declaration>
+    <Property Name="current_job" Id="{d3105c3d-a2ba-4e2f-ae20-956234c531da}">
+      <Declaration><![CDATA[PROPERTY current_job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{1dadc2f6-0257-4393-a61a-ba0bac536862}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+    </Property>
+  </Itf>
+</TcPlcObject>

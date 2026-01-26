@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_QueueJobContainer" Id="{01d51c34-d9d2-4596-9c6a-f2560502cf89}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
-FUNCTION_BLOCK FB_QueueJobContainer EXTENDS FB_AbstructContainer
+FUNCTION_BLOCK FB_QueueJobContainer EXTENDS FB_AbstructContainer IMPLEMENTS I_SerialContainer
 VAR_INPUT
 END_VAR
 VAR_OUTPUT
@@ -12,9 +12,7 @@ VAR
 	nWriteIndex: 	UINT := 1;
 	nReadIndex: 	UINT := 1;
 END_VAR
-VAR PERSISTENT
-	_serial	: ULINT := 1;
-END_VAR]]></Declaration>
+]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
@@ -24,12 +22,18 @@ VAR_INPUT
 	executor	: I_Job;
 END_VAR
 VAR_INST
-	carry_flag:		BOOL;
+	carry_flag	: BOOL;
+	last_index	: UINT := 1;
+END_VAR
+VAR
+	_p_executor : POINTER TO FB_Executor;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[//Set buffer index
 IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
-	executor.init();
+	IF _executors[nWriteIndex] <> 0 AND_THEN NOT _executors[nWriteIndex].persistent_job AND __QUERYPOINTER(_executors[nWriteIndex], _p_executor) THEN
+		__DELETE(_p_executor);
+	END_IF
 	// Spawn new task with specified feature
 	_executors[nWriteIndex] := executor;
 
@@ -40,26 +44,35 @@ IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 		_executors[nWriteIndex].upstream_aborting := _executor.upstream_aborting;
 	END_IF
 
+	// Add reference to next, previous jobs 
+	IF _executors[last_index] <> 0 THEN
+		_executors[last_index].next_job := _executors[nWriteIndex];
+		_executors[nWriteIndex].previous_job := _executors[last_index];
+	END_IF
+
 	// Set my task ID
-	_executors[nWriteIndex].id := ULINT_TO_STRING(_serial);
-	
-	// generate new serial number
-	IF _serial = 16#FFFFFFFFFFFFFFFF THEN
-		_serial := 0;
+	IF _executors[nWriteIndex].previous_job <> 0 THEN
+		_executors[nWriteIndex].serial := _executors[nWriteIndex].previous_job.serial + 1;
+	ELSE
+		_executors[nWriteIndex].serial := 1;
 	END_IF
-	_serial := _serial + 1;
+
+	last_index := nWriteIndex;
 
 
-	nWriteIndex := nWriteIndex + 1;
-	IF nWriteIndex > ParamFuturesLib.MAX_TASK_NUM THEN
-		nWriteIndex := 1;
-	END_IF
+	// Prepare index for next added job
+	nWriteIndex := _get_next_index(nWriteIndex);
 	
+	// Clear previous job pointer of prepared next job.
+	IF _executors[nWriteIndex] <> 0 THEN
+		_executors[nWriteIndex].previous_job := 0;
+	END_IF
+
+	// calculate number of jobs by queue address
 	IF nWriteIndex = nReadIndex AND _num_of_jobs = ParamFuturesLib.MAX_TASK_NUM - 1 THEN 
 		carry_flag := TRUE;
 	END_IF
 
-	// calculate order number of executing futures by queue address
 	IF carry_flag THEN
 		_num_of_jobs := ParamFuturesLib.MAX_TASK_NUM;
 		carry_flag := FALSE;
@@ -68,9 +81,24 @@ IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	ELSE
 		_num_of_jobs := ParamFuturesLib.MAX_TASK_NUM - nReadIndex + nWriteIndex;
 	END_IF
+	executor.init();
+
 
 END_IF
 ]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="_get_next_index" Id="{75a74964-6e20-4da5-815d-c30de191967b}">
+      <Declaration><![CDATA[METHOD _get_next_index : UINT
+VAR_INPUT
+	cuurent_index : UINT;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[_get_next_index := cuurent_index + 1;
+IF _get_next_index > ParamFuturesLib.MAX_TASK_NUM THEN
+	_get_next_index := 1;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="_index_generator_" Id="{9ef6efa5-8390-4d8b-8176-a5198402cdfe}">
@@ -142,6 +170,17 @@ ELSE
 END_IF]]></ST>
       </Implementation>
     </Method>
+    <Property Name="current_job" Id="{af12a06e-7153-4412-a5db-cc64a8d9b4ec}">
+      <Declaration><![CDATA[PROPERTY current_job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{117923d6-1783-4ce2-81dc-afaa9df16b1e}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[current_job := _current_executing_job;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="dequeue" Id="{042fad97-faf7-4c78-94a6-8caae6e0dedd}">
       <Declaration><![CDATA[METHOD dequeue : I_Job;
 VAR_INPUT
@@ -177,7 +216,7 @@ VAR
 	i: UINT;
 	_finish_delay : TON;
 	_executor : I_Job;
-	_p_executor : POINTER TO FB_Executor;
+
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[complete_last_proess := FALSE;
@@ -212,12 +251,9 @@ REPEAT
 		IF _execution_complete THEN
 			IF _head THEN
 				// キューの先頭がfinish状態になれば取り出してキューから削除する
-				IF _executor.reset(FALSE) THEN
+				//IF _executor.reset(FALSE) THEN
 					THIS^.dequeue();
-					IF NOT _executor.persistent_job AND __QUERYPOINTER(_executor, _p_executor) THEN
-						__DELETE(_p_executor);
-					END_IF
-				END_IF
+				//END_IF
 			END_IF		
 		END_IF
 	ELSIF  _execution_complete THEN

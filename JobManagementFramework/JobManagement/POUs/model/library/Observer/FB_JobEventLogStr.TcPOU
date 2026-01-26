@@ -41,7 +41,7 @@ IF job_info.job <> 0 THEN
 	//text := CONCAT(text, ' ');
 	//text := CONCAT(text, job_report.title);
 	text := CONCAT(text, '		');
-	text := CONCAT(text, job_info.job.uid);
+	text := CONCAT(text, job_info.job.id);
 	text := CONCAT(text, '		');
 	text := CONCAT(text, job_info.job.namespace);
 	text := CONCAT(text, '		');

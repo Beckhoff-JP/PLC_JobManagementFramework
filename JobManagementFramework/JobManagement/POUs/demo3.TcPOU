@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="demo3" Id="{0711fc19-ddf5-4c28-b96d-7cde88b1723f}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM demo3
 VAR
@@ -8,9 +8,9 @@ VAR
 	init: BOOL;
 	_state :UINT;
 	mc_power : FutureMCPower;
-	_poweron_job	: FB_Executor;
-	
-	demo_job	: FB_Executor;
+	_handl_power_on	: I_Job;
+	_handl_demo_job : I_Job;
+
 	bPower : BOOL;
 	bStart : BOOL;
 	
@@ -26,14 +26,15 @@ VAR
 	motion_data : ST_MotionData;
 
 	test : STRING;
+	
+	demo_job_container : FB_BatchJobContainer;
 
 END_VAR
 ]]></Declaration>
     <Implementation>
       <ST><![CDATA[IF NOT init THEN
-	JobCreateDemo(demo_job, GVL.axis1); // demo_job にメソッドを通してシーケンスジョブを組み立てる
+	JobCreateDemo(demo_job_container, GVL.axis1); // demo_job にメソッドを通してシーケンスジョブを組み立てる
 	mc_power.future_name := 'POWER_CTRL';
-	_poweron_job.future := mc_power;
 	init := TRUE;	// RUN 後 1 サイクルだけ実行
 END_IF
 
@@ -55,28 +56,26 @@ CASE _state OF
 	0:
 		IF bPower THEN
 			mc_power.set_parameters(axis := GVL.axis1, status := TRUE); // Servo on
-			IF runner.append_job(_poweron_job) THEN
-				_state := 1;			
-			END_IF
+			_handl_power_on := runner.append_future(mc_power);
+			_state := 1;
 		END_IF
 	1:
-		IF _poweron_job.ready THEN
-			_poweron_job.start();
+		IF _handl_power_on.ready THEN
+			_handl_power_on.start();
 		END_IF
-		IF _poweron_job.done THEN
+		IF _handl_power_on.done THEN
 			_state := 2;
 		END_IF
 	2:
 		IF bStart THEN
-			IF runner.append_job(demo_job) THEN
-				_state := 3;
-			END_IF
+			_handl_demo_job := runner.append_future(demo_job_container);
+			_state := 3;
 		END_IF
 	3:
-		IF demo_job.ready THEN
-			demo_job.start();
+		IF _handl_demo_job.ready THEN
+			_handl_demo_job.start();
 		END_IF
-		IF demo_job.done THEN
+		IF _handl_demo_job.current_state = E_FutureExecutionState.finish THEN
 			_state := 2;
 			//bStart := FALSE;
 		END_IF
@@ -84,10 +83,10 @@ CASE _state OF
 			_state := 4;
 		END_IF
 	4:
-		IF NOT demo_job.done THEN
-			IF runner.abort(demo_job) THEN
-				IF runner.quit(demo_job) THEN
-					IF runner.job_clear(demo_job) THEN
+		IF _handl_demo_job <> 0 AND_THEN NOT _handl_demo_job.done THEN
+			IF runner.abort(_handl_demo_job) THEN
+				IF runner.quit(_handl_demo_job) THEN
+					IF runner.job_clear(_handl_demo_job) THEN
 						_state := 5;
 					END_IF
 				END_IF
@@ -95,14 +94,13 @@ CASE _state OF
 		END_IF
 	5:
 		mc_power.set_parameters(axis := GVL.axis1, status := FALSE); // Servo off
-		IF runner.append_job(_poweron_job) THEN
-			_state := 6;		
-		END_IF
+		_handl_power_on := runner.append_future(mc_power);
+		_state := 6;
 	6:
-		IF _poweron_job.ready THEN
-			_poweron_job.start();
+		IF _handl_power_on.ready THEN
+			_handl_power_on.start();
 		END_IF
-		IF _poweron_job.done THEN
+		IF _handl_power_on.done THEN
 			_state := 0;
 		END_IF
 END_CASE
@@ -110,16 +108,17 @@ END_CASE
 //IF _state > 0 AND NOT bPower THEN
 //END_IF
 
-runner(root_job_id := '#1', root_job_name := 'ROOT');
+runner(root_job_name := 'ROOT');
 ]]></ST>
     </Implementation>
     <Method Name="JobCreateDemo" Id="{c6c18e30-8bba-4c6d-806d-02b28dd2a277}">
       <Declaration><![CDATA[METHOD JobCreateDemo : BOOL
 VAR_INPUT
-	base_job : I_Job;
+	job_container : I_Container;
 	stAxis1	: REFERENCE TO AXIS_REF;
 END_VAR
 VAR
+	_base_future : I_Future;
 	_job_temp : I_Job;
 	_job_temp_parent : I_Job;
 	sleep : POINTER TO FutureSleep;
@@ -140,10 +139,14 @@ VAR
 
 END_VAR]]></Declaration>
       <Implementation>
-        <ST><![CDATA[base_job.create_container(ContainerTYpe.BATCH, 'DEMO_JOB');
+        <ST><![CDATA[//base_job.create_container(ContainerTYpe.BATCH, 'DEMO_JOB');
+IF __QUERYINTERFACE(job_container,_base_future) THEN
+	_base_future.future_name := 'JOB ROOT';
+END_IF
+
 // Sequence
-_job_temp_parent := base_job.children.create_container(ContainerTYpe.BATCH, 'STEP MOVING');
-FOR i := 1 TO 10 DO
+_job_temp_parent := job_container.create_container(ContainerTYpe.BATCH, 'STEP MOVING');
+FOR i := 1 TO 4 DO
 
 	mc_move_rel_future_creator.set_parameters(stAxis1,20,200,0,0,0,0);
 	_job_temp := _job_temp_parent.children.create_job(mc_move_rel_future_creator,'Move +20 deg, 200 deg/s');
@@ -153,59 +156,61 @@ FOR i := 1 TO 10 DO
 	
 END_FOR
 
+RETURN;
+
 // position set to 0
 
 mc_move_abs_future_creator.set_parameters(stAxis1,0,200,0,0,0,0);
-_job_temp := base_job.children.create_job(mc_move_abs_future_creator,'Back to home');
+_job_temp := job_container.create_job(mc_move_abs_future_creator,'Back to home');
 
 FOR i := 1 TO 10 DO
 
 	mc_move_rel_future_creator.set_parameters(stAxis1,-20,200,0,0,0,0);
-	_job_temp := base_job.children.create_job(mc_move_rel_future_creator,'Move -20 deg, 200 deg/s');
+	_job_temp := job_container.create_job(mc_move_rel_future_creator,'Move -20 deg, 200 deg/s');
 
 	sleep_creator.sleep_time := T#100MS;
-	_job_temp := base_job.children.create_job(sleep_creator,'Wait 100ms');
+	_job_temp := job_container.create_job(sleep_creator,'Wait 100ms');
 	
 END_FOR
 
 // position to 0
 
 mc_move_abs_future_creator.set_parameters(stAxis1,0,200,0,0,0,0);
-_job_temp := base_job.children.create_job(mc_move_abs_future_creator,'Back to home');
+_job_temp := job_container.create_job(mc_move_abs_future_creator,'Back to home');
 
 sleep_creator.sleep_time := T#100MS;
-_job_temp := base_job.children.create_job(sleep_creator,'Wait 100ms');
+_job_temp := job_container.create_job(sleep_creator,'Wait 100ms');
 
 // 1000deg/s -> 500deg/s
 
 mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,10,0,0,0,0);
-_job_temp := base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
+_job_temp := job_container.create_job(mc_move_velocity_future_creator,'Move velocity');
 
 sleep_creator.sleep_time := T#5S;
-_job_temp := base_job.children.create_job(sleep_creator,'10 deg/s 5 seconds');
+_job_temp := job_container.create_job(sleep_creator,'10 deg/s 5 seconds');
 
 mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,100,0,0,0,0);
-_job_temp := base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
+_job_temp := job_container.create_job(mc_move_velocity_future_creator,'Move velocity');
 
 sleep_creator.sleep_time := T#5S;
-_job_temp := base_job.children.create_job(sleep_creator,'100 deg/s 5 seconds');
+_job_temp := job_container.create_job(sleep_creator,'100 deg/s 5 seconds');
 
 mc_move_velocity_future_creator.set_parameters(stAxis1,MC_Direction.MC_Positive_Direction,250,0,0,0,0);
-_job_temp := base_job.children.create_job(mc_move_velocity_future_creator,'Move velocity');
+_job_temp := job_container.create_job(mc_move_velocity_future_creator,'Move velocity');
 
 sleep_creator.sleep_time := T#5S;
-_job_temp := base_job.children.create_job(sleep_creator,'250 deg/s 5 seconds');
+_job_temp := job_container.create_job(sleep_creator,'250 deg/s 5 seconds');
 
-test := _job_temp.uid;
+test := _job_temp.id;
 
 
 mc_stop_future_creator.set_parameters(stAxis1,0,0);
-_job_temp := base_job.children.create_job(mc_stop_future_creator,'STOP');
+_job_temp := job_container.create_job(mc_stop_future_creator,'STOP');
 
 // position to 0
 
 mc_move_abs_future_creator.set_parameters(stAxis1,0,250,0,0,0,0);
-_job_temp := base_job.children.create_job(mc_move_abs_future_creator,'Back to home');
+_job_temp := job_container.create_job(mc_move_abs_future_creator,'Back to home');
 ]]></ST>
       </Implementation>
     </Method>

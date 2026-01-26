@@ -213,6 +213,9 @@
     <Compile Include="POUs\model\activities\FutureTimerBlinkCreator.TcPOU">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="POUs\model\library\FB_AbstructContainerDynamicJob.TcPOU">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="POUs\model\library\FB_AbstructFuture.TcPOU">
       <SubType>Code</SubType>
     </Compile>
@@ -253,6 +256,9 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\I_Future.TcIO">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="POUs\model\library\I_SerialContainer.TcIO">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="POUs\model\library\I_TaskCreator.TcIO">

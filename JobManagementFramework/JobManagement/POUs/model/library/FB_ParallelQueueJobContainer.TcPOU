@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.13">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <POU Name="FB_ParallelQueueJobContainer" Id="{d5fc8dd4-0f17-45e0-b0bb-86aca529f22f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_ParallelQueueJobContainer EXTENDS FB_AbstructContainer
@@ -7,11 +7,7 @@ VAR_INPUT
 END_VAR
 VAR_OUTPUT
 END_VAR
-VAR
-END_VAR
-VAR PERSISTENT
-	_serial	: ULINT := 1;
-END_VAR]]></Declaration>
+]]></Declaration>
     <Implementation>
       <ST><![CDATA[]]></ST>
     </Implementation>
@@ -21,21 +17,49 @@ VAR_INPUT
 	executor	: I_Job;
 END_VAR
 VAR
+	_deteremine_index :  BOOL;
+	_p_executor : POINTER TO FB_Executor;
 	future_order_number: INT;
 	_parent_future_id: STRING;
-	i: 	UINT := 1;
+	i: 	UDINT := 1;
 END_VAR
-]]></Declaration>
+VAR_INST
+	next_index : UDINT := 1;
+	last_index : UDINT;
+END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[//Set buffer index
 IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
-	i := 1;
-	WHILE _executors[i] <> 0 DO
-		i := i + 1;
-	END_WHILE
+	i := next_index;
+	_deteremine_index := FALSE;
+	REPEAT
+		IF i > ParamFuturesLib.MAX_TASK_NUM THEN
+			_error_id := -8;
+			RETURN;
+		ELSIF _executors[i] = 0 THEN
+			_deteremine_index := TRUE;
+		ELSIF _executors[i].current_state <> E_FutureExecutionState.idle OR
+			_executors[i].current_state <> E_FutureExecutionState.finish THEN
+			IF NOT _executors[i].persistent_job AND __QUERYPOINTER(_executors[i], _p_executor) THEN
+				__DELETE(_p_executor);
+			END_IF
+			_deteremine_index := TRUE;
+		END_IF
+		
+		IF next_index >= ParamFuturesLib.MAX_TASK_NUM THEN
+			next_index := 1;
+		ELSE
+			next_index := next_index + 1;
+		END_IF
+		IF NOT _deteremine_index THEN
+			i := next_index;
+		END_IF
+		
+	UNTIL
+		_deteremine_index
+	END_REPEAT
 
 	// Spawn new task with specified future
-	executor.init();
 	_executors[i] := executor;
 	
 	// Get parent task id
@@ -45,11 +69,18 @@ IF _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 		_executors[i].upstream_aborting := _executor.upstream_aborting;
 		_parent_future_id := _executor.id;
 	END_IF
-	_executors[i].id := ULINT_TO_STRING(_serial);
-	_serial := _serial + 1;
-	IF _serial = 16#FFFFFFFFFFFFFFFF THEN
-		_serial := 0;
+	
+	IF last_index > 0 AND_THEN _executors[last_index] <> 0 THEN
+		_executors[last_index].next_job := _executors[i];
+		_executors[i].previous_job := _executors[last_index];
+		_executors[i].serial := _executors[i].previous_job.serial + 1;
+	ELSE
+		_executors[i].serial := 1;
 	END_IF
+	
+	last_index := i;
+	executor.init();
+	
 	_num_of_jobs := _num_of_jobs + 1;
 END_IF
 ]]></ST>
@@ -64,6 +95,7 @@ VAR_INST
 	_init	: BOOL := FALSE;
 	_current_order_number : UINT; // Represent order number of iteration
 	_index: UINT;
+	_deteremine_index : BOOL;
 END_VAR
 ]]></Declaration>
       <Implementation>
@@ -84,9 +116,28 @@ IF _current_order_number >= _num_of_jobs OR _index > ParamFuturesLib.MAX_TASK_NU
 END_IF
 
 IF _init THEN
-	WHILE _index < ParamFuturesLib.MAX_TASK_NUM AND _executors[_index] = 0 DO
-		_index := _index + 1;
-	END_WHILE
+
+	_deteremine_index := FALSE;
+	REPEAT
+		IF _index > ParamFuturesLib.MAX_TASK_NUM THEN
+			_index_generator_ := 0;
+			RETURN;
+		ELSIF _executors[_index] = 0 THEN
+			_index := _index + 1;
+		ELSIF _executors[_index].current_state = E_FutureExecutionState.finish THEN
+			IF _executors[_index].transition THEN
+				_num_of_jobs := _num_of_jobs - 1;
+				_deteremine_index := TRUE;
+			ELSE
+				_index := _index + 1;
+			END_IF
+		ELSE
+			_deteremine_index := TRUE;
+		END_IF
+	UNTIL
+		_deteremine_index
+	END_REPEAT
+
 	IF _executors[_index] <> 0 THEN
 		_index_generator_ := _index;
 	ELSE
@@ -130,7 +181,6 @@ abort := _all_done;]]></ST>
 VAR
 	_head : BOOL;
 	_future_id :UINT;
-	_p_executor : POINTER TO FB_Executor;
 	i: UINT;
 END_VAR
 ]]></Declaration>
@@ -146,14 +196,7 @@ REPEAT
 	i := _index_generator_();
 	IF i > 0 THEN
 		IF _executors[i].execute() THEN
-			IF _executors[i].reset(FALSE) THEN
-				IF _executors[i].persistent_job THEN
-					_executors[i] := 0;
-				ELSIF __QUERYPOINTER(_executors[i] ,_p_executor) THEN
-					__DELETE(_p_executor);
-				END_IF
-				_num_of_jobs := _num_of_jobs - 1;
-			END_IF
+			_executors[i].reset(FALSE);
 			execute := _num_of_jobs = 0 AND NOT _continuous_mode;
 		ELSE
 			CASE _executors[i].current_state OF
@@ -163,6 +206,7 @@ REPEAT
 					IF _executor.ready AND SUPER^._auto_start THEN
 						_executors[i].start();
 					END_IF
+	
 				//E_FutureExecutionState.init, E_FutureExecutionState.process, E_FutureExecutionState.quit:
 				//	IF 	_executors[i].current_state = E_FutureExecutionState.process THEN
 				//		// Report total futures

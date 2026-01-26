@@ -42,7 +42,7 @@ ELSE
 	num_of_jobs := 0;
 END_IF
 
-_event_message.job_id := job_info.job.uid;
+_event_message.job_id := job_info.job.id;
 _event_message.job_namespace := job_info.job.namespace;
 _event_message.num_of_job := num_of_jobs;
 _event_message.new_state := TO_STRING(job_info.new_state);

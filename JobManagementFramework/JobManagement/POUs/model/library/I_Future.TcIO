@@ -52,6 +52,15 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
+    <Property Name="persistent_future" Id="{31178402-da73-4433-b646-5ce9b39fb92c}">
+      <Declaration><![CDATA[PROPERTY persistent_future : BOOL]]></Declaration>
+      <Get Name="Get" Id="{3f93484e-26d1-43a7-8e1c-b71a9d011e8a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{76333ad6-86fb-44d3-8bba-0f2650e01274}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Method Name="quit" Id="{12e3433d-9567-4756-bdca-54fc6f4c2614}">
       <Declaration><![CDATA[METHOD quit : BOOL // Return TRUE if finish.
 VAR_INPUT

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
   <Itf Name="I_Job" Id="{c241c129-013a-48a7-8f50-a46604fd73e8}">
-    <Declaration><![CDATA[INTERFACE I_Job  EXTENDS __SYSTEM.IQueryInterface 
+    <Declaration><![CDATA[INTERFACE I_Job EXTENDS __SYSTEM.IQueryInterface 
 ]]></Declaration>
     <Method Name="abort" Id="{ba384c68-144d-4364-9ff2-dddd491ec19b}">
       <Declaration><![CDATA[(*abort method
@@ -110,11 +110,6 @@ END_VAR]]></Declaration>
       <Get Name="Get" Id="{cd5b6e57-c851-4790-b895-552dc87d0850}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
-      <Set Name="Set" Id="{6956f113-09b2-4acc-bbc2-bf32e24ecb97}">
-        <Declaration><![CDATA[VAR
-END_VAR
-]]></Declaration>
-      </Set>
     </Property>
     <Method Name="init" Id="{d81bf7e0-a419-45a2-a8da-d29900ce51e8}">
       <Declaration><![CDATA[METHOD init : BOOL // Return TRUE if finish.
@@ -137,12 +132,6 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>
-    <Property Name="lid" Id="{630d76a2-75c7-40d8-ad23-f5f0e325fe2e}">
-      <Declaration><![CDATA[PROPERTY lid : T_MaxString]]></Declaration>
-      <Get Name="Get" Id="{a0799991-7d39-4da9-8d77-69af7e855799}">
-        <Declaration><![CDATA[]]></Declaration>
-      </Get>
-    </Property>
     <Property Name="namespace" Id="{3fd49687-b433-46f1-b4e3-da6564312bf5}">
       <Declaration><![CDATA[PROPERTY namespace : T_MaxString]]></Declaration>
       <Get Name="Get" Id="{a073b4a6-1d91-4c1f-b46b-586a3d540fad}">
@@ -155,6 +144,15 @@ END_VAR
       <Get Name="Get" Id="{a3d3ab3d-9d97-4c08-af3c-1d49e2061134}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
+    </Property>
+    <Property Name="next_job" Id="{eb7c50ec-1806-4fa1-bafa-1a5e8d6092d9}">
+      <Declaration><![CDATA[PROPERTY next_job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{b41a4c3f-4b81-422b-b3b3-70efe9abaf1a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{dd2944a7-1cf1-471b-8863-2719a1df0d55}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
     </Property>
     <Property Name="parent_executor" Id="{afe0c2b8-f9fa-47b0-90ee-38d73ecdf14f}">
       <Declaration><![CDATA[PROPERTY parent_executor : I_Job]]></Declaration>
@@ -171,6 +169,15 @@ END_VAR
         <Declaration><![CDATA[]]></Declaration>
       </Get>
       <Set Name="Set" Id="{f2ea2f19-1746-4bf2-955a-0d91fb6a9b2a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
+    <Property Name="previous_job" Id="{53fdeaa8-8cea-49ba-8442-3df8bdc8371e}">
+      <Declaration><![CDATA[PROPERTY previous_job : I_Job]]></Declaration>
+      <Get Name="Get" Id="{043e633c-6b82-431a-b78c-9a27a8d1b242}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{3e176b8b-ae1c-474a-a40c-96558b604419}">
         <Declaration><![CDATA[]]></Declaration>
       </Set>
     </Property>
@@ -197,13 +204,22 @@ END_VAR
       <Declaration><![CDATA[METHOD resume : BOOL
 ]]></Declaration>
     </Method>
+    <Property Name="serial" Id="{f496f069-4266-4a7f-867a-36fc21539f6d}">
+      <Declaration><![CDATA[PROPERTY serial : ULINT]]></Declaration>
+      <Get Name="Get" Id="{9ebf096a-d2f5-429e-a9a4-7f8ac74d9f9c}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Get>
+      <Set Name="Set" Id="{2f723a42-e24d-4376-ac3b-2cfca34e750a}">
+        <Declaration><![CDATA[]]></Declaration>
+      </Set>
+    </Property>
     <Method Name="start" Id="{85cad871-c4a3-42b3-ac51-d1ea4715df17}">
       <Declaration><![CDATA[METHOD start : BOOL
 ]]></Declaration>
     </Method>
-    <Property Name="uid" Id="{116d0832-62fe-4e90-8de4-5a2758b3baec}">
-      <Declaration><![CDATA[PROPERTY uid : T_MaxString]]></Declaration>
-      <Get Name="Get" Id="{6371e964-9ef9-4dae-ab0f-1650739a8d2b}">
+    <Property Name="transition" Id="{fd1f1560-bb19-457c-9165-810aa9bb64ea}">
+      <Declaration><![CDATA[PROPERTY transition : BOOL]]></Declaration>
+      <Get Name="Get" Id="{54413eeb-9e38-4f42-a57e-ce13ade2041f}">
         <Declaration><![CDATA[]]></Declaration>
       </Get>
     </Property>

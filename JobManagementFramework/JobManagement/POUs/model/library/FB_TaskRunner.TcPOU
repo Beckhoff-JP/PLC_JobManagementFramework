@@ -4,7 +4,7 @@
     <Declaration><![CDATA[FUNCTION_BLOCK FB_TaskRunner
 VAR_INPUT
 	error_reset : BOOL; // Error reset
-	root_job_id : STRING := '*';
+	root_job_serial : ULINT := 999;
 	root_job_name : STRING := 'ROOT';
 	upstream_aborting : BOOL := FALSE; // 
 	continuous_mode : BOOL := TRUE;
@@ -88,24 +88,24 @@ END_VAR
 END_IF
 
 append_future := _executor.children.spawn_job(future);
-job_namespace := append_future.uid;]]></ST>
+job_namespace := append_future.namespace;]]></ST>
       </Implementation>
     </Method>
     <Method Name="append_job" Id="{9478587e-18c8-434e-9e7a-ea7720add6db}">
-      <Declaration><![CDATA[METHOD append_job : BOOL
+      <Declaration><![CDATA[METHOD append_job : I_Job
 VAR_INPUT
 	job : I_Job;
 END_VAR
 ]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _executor.children = 0 THEN
+	append_job := 0;
 	RETURN;
 END_IF
 
 IF job.init() THEN
-	_executor.children.append_job(job);
-	job_namespace := job.uid;
-	append_job := TRUE;
+	append_job := _executor.children.append_job(job);
+	job_namespace := _executor.namespace;
 END_IF]]></ST>
       </Implementation>
     </Method>
@@ -122,7 +122,8 @@ END_VAR
 END_IF
 
 create_job := _executor.children.create_job(creator, name);
-job_namespace := create_job.uid;]]></ST>
+job_namespace := _executor.namespace;
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="error_reset" Id="{49e44ab9-6fa5-4b48-b4fc-2124df79f2ad}">
@@ -143,13 +144,12 @@ END_VAR
 METHOD FB_Init: BOOL
 VAR_INPUT
     bInitRetains: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
-    bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)   
+    bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_executor.job_event_observable := _observable;
 _observable.add_observer(job_event_log_str);
 _observable.add_observer(job_event_cyclic_output);
-_executor.id := root_job_id;
 _executor.upstream_aborting := upstream_aborting;
 _executor.create_container(ContainerType.PARALLEL_QUEUE, root_job_name);
 _executor.continuous_mode := continuous_mode;]]></ST>
