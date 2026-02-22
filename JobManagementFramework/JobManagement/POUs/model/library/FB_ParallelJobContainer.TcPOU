@@ -27,6 +27,7 @@ END_VAR]]></Declaration>
 	executor.init();
 	_num_of_jobs := _num_of_jobs + 1;
 	executor.serial := TO_ULINT(_num_of_jobs);
+	
 	_executors[_num_of_jobs] := executor;
 	IF  _executor <> 0 THEN
 		// Propergate task creator object

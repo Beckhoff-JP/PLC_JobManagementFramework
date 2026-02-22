@@ -51,6 +51,7 @@ IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	END_IF
 
 	// Set my task ID
+	
 	IF _executors[nWriteIndex].previous_job <> 0 THEN
 		_executors[nWriteIndex].serial := _executors[nWriteIndex].previous_job.serial + 1;
 	ELSE

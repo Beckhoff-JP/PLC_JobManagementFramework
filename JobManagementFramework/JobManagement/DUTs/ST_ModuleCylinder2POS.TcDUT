@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+  <DUT Name="ST_ModuleCylinder2POS" Id="{e676e669-0921-4690-b055-810b372eaa34}">
+    <Declaration><![CDATA[TYPE ST_ModuleCylinder2POS :
+STRUCT
+	in_pos1	AT%I* : BOOL;
+	in_pos2	AT%I* : BOOL;
+	out_push AT%Q*	: BOOL;
+	out_pull AT%Q*	: BOOL;
+	timeout_push	: TIME;	
+	timeout_pull	: TIME;	
+	current_position : E_2Position := E_2Position.pos1; // pos1 : pull side, pos2: push side
+END_STRUCT
+END_TYPE
+]]></Declaration>
+  </DUT>
+</TcPlcObject>

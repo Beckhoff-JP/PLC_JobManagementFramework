@@ -13,22 +13,10 @@ VAR
 
 	bPower : BOOL;
 	bStart : BOOL;
-	
-	await : BOOL;
-	
-	fbGetTimeZoneInformation	: FB_GetTimeZoneInformation := (bExecute := TRUE);
-	localTime : FB_LocalSystemTime := (bEnable := TRUE);
-	tzinfo : FB_GetTimeZoneInformation := (bExecute := TRUE);
-	getSystemtime : FB_TzSpecificLocalTimeToSystemTime;
-	current_time : T_FILETIME64;
-	observer : REFERENCE TO FB_JobEventLogStr;
-	
-	motion_data : ST_MotionData;
 
-	test : STRING;
-	
+	motion_data : ST_MotionData;	
 	demo_job_container : FB_BatchJobContainer;
-
+	i : UDINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -38,19 +26,12 @@ END_VAR
 	init := TRUE;	// RUN 後 1 サイクルだけ実行
 END_IF
 
-
-
-// 現在時刻の取得
-localTime();
-tzinfo();
-getSystemtime(in := localTime.systemTime, tzInfo := tzinfo.tzInfo);
-current_time := SYSTEMTIME_TO_FILETIME64(getSystemtime.out);
-runner.root_executor.current_timestamp := ADR(current_time);
+runner(root_job_name := 'ROOT');
 
 // Axis
 GVL.axis1.ReadStatus();
 MEMCPY(ADR(motion_data), ADR(GVL.axis1.NcToPlc), SIZEOF(GVL.axis1.NcToPlc));
-motion_data.record_time := current_time;
+motion_data.record_time := runner.current_time;
 
 CASE _state OF
 	0:
@@ -108,7 +89,6 @@ END_CASE
 //IF _state > 0 AND NOT bPower THEN
 //END_IF
 
-runner(root_job_name := 'ROOT');
 ]]></ST>
     </Implementation>
     <Method Name="JobCreateDemo" Id="{c6c18e30-8bba-4c6d-806d-02b28dd2a277}">
@@ -156,8 +136,6 @@ FOR i := 1 TO 4 DO
 	
 END_FOR
 
-RETURN;
-
 // position set to 0
 
 mc_move_abs_future_creator.set_parameters(stAxis1,0,200,0,0,0,0);
@@ -200,9 +178,6 @@ _job_temp := job_container.create_job(mc_move_velocity_future_creator,'Move velo
 
 sleep_creator.sleep_time := T#5S;
 _job_temp := job_container.create_job(sleep_creator,'250 deg/s 5 seconds');
-
-test := _job_temp.id;
-
 
 mc_stop_future_creator.set_parameters(stAxis1,0,0);
 _job_temp := job_container.create_job(mc_stop_future_creator,'STOP');

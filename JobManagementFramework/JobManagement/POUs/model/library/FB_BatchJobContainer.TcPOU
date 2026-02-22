@@ -33,6 +33,7 @@ END_VAR]]></Declaration>
 	END_IF
 	_num_of_jobs := _num_of_jobs + 1;
 	executor.serial := TO_ULINT(_num_of_jobs);
+	
 	_executors[_num_of_jobs] := executor;
 	IF  _executor <> 0 THEN
 		// Propergate task creator object
@@ -172,7 +173,7 @@ FOR i := 1 TO _num_of_jobs DO
 	END_IF
 END_FOR
 IF complete_all_task THEN
-	current_executing_future_id := 0;
+	current_executing_future_id := 1;
 	quit := TRUE;
 ELSE
 	quit := FALSE;

@@ -20,10 +20,26 @@ VAR
 	last_job_number : UDINT;
 	job_event_log_str : FB_JobEventLogStr;	// ジョブイベントをメッセージとしてログ出力するサブスクライバ
 	job_event_cyclic_output : FB_JobEventCyclicOutput;	// ADS通信向けにジョブイベントをサイクル単位で出力するためのサブスクライバ
+	
+	
+	fbGetTimeZoneInformation	: FB_GetTimeZoneInformation := (bExecute := TRUE);
+	localTime : FB_LocalSystemTime := (bEnable := TRUE);
+	tzinfo : FB_GetTimeZoneInformation := (bExecute := TRUE);
+	getSystemtime : FB_TzSpecificLocalTimeToSystemTime;
+	_current_time : T_FILETIME64;
 END_VAR
 ]]></Declaration>
     <Implementation>
-      <ST><![CDATA[job_event_cyclic_output(); // Job event log for ADS output 
+      <ST><![CDATA[// 現在時刻の取得
+localTime();
+tzinfo();
+getSystemtime(in := localTime.systemTime, tzInfo := tzinfo.tzInfo);
+_current_time := SYSTEMTIME_TO_FILETIME64(getSystemtime.out);
+_executor.current_timestamp := ADR(_current_time);
+
+// Job event log for ADS output 
+job_event_cyclic_output(); 
+
 
 _executor.execute();
 num_of_jobs := _executor.children.num_of_jobs;
@@ -126,6 +142,17 @@ job_namespace := _executor.namespace;
 ]]></ST>
       </Implementation>
     </Method>
+    <Property Name="current_time" Id="{733c3f04-df9a-4331-b0bb-3b0f201ba069}">
+      <Declaration><![CDATA[PROPERTY current_time : T_FILETIME64]]></Declaration>
+      <Get Name="Get" Id="{eb2753a7-184e-4bea-818e-b7c939362163}">
+        <Declaration><![CDATA[VAR
+END_VAR
+]]></Declaration>
+        <Implementation>
+          <ST><![CDATA[current_time := _current_time;]]></ST>
+        </Implementation>
+      </Get>
+    </Property>
     <Method Name="error_reset" Id="{49e44ab9-6fa5-4b48-b4fc-2124df79f2ad}">
       <Declaration><![CDATA[METHOD error_reset : BOOL
 VAR_INPUT
