@@ -3,7 +3,7 @@
   <POU Name="demo3" Id="{0711fc19-ddf5-4c28-b96d-7cde88b1723f}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM demo3
 VAR
-	runner : FB_TaskRunner;
+	runner : FB_TaskRunner(ContainerType.PARALLEL);
 
 	init: BOOL;
 	_state :UINT;

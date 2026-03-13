@@ -11,7 +11,7 @@ VAR
 	
 	state : UDINT;
 	fb_power : MC_Power;
-	runner : FB_TaskRunner;
+	runner : FB_TaskRunner(ContainerType.PARALLEL_QUEUE);
 	option : ST_MoveOptions;
 END_VAR
 ]]></Declaration>
