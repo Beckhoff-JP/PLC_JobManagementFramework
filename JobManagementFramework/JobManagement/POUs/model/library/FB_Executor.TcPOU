@@ -28,7 +28,7 @@ VAR
 	_future_creator : I_TaskCreator;
 	_future : I_Future;
 	_parent_job : I_Job := 0;
-	_persistent_job : BOOL;
+	_persistent_job : BOOL := TRUE;
 	_current_timestamp : POINTER TO T_FILETIME64 := 0;
 	_previous_job : I_Job;
 	_next_job : I_Job;
@@ -526,7 +526,7 @@ END_REPEAT
 
 IF _parent_job = 0 THEN
 	_namespace := _id;
-ELSIF _future.persistent_future AND NOT _parent_job.future.persistent_future THEN
+ELSIF _future <> 0 AND_THEN _future.persistent_future AND_THEN NOT _parent_job.future.persistent_future THEN
 	_namespace := _id;
 ELSE
 	_namespace := _parent_job.namespace;
@@ -728,10 +728,9 @@ END_VAR
         <ST><![CDATA[// Waiting finish process and remove jobs from container items.
 IF THIS^.busy THEN
 	THIS^.abort();
-ELSIF _interface_container <> 0 AND ( NOT _future.persistent_future OR deep) THEN
-	IF _interface_container.reset(deep) THEN
-		_reset_children := TRUE;
-	END_IF
+ELSIF _interface_container <> 0 AND _future <> 0 AND_THEN 
+	( NOT _future.persistent_future OR deep) THEN
+	_reset_children := _interface_container.reset(deep);
 ELSE
 	_reset_children := TRUE;
 END_IF

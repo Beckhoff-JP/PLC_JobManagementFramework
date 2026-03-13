@@ -119,10 +119,9 @@ END_VAR
 	RETURN;
 END_IF
 
-IF job.init() THEN
-	append_job := _executor.children.append_job(job);
-	job_namespace := _executor.namespace;
-END_IF]]></ST>
+append_job := _executor.children.append_job(job);
+job_namespace := _executor.namespace;
+]]></ST>
       </Implementation>
     </Method>
     <Method Name="create_job" Id="{a15036f3-9f48-47bc-9e23-41ed0b98d15a}">
@@ -172,13 +171,14 @@ METHOD FB_Init: BOOL
 VAR_INPUT
     bInitRetains: BOOL; // TRUE: the retain variables are initialized (reset warm / reset cold)
     bInCopyCode: BOOL;  // TRUE: the instance will be copied to the copy code afterward (online change)
+	container_type : ContainerType := ContainerType.QUEUE;
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[_executor.job_event_observable := _observable;
 _observable.add_observer(job_event_log_str);
 _observable.add_observer(job_event_cyclic_output);
 _executor.upstream_aborting := upstream_aborting;
-_executor.create_container(ContainerType.PARALLEL_QUEUE, root_job_name);
+_executor.create_container(container_type, root_job_name);
 _executor.continuous_mode := continuous_mode;]]></ST>
       </Implementation>
     </Method>
