@@ -1,15 +1,17 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="demo3" Id="{0711fc19-ddf5-4c28-b96d-7cde88b1723f}" SpecialFunc="None">
     <Declaration><![CDATA[PROGRAM demo3
 VAR
-	runner : FB_TaskRunner(ContainerType.PARALLEL);
+	runner : FB_TaskRunner(ContainerType.PARALLEL_QUEUE);
 
 	init: BOOL;
 	_state :UINT;
 	mc_power : FutureMCPower;
 	_handl_power_on	: I_Job;
 	_handl_demo_job : I_Job;
+	
+	_today : TIMESTRUCT;
 
 	bPower : BOOL;
 	bStart : BOOL;
@@ -26,7 +28,8 @@ END_VAR
 	init := TRUE;	// RUN 後 1 サイクルだけ実行
 END_IF
 
-runner(root_job_name := 'ROOT');
+_today := FILETIME64_TO_SYSTEMTIME(runner.current_time);
+runner(root_job_name := 'ROOT',root_job_serial := (_today.wYear MOD 100) * 10000 + _today.wMonth * 100 + _today.wDay);
 
 // Axis
 GVL.axis1.ReadStatus();
@@ -64,14 +67,8 @@ CASE _state OF
 			_state := 4;
 		END_IF
 	4:
-		IF _handl_demo_job <> 0 AND_THEN NOT _handl_demo_job.done THEN
-			IF runner.abort(_handl_demo_job) THEN
-				IF runner.quit(_handl_demo_job) THEN
-					IF runner.job_clear(_handl_demo_job) THEN
-						_state := 5;
-					END_IF
-				END_IF
-			END_IF
+		IF runner.halt(_handl_demo_job) THEN
+			_state := 5;
 		END_IF
 	5:
 		mc_power.set_parameters(axis := GVL.axis1, status := FALSE); // Servo off

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_AbstructContainer" Id="{46d2dd9f-d184-4cfa-9aff-69a59f15f058}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK ABSTRACT FB_AbstructContainer EXTENDS FB_AbstructFuture IMPLEMENTS I_Container
 VAR_INPUT
@@ -14,6 +14,7 @@ VAR
 	_num_of_jobs: UDINT;
 	_continuous_mode : BOOL;
 	_job_event_reporter : I_JobInfo;
+	_serial_id : ULINT;
 END_VAR
 ]]></Declaration>
     <Implementation>
@@ -26,7 +27,8 @@ VAR_INPUT
 END_VAR
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[]]></ST>
+        <ST><![CDATA[_serial_id := _serial_id + 1;
+executor.serial := _serial_id;]]></ST>
       </Implementation>
     </Method>
     <Method Name="_index_generator_" Id="{0b7627ee-07d1-41a3-a3fd-74c088c2456f}">

@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_TaskRunner" Id="{edfadf07-67d2-4234-8c66-349c9bc50ad5}" SpecialFunc="None">
     <Declaration><![CDATA[FUNCTION_BLOCK FB_TaskRunner
 VAR_INPUT
 	error_reset : BOOL; // Error reset
-	root_job_serial : ULINT := 999;
+	root_job_serial : ULINT := 1;
 	root_job_name : STRING := 'ROOT';
 	upstream_aborting : BOOL := FALSE; // 
 	continuous_mode : BOOL := TRUE;
@@ -40,7 +40,7 @@ _executor.current_timestamp := ADR(_current_time);
 // Job event log for ADS output 
 job_event_cyclic_output(); 
 
-
+_executor.serial := root_job_serial;
 _executor.execute();
 num_of_jobs := _executor.children.num_of_jobs;
 
@@ -64,12 +64,13 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _executor.children = 0 THEN
+	abort := TRUE;
 	RETURN;
 END_IF
 
-IF job = 0 OR num_of_jobs = 0 THEN
+//IF job = 0 OR num_of_jobs = 0 THEN
 	all_aborted := TRUE;
-END_IF
+//END_IF
 REPEAT
 	_child_executor := _executor.children.each_executor;
 	IF _child_executor <> 0 THEN
@@ -103,7 +104,7 @@ END_VAR
 	RETURN;
 END_IF
 
-append_future := _executor.children.spawn_job(future);
+append_future := _executor.children.spawn_job(future, TRUE);
 job_namespace := append_future.namespace;]]></ST>
       </Implementation>
     </Method>
@@ -120,7 +121,7 @@ END_VAR
 END_IF
 
 append_job := _executor.children.append_job(job);
-job_namespace := _executor.namespace;
+job_namespace := append_job.namespace;
 ]]></ST>
       </Implementation>
     </Method>
@@ -137,7 +138,7 @@ END_VAR
 END_IF
 
 create_job := _executor.children.create_job(creator, name);
-job_namespace := _executor.namespace;
+job_namespace := create_job.namespace;
 ]]></ST>
       </Implementation>
     </Method>
@@ -179,7 +180,25 @@ _observable.add_observer(job_event_log_str);
 _observable.add_observer(job_event_cyclic_output);
 _executor.upstream_aborting := upstream_aborting;
 _executor.create_container(container_type, root_job_name);
-_executor.continuous_mode := continuous_mode;]]></ST>
+_executor.continuous_mode := TRUE;]]></ST>
+      </Implementation>
+    </Method>
+    <Method Name="halt" Id="{eeab2195-0ce6-4e6a-8e07-a4b4f3c32cd3}">
+      <Declaration><![CDATA[METHOD halt : BOOL
+VAR_INPUT
+	job : I_Job;
+END_VAR
+]]></Declaration>
+      <Implementation>
+        <ST><![CDATA[IF job <> 0 AND_THEN NOT job.done THEN
+	IF THIS^.abort(job) THEN
+		IF THIS^.quit(job) THEN
+			IF THIS^.job_clear(job) THEN
+				halt := TRUE;
+			END_IF
+		END_IF
+	END_IF
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Method Name="job_clear" Id="{a712ddb7-5b8d-43cd-9202-b9ce0095b19b}">
@@ -233,12 +252,13 @@ VAR
 END_VAR]]></Declaration>
       <Implementation>
         <ST><![CDATA[IF _executor.children = 0 THEN
+	quit := TRUE;
 	RETURN;
 END_IF
 
-IF job = 0 OR num_of_jobs = 0 THEN
+//IF job = 0 OR _executor.children.num_of_jobs > 0 THEN
 	all_quit := TRUE;
-END_IF
+//END_IF
 
 REPEAT
 	_child_executor := _executor.children.each_executor;

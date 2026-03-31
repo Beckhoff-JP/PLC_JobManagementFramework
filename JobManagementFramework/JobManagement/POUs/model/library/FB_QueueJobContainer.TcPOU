@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_QueueJobContainer" Id="{01d51c34-d9d2-4596-9c6a-f2560502cf89}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_QueueJobContainer EXTENDS FB_AbstructContainer IMPLEMENTS I_SerialContainer
@@ -27,9 +27,11 @@ VAR_INST
 END_VAR
 VAR
 	_p_executor : POINTER TO FB_Executor;
-END_VAR]]></Declaration>
+END_VAR
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[//Set buffer index
+        <ST><![CDATA[
+//Set buffer index
 IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	IF _executors[nWriteIndex] <> 0 AND_THEN NOT _executors[nWriteIndex].persistent_job AND __QUERYPOINTER(_executors[nWriteIndex], _p_executor) THEN
 		__DELETE(_p_executor);
@@ -48,14 +50,6 @@ IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 	IF _executors[last_index] <> 0 THEN
 		_executors[last_index].next_job := _executors[nWriteIndex];
 		_executors[nWriteIndex].previous_job := _executors[last_index];
-	END_IF
-
-	// Set my task ID
-	
-	IF _executors[nWriteIndex].previous_job <> 0 THEN
-		_executors[nWriteIndex].serial := _executors[nWriteIndex].previous_job.serial + 1;
-	ELSE
-		_executors[nWriteIndex].serial := 1;
 	END_IF
 
 	last_index := nWriteIndex;
@@ -86,6 +80,8 @@ IF executor <> 0 AND _num_of_jobs < ParamFuturesLib.MAX_TASK_NUM THEN
 
 
 END_IF
+
+SUPER^._append_job(executor);
 ]]></ST>
       </Implementation>
     </Method>

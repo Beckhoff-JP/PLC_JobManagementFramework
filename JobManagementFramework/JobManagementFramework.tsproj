@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.20">
+<TcSmProject xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.beckhoff.com/schemas/2012/07/TcSmProject" TcSmVersion="1.0" TcVersion="3.1.4026.21">
 	<DataTypes>
 		<DataType>
 			<Name GUID="{18071995-0000-0000-0000-000000000035}" TcBaseType="true" HideType="true">UINTARR2</Name>
@@ -1478,7 +1478,7 @@ External Setpoint Generation:
 	</ImageDatas>
 	<Project ProjectGUID="{58F13914-585B-43B7-BEB4-87C45D7400FF}" TargetNetId="199.4.42.250.1.1" Target64Bit="true" AutoPrioManagement="true" ShowHideConfigurations="#x6">
 		<System>
-			<Settings MaxCpus="64" NonWinCpus="62" RouterMemory="67108864">
+			<Settings MaxCpus="2" NonWinCpus="1" RouterMemory="67108864">
 				<Cpu/>
 				<Cpu CpuId="1"/>
 				<IoIdleTask Priority="6" Affinity="#x00000001"/>
@@ -1652,7 +1652,7 @@ External Setpoint Generation:
 		</Motion>
 		<Plc>
 			<Project GUID="{14A16199-AC25-482B-A6DB-DF484965E4FB}" Name="JobManagement" PrjFilePath="JobManagement\JobManagement.plcproj" TmcFilePath="JobManagement\JobManagement.tmc" ReloadTmc="true" AmsPort="851" FileArchiveSettings="#x000e" SymbolicMapping="true">
-				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{32C1B5A9-37BB-1551-4993-58F75FC96F9A}" TmcPath="JobManagement\JobManagement.tmc">
+				<Instance Id="#x08502000" TcSmClass="TComPlcObjDef" KeepUnrestoredLinks="2" TmcHash="{87B4421E-02F4-C9E7-FFD7-CA967A34F6C6}" TmcPath="JobManagement\JobManagement.tmc">
 					<Name>JobManagement Instance</Name>
 					<CLSID ClassFactory="TcPlc30">{08500001-0000-0000-F000-000000000064}</CLSID>
 					<Vars VarGrpType="2" AreaNo="1">

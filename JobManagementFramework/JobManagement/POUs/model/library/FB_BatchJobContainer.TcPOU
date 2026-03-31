@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.17">
+<TcPlcObject Version="1.1.0.1" ProductVersion="3.1.4026.18">
   <POU Name="FB_BatchJobContainer" Id="{ab0c8e7a-22b8-4e02-8212-007ab26f1e0f}" SpecialFunc="None">
     <Declaration><![CDATA[{attribute 'enable_dynamic_creation'}
 FUNCTION_BLOCK FB_BatchJobContainer EXTENDS FB_AbstructContainer IMPLEMENTS I_SerialContainer
@@ -63,12 +63,13 @@ _index_generator_ := _index;
     </Method>
     <Method Name="abort" Id="{df529d65-dccb-41d9-a15b-0d233c35e0bc}">
       <Declaration><![CDATA[METHOD abort : BOOL // Return TRUE if finish.
-VAR_INST
-	await : BOOL;
-END_VAR]]></Declaration>
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[await := _executors[current_executing_future_id].abort();
-abort := TRUE;]]></ST>
+        <ST><![CDATA[IF current_executing_future_id > 1 AND ParamFuturesLib.MAX_TASK_NUM <= current_executing_future_id THEN
+	abort := _executors[current_executing_future_id].abort();
+ELSE
+	abort := TRUE;
+END_IF]]></ST>
       </Implementation>
     </Method>
     <Property Name="current_job" Id="{9c2eda39-4344-41cd-aa92-800b9c8573f6}">
@@ -184,8 +185,11 @@ END_IF
       <Declaration><![CDATA[METHOD resume : BOOL
 ]]></Declaration>
       <Implementation>
-        <ST><![CDATA[resume := _executors[current_executing_future_id].resume();
-]]></ST>
+        <ST><![CDATA[IF current_executing_future_id > 1 AND ParamFuturesLib.MAX_TASK_NUM <= current_executing_future_id THEN
+	resume := _executors[current_executing_future_id].resume();
+ELSE
+	resume := TRUE;
+END_IF]]></ST>
       </Implementation>
     </Method>
   </POU>
