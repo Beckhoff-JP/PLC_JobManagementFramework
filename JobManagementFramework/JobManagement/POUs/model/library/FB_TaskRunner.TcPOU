@@ -13,6 +13,7 @@ VAR_OUTPUT
 	job_empty : BOOL;
 	job_namespace : T_MaxString;
 	num_of_jobs : UDINT;
+	event_message : ST_JobEventMessage;
 END_VAR
 VAR
 	_executor: FB_Executor; // main Executor
@@ -39,6 +40,7 @@ _executor.current_timestamp := ADR(_current_time);
 
 // Job event log for ADS output 
 job_event_cyclic_output(); 
+event_message := job_event_cyclic_output.event_message;
 
 _executor.serial := root_job_serial;
 _executor.execute();
