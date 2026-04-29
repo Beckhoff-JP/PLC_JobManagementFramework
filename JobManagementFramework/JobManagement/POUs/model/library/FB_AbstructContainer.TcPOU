@@ -13,6 +13,7 @@ VAR
 	_abort : BOOL;
 	_num_of_jobs: UDINT;
 	_continuous_mode : BOOL;
+	_delete_counter : UINT;	
 	_job_event_reporter : I_JobInfo;
 	_serial_id : ULINT;
 END_VAR
@@ -220,6 +221,7 @@ UNTIL
 	_each_executor = 0
 END_REPEAT
 
+_delete_counter := 0;
 _error_id := 0;
 init := _init_done;]]></ST>
       </Implementation>
@@ -242,13 +244,12 @@ VAR_INPUT
 END_VAR
 VAR
 	i : UINT;
-	_delete_counter : UINT;
 	_p_executor : POINTER TO FB_Executor;
 	text : STRING;
-END_VAR]]></Declaration>
+END_VAR
+]]></Declaration>
       <Implementation>
-        <ST><![CDATA[_delete_counter := 0;
-REPEAT
+        <ST><![CDATA[REPEAT
 	i := _index_generator_();
 	IF _num_of_jobs > _delete_counter AND i > 0 THEN
 		IF _executors[i] <> 0 THEN
@@ -267,6 +268,7 @@ UNTIL
 END_REPEAT
 
 IF _num_of_jobs = _delete_counter THEN
+	_delete_counter := 0;
 	_num_of_jobs := 0;
 	reset := TRUE;
 END_IF
