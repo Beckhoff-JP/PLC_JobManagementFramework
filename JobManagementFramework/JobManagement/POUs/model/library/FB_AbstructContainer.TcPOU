@@ -265,8 +265,11 @@ REPEAT
 UNTIL
 	i = 0
 END_REPEAT
-_num_of_jobs := _num_of_jobs - _delete_counter;
-reset := _num_of_jobs = 0;
+
+IF _num_of_jobs = _delete_counter THEN
+	_num_of_jobs := 0;
+	reset := TRUE;
+END_IF
 ]]></ST>
       </Implementation>
     </Method>
